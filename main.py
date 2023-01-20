@@ -1,7 +1,10 @@
 from classes import *
 from PIL import Image, ImageDraw, ImageFont
 
-palette = [ #gruvbox as example
+# gruvbox example, each internal array is one line - you can also use a 1d list if you don't care about the exact size
+# Color can be created with RGB: (100, 255, 100), HSV: (0.5, 0.3, 2.3) or HEX: '#273fad'
+# you can also pass None instead of a color to skip a place
+palette = [
     [
         Color('#282828', 'bg'),   Color('#cc241d', 'red'),    Color('#98971a', 'green'), Color('#d79921', 'yellow'),
         Color('#458588', 'blue'), Color('#b16286', 'purple'), Color('#689d6a', 'aqua'),  Color('#a89984', 'gray')
