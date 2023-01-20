@@ -60,6 +60,7 @@ def main():
                         fill=textCol,
                         anchor='mm'
                     )
+    img.save('result.png')
     img.show()
 
 
