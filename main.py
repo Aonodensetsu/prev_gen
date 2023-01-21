@@ -1,6 +1,7 @@
 from palette import palette
 from classes import *
 from PIL import Image, ImageDraw, ImageFont
+from os import startfile
 
 
 def main():
@@ -48,7 +49,7 @@ def main():
                         anchor='mm'
                     )
     img.save('result.png')
-    img.show()
+    startfile('result.png')
 
 
 if __name__ == '__main__':

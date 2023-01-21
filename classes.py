@@ -27,7 +27,7 @@ class Color:
             self.rgb = tuple(int(a*255) for a in hsv_to_rgb(*color))
             self.hex = '#%02x%02x%02x' % self.rgb
         self.name = name
-        # below: calculate perceived brightness
+        # below: calculate perceived brightness (is color dark)
         (r, g, b) = [  # normalized RGB
             float(a) / 255
             for a in self.rgb
