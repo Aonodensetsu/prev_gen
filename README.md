@@ -7,5 +7,5 @@ Version 3 - finally fixed the font, arial was making me angry, had to fix contra
 ![Current version](result.png)
 
 Archive of past results - to laugh or cry:  
-[Version 2](version2.png) - made in a day, got text contrast to about where I want it
+[Version 2](version2.png) - made in a day, got text contrast to about where I want it  
 [Version 1](version1.png) - made in an hour, quality confirms it :p
