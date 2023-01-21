@@ -11,12 +11,9 @@ def main():
         for j in range(t.width):
             left = j * t.gridWidth
             top = i * t.gridHeight
-            if t.literalOrder:
-               color = t.colors[i][j]
-            else:
-                if t.width * i + j >= len(t.colors):
-                    break
-                color = t.colors[t.width * i + j]
+            if t.width * i + j >= len(t.colors) and not t.literalOrder:
+                break
+            color = t.colors[i][j] if t.literalOrder else t.colors[t.width * i + j]
             if color:
                 textcol = color.text().rgb
                 imgd.rectangle(
