@@ -18,6 +18,10 @@ def main():
                     ((left, top), (left + t.gridWidth - 1, top + t.gridHeight - 1)),
                     fill=color.rgb
                 )
+                imgd.rectangle(
+                    ((left, top + t.gridHeight - 11), (left + t.gridWidth - 1, top + t.gridHeight - 1)),
+                    fill=color.darker().rgb
+                )
                 if color.name:
                     imgd.text(
                         (left + t.gridWidth / 2, top + t.gridHeight / 2 - 5),

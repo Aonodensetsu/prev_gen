@@ -49,14 +49,15 @@ class Color:
 
     def text(self) -> "Color":
         (h, s, v) = self.hsv
+        # correct for low contrast (using LERP and magic numbers)
         if self.isDark:
-            return Color((h, s * 0.95, v * 1.1 + (1. - v) * 0.3))  # correct for low contrast
+            return Color((h, s * 0.95, v * 1.1 + (1. - v) * 0.3))
         else:
-            return Color((h, s * 0.95, v * 0.6 - (1. - v) * 0.2))  # correct for low contrast
+            return Color((h, s * 0.95, v * 0.6 - (1. - v) * 0.2))
 
     def darker(self) -> "Color":
         (h, s, v) = self.hsv
-        return Color((h, s * 1.1, v * 0.6))
+        return Color((h, s * 1.05, v * 0.85))
 
 
 @dataclass
