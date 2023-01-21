@@ -27,11 +27,9 @@ class Color:
             self.rgb = tuple(int(a*255) for a in hsv_to_rgb(*color))
             self.hex = '#%02x%02x%02x' % self.rgb
         self.name = name
-        self.isDark = self.hsv[2] < 0.7
-
-    def textCol(self) -> "Color":
+        # below: calculate perceived brightness
         (r, g, b) = [  # normalized RGB
-            float(a)/255
+            float(a) / 255
             for a in self.rgb
         ]
         (r, g, b) = [  # linearized RGB
@@ -39,16 +37,26 @@ class Color:
             for b in [r, g, b]
         ]
         lum = 0.2126 * r + 0.7152 * g + 0.0722 * b  # luminance
-        (h, s, v) = self.hsv
         perc = (  # perceived brightness
-            (lum*24389/27)/100
-            if lum <= 216/24389
-            else (math.pow(lum, 1/3)*116-16)/100
+            (lum * 24389 / 27) / 100
+            if lum <= 216 / 24389
+            else (math.pow(lum, 1 / 3) * 116 - 16) / 100
         )
         if perc < 0.4:
-            return Color((h, s * 0.95, v * 1.2 + (1. - v) * 0.4))  # correct for low contrast (dark)
+            self.isDark = True
         else:
-            return Color((h, s * 1.05, v * 0.45 + (1. - v) * 0.15))  # correct for low contrast (light)
+            self.isDark = False
+
+    def text(self) -> "Color":
+        (h, s, v) = self.hsv
+        if self.isDark:
+            return Color((h, s * 0.95, v * 1.1 + (1. - v) * 0.3))  # correct for low contrast
+        else:
+            return Color((h, s * 0.95, v * 0.6 - (1. - v) * 0.2))  # correct for low contrast
+
+    def darker(self) -> "Color":
+        (h, s, v) = self.hsv
+        return Color((h, s * 1.1, v * 0.6))
 
 
 @dataclass
