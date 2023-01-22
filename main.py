@@ -1,53 +1,50 @@
-from palette import palette
+from palette import *
 from classes import *
-from PIL import Image, ImageDraw, ImageFont
 from os import startfile
+from PIL import Image, ImageDraw, ImageFont
 
 
 def main():
-    t = Palette(palette)
-    img = Image.new('RGBA', (t.width * t.gridWidth, t.height * t.gridHeight))
-    imgd = ImageDraw.Draw(img)
-    for i in range(t.height):
-        for j in range(t.width):
-            left = j * t.gridWidth
-            top = i * t.gridHeight
-            if t.width * i + j >= len(t.colors) and not t.literalOrder:
-                break
-            color = t.colors[i][j] if t.literalOrder else t.colors[t.width * i + j]
-            if color:
-                textcol = color.text().rgb
-                imgd.rectangle(
-                    ((left, top), (left + t.gridWidth - 1, top + t.gridHeight - 1)),
-                    fill=color.rgb
-                )
-                imgd.rectangle(
-                    ((left, top + t.gridHeight - 11), (left + t.gridWidth - 1, top + t.gridHeight - 1)),
-                    fill=color.darker().rgb
-                )
-                if color.name:
-                    imgd.text(
-                        (left + t.gridWidth / 2, top + t.gridHeight / 2 - 5),
-                        color.name,
-                        font=ImageFont.truetype('renogare.ttf', size=40),
-                        fill=textcol,
-                        anchor='mm'
-                    )
-                    imgd.text(
-                        (left + t.gridWidth / 2, top + t.gridHeight / 2 + 40),
-                        '#%02x%02x%02x' % color.rgb,
-                        font=ImageFont.truetype('renogare.ttf', size=27),
-                        fill=textcol,
-                        anchor='mm'
-                    )
-                else:
-                    imgd.text(
-                        (left + t.gridWidth/2, top + t.gridHeight/2),
-                        '#%02x%02x%02x' % color.rgb,
-                        font=ImageFont.truetype('renogare.ttf', size=30),
-                        fill=textcol,
-                        anchor='mm'
-                    )
+    t = Table(palette)
+    s = t.settings
+    img = Image.new('RGBA', t.size())
+    draw = ImageDraw.Draw(img)
+    for f in t.fields():
+        if not f.color:
+            continue
+        text_col = s.text_col_fn(f.color).drgb
+        (x, y) = f.pos
+        draw.rectangle(
+            ((x, y), (x + s.grid_width - 1, y + s.grid_height - 1)),
+            fill=f.color.drgb
+        )
+        draw.rectangle(
+            ((x, y + s.grid_height - s.bar_height - 1), (x + s.grid_width - 1, y + s.grid_height - 1)),
+            fill=s.darken_fn(f.color).drgb
+        )
+        if f.color.name:
+            draw.text(
+                (x + s.grid_width / 2, y + s.grid_height / 2 + s.name_offset),
+                f.color.name,
+                font=ImageFont.truetype('renogare.ttf', size=s.name_size),
+                fill=text_col,
+                anchor='mm'
+            )
+            draw.text(
+                (x + s.grid_width / 2, y + s.grid_height / 2 + s.hex_offset),
+                f.color.hex,
+                font=ImageFont.truetype('renogare.ttf', size=s.hex_size),
+                fill=text_col,
+                anchor='mm'
+            )
+        else:
+            draw.text(
+                (x + s.grid_width / 2, y + s.grid_height / 2 + s.hex_offset_noname),
+                f.color.hex,
+                font=ImageFont.truetype('renogare.ttf', size=s.hex_size_noname),
+                fill=text_col,
+                anchor='mm'
+            )
     img.save('result.png')
     startfile('result.png')
 

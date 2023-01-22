@@ -1,40 +1,82 @@
-from classes import Color
-
-# Usage 1 - 1d list:
-#   just place colors in the order you want them to appear
-#   the program will make a rectangle big enough to fit them all and just dump them one by one
-#   - it actually makes the biggest square *smaller than* required, then extends it horizontally until everything fits
-#     meaning it will always make a rectangle that's close to a square in shape
+# Palette:
+#   with either option below you can always put None in the table instead of a Color to leave one field transparent
 #
-# Usage 2 - 2d list:
-#  each inner list is a single row, you can treat those lists the same as above (left-to-right)
-#  it works pretty much exactly the same as above if you don't take this change into account
-#  just make sure all rows are the same length because there is no error checking (oops) - TODO i guess?
+#   Usage 1 - "it just works" (1d list):
+#     place colors in the order you want them to appear in the generated image
+#     the program will make a rectangle big enough to fit them all
+#     - it actually makes the biggest square *smaller than* required, then extends it horizontally until everything fits
+#     - it will always make a rectangle that's close to a square in shape (in my opinion it's the most useful option)
 #
-# you can always place a None in the table to leave one entry transparent
-# - use it to tab out the rows to the same length if you need to
+#   Usage 2 - "literal mode" (2d list):
+#     each inner list will be treated as a single row of colors, left-to-right
+#     use this for full control over the placement of colors in the final image
+#     inner lists will have their lengths automatically equalized with None
+#     - this means that a shorter row will end with transparent spaces by default
+#     - you can even leave entire rows transparent if you pass an empty inner list
 #
-# the example below is Gruvbox, a really nice color scheme which inspired this project
+# Colors:
+#   in the default mode you can make a color using HEX or RGB:
+#     HEX: Color('#52c7a7')
+#     RGB: Color((0.2, 0.4, 0.7))          <- normalized
+#          Color((0., 0., 0.), 'black')    <- make sure to include the dots (type: float)
+#          Color((200, 100, 235))          <- denormalized
+#          Color((0, 0, 0), 'still black') <- this is the option without dots (type: int)
 #
-# to make a color you can pass in either RGB: (200, 100, 235), HSV: (0.2, 0.4, 0.7) or HEX: '#52c7a7'
-# you can also specify a name for a color or not
-# ex:
-# without name:
-#   Color((200, 100, 235))           <- RGB
-#   Color((0.2, 0.4, 0.7))           <- HSV
-#   Color('#52c7a7')                 <- HEX
-# with name:
-#   Color((200, 100, 235), 'purple') <- RGB
-#   Color((0.2, 0.4, 0.7), 'green')  <- HSV
-#   Color('#52c7a7',       'mint')   <- HEX
+#   you can change the mode by specifying the type of color you want
+#   all the modes other than RGB do not currently allow denormalized values
+#     HSV: Color((0.2, 0.4, 0.7), mode='hsv')
+#     HLS: Color((0.2, 0.4, 0.7), mode='hls')
+#     YIQ: Color((0.2, 0.4, 0.7), mode='yiq')
+#
+#   you can also specify a name for a color or not
+#     Color((200, 100, 235))                       <- RGB without name
+#     Color((0.2, 0.4, 0.7), 'green', mode='hsv')  <- HSV with name
+#
+#   HEX works regardless of mode specified
+#     Color('#52c7a7', 'mint', mode='yiq') <- HEX with name (mode ignored)
+#
+# Settings:
+#  an object that controls the behavior of the program
+#  you pass a Settings object as the first thing in the palette
+#  - if you don't want to overwrite any settings just omit it
+#  Available settings:
+#    grid_height: int = 168
+#    height of each individual color field
+#    grid_width: int = 224
+#    width of each individual color field
+#    bar_height: int = 10
+#    height of the darkened bar at the bottom of each field
+#    name_offset: int = -20
+#    vertical offset of the name printed within the field
+#    hex_offset: int = 25
+#    vertical offset of the hex value printed below name
+#    hex_offset_noname: int = 0
+#    vertical offset of the hex value printed if no name given
+#    name_size: int = 40
+#    text size of the name
+#    hex_size: int = 27
+#    text size of the hex value printed under the name
+#    hex_size_noname: int = 30
+#    text size of the hex value printed if no name given
+#    darken_fn: Callable[[Color], Color] = (default omitted, you really shouldn't touch this)
+#    function to use for the darkened bar
+#    text_col_fn: Callable[[Color], Color] = (default omitted, you really shouldn't touch this)
+#    function to determine text color from background color
+#
+#   the example below is Gruvbox, a really nice color scheme which inspired this project
+#   - literal mode (each array is one row)
+#   - uses hex by default
+#   - passes empty settings to show how to do it
+from classes import Color, Settings
 palette = [
+    Settings(),  # you can omit this if you want, an empty is equivalent to none at all
     [
         Color('#282828', 'bg'),   Color('#cc241d', 'red'),    Color('#98971a', 'green'), Color('#d79921', 'yellow'),
         Color('#458588', 'blue'), Color('#b16286', 'purple'), Color('#689d6a', 'aqua'),  Color('#a89984', 'gray')
     ],
     [
         Color('#928374', 'gray'), Color('#fb4934', 'red'),    Color('#b8bb26', 'green'), Color('#fabd2f', 'yellow'),
-        Color('#83a598', 'blue'), Color('#d3869b', 'purple'), Color('#8ec07c', 'aqua'),  Color('#ebdbb2', 'fg')
+        Color('#83a598', 'blue'), Color('#d3869b', 'purple'), Color('#8ec07c', 'aqua'), Color('#ebdbb2', 'fg')
     ],
     [
         Color('#1d2021', 'bg0_h'), Color('#282828', 'bg0'), Color('#3c3836', 'bg1'),  Color('#504945', 'bg2'),
