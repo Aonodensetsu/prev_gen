@@ -175,6 +175,17 @@ class Table:
                      list[Union[Settings, list[Union[Color, None]]]]
                  ]
                  ):
+        colors = [
+            [
+                Color(*a) if type(a) == tuple else a
+                for a in i
+            ]
+            if type(i) == list
+            else Color(*i)
+            if type(i) == tuple
+            else i
+            for i in colors
+        ]
         if type(colors[0]) == Settings:
             self.settings = colors[0]
             colors = colors[1:]

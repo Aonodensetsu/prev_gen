@@ -22,6 +22,15 @@
 #          Color((200, 100, 235))          <- denormalized
 #          Color((0, 0, 0), 'still black') <- this is the option without dots (type: int)
 #
+#   the default mode has a "special" mode
+#   which enables you to not write Color(...) every single time
+#   you can use it whenever the color you create does not take keyword arguments (which implies default mode)
+#   - which means it only works with HEX and RGB
+#   simply omit the name of the class
+#     HEX: ('#52c7a7',)              <- notice the comma at the end (type: tuple)
+#     RGB: ((0.2, 0.4, 0.7),)        <- double parentheses and a comma
+#          ((200, 100, 235), 'name') <- names work too
+#
 #   you can change the mode by specifying the type of color you want
 #   all the modes other than RGB do not currently allow denormalized values
 #     HSV: Color((0.2, 0.4, 0.7), mode='hsv')
@@ -36,54 +45,51 @@
 #     Color('#52c7a7', 'mint', mode='yiq') <- HEX with name (mode ignored)
 #
 # Settings:
-#  an object that controls the behavior of the program
-#  you pass a Settings object as the first thing in the palette
-#  - if you don't want to overwrite any settings just omit it
-#  Available settings:
-#    grid_height: int = 168
-#    height of each individual color field
-#    grid_width: int = 224
-#    width of each individual color field
-#    bar_height: int = 10
-#    height of the darkened bar at the bottom of each field
-#    name_offset: int = -20
-#    vertical offset of the name printed within the field
-#    hex_offset: int = 25
-#    vertical offset of the hex value printed below name
-#    hex_offset_noname: int = 0
-#    vertical offset of the hex value printed if no name given
-#    name_size: int = 40
-#    text size of the name
-#    hex_size: int = 27
-#    text size of the hex value printed under the name
-#    hex_size_noname: int = 30
-#    text size of the hex value printed if no name given
-#    darken_fn: Callable[[Color], Color] = (default omitted, you really shouldn't touch this)
-#    function to use for the darkened bar
-#    text_col_fn: Callable[[Color], Color] = (default omitted, you really shouldn't touch this)
-#    function to determine text color from background color
+#   an object that controls the behavior of the program
+#   you pass a Settings object as the first thing in the palette
+#   - if you don't want to overwrite any settings just omit it
+#   Available settings:
+#     grid_height: int = 168
+#       height of each individual color field
+#     grid_width: int = 224
+#       width of each individual color field
+#     bar_height: int = 10
+#       height of the darkened bar at the bottom of each field
+#     name_offset: int = -20
+#       vertical offset of the name printed within the field
+#     hex_offset: int = 25
+#       vertical offset of the hex value printed below name
+#     hex_offset_noname: int = 0
+#       vertical offset of the hex value printed if no name given
+#     name_size: int = 40
+#       text size of the name
+#     hex_size: int = 27
+#       text size of the hex value printed under the name
+#     hex_size_noname: int = 30
+#       text size of the hex value printed if no name given
+#     darken_fn: Callable[[Color], Color] = (default omitted, you really shouldn't touch this)
+#       function to use for the darkened bar
+#     text_col_fn: Callable[[Color], Color] = (default omitted, you really shouldn't touch this)
+#       function to determine text color from background color
 #
-#   the example below is Gruvbox, a really nice color scheme which inspired this project
-#   - literal mode (each array is one row)
-#   - uses hex by default
-#   - passes empty settings to show how to do it
-from classes import Color, Settings
+# the example below is Gruvbox, a really nice color scheme which inspired this project
+# - uses the special default mode with HEX
+# - literal mode (each array is one row)
 palette = [
-    Settings(),  # you can omit this if you want, an empty is equivalent to none at all
     [
-        Color('#282828', 'bg'),   Color('#cc241d', 'red'),    Color('#98971a', 'green'), Color('#d79921', 'yellow'),
-        Color('#458588', 'blue'), Color('#b16286', 'purple'), Color('#689d6a', 'aqua'),  Color('#a89984', 'gray')
+        ('#282828', 'bg'),   ('#cc241d', 'red'),    ('#98971a', 'green'), ('#d79921', 'yellow'),
+        ('#458588', 'blue'), ('#b16286', 'purple'), ('#689d6a', 'aqua'),  ('#a89984', 'gray')
     ],
     [
-        Color('#928374', 'gray'), Color('#fb4934', 'red'),    Color('#b8bb26', 'green'), Color('#fabd2f', 'yellow'),
-        Color('#83a598', 'blue'), Color('#d3869b', 'purple'), Color('#8ec07c', 'aqua'), Color('#ebdbb2', 'fg')
+        ('#928374', 'gray'), ('#fb4934', 'red'),    ('#b8bb26', 'green'), ('#fabd2f', 'yellow'),
+        ('#83a598', 'blue'), ('#d3869b', 'purple'), ('#8ec07c', 'aqua'),  ('#ebdbb2', 'fg')
     ],
     [
-        Color('#1d2021', 'bg0_h'), Color('#282828', 'bg0'), Color('#3c3836', 'bg1'),  Color('#504945', 'bg2'),
-        Color('#665c54', 'bg3'),   Color('#7c6f64', 'bg4'), Color('#928374', 'gray'), Color('#d65d0e', 'orange')
+        ('#1d2021', 'bg0_h'), ('#282828', 'bg0'), ('#3c3836', 'bg1'),  ('#504945', 'bg2'),
+        ('#665c54', 'bg3'),   ('#7c6f64', 'bg4'), ('#928374', 'gray'), ('#d65d0e', 'orange')
     ],
     [
-        None,                    Color('#32302f', 'bg0_s'), Color('#a89984', 'fg4'), Color('#bdae93', 'fg3'),
-        Color('#d5c4a1', 'fg2'), Color('#ebdbb2', 'fg1'),   Color('#fbf1c7', 'fg0'), Color('#fe8019', 'orange')
+        None,               ('#32302f', 'bg0_s'), ('#a89984', 'fg4'), ('#bdae93', 'fg3'),
+        ('#d5c4a1', 'fg2'), ('#ebdbb2', 'fg1'),   ('#fbf1c7', 'fg0'), ('#fe8019', 'orange')
     ]
 ]
