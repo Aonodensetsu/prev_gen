@@ -10,8 +10,6 @@ def main():
     img = Image.new('RGBA', t.size())
     draw = ImageDraw.Draw(img)
     for f in t.fields():
-        if not f.color:
-            continue
         text_col = s.text_col_fn(f.color).drgb
         (x, y) = f.pos
         draw.rectangle(
