@@ -123,7 +123,7 @@ class Settings:
                  hex_offset_noname: int = 0,
                  name_size: int = 40,
                  hex_size: int = 27,
-                 hex_size_noname: int = 30,
+                 hex_size_noname: int = 33,
                  darken_fn: Callable[[Color], Color] = (
                     lambda x:
                     Color((x.hsv[0], x.hsv[1] * 1.05, x.hsv[2] * 0.85), mode='hsv')
@@ -175,6 +175,17 @@ class Table:
                      list[Union[Settings, list[Union[Color, None]]]]
                  ]
                  ):
+        colors = [
+            [
+                Color(*a) if type(a) == tuple else a
+                for a in i
+            ]
+            if type(i) == list
+            else Color(*i)
+            if type(i) == tuple
+            else i
+            for i in colors
+        ]
         if type(colors[0]) == Settings:
             self.settings = colors[0]
             colors = colors[1:]
