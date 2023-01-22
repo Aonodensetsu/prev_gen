@@ -10,27 +10,29 @@ def main():
     img = Image.new('RGBA', t.size())
     draw = ImageDraw.Draw(img)
     for f in t.fields():
-        text_col = s.text_col_fn(f.color).drgb
+        col = f.color
+        text_col = s.text_col_fn(col).drgb
+        dark_col = s.darken_fn(col).drgb
         (x, y) = f.pos
         draw.rectangle(
             ((x, y), (x + s.grid_width - 1, y + s.grid_height - 1)),
-            fill=f.color.drgb
+            fill=col.drgb
         )
         draw.rectangle(
             ((x, y + s.grid_height - s.bar_height - 1), (x + s.grid_width - 1, y + s.grid_height - 1)),
-            fill=s.darken_fn(f.color).drgb
+            fill=dark_col
         )
-        if f.color.name:
+        if col.name:
             draw.text(
                 (x + s.grid_width / 2, y + s.grid_height / 2 + s.name_offset),
-                f.color.name,
+                col.name,
                 font=ImageFont.truetype('renogare.ttf', size=s.name_size),
                 fill=text_col,
                 anchor='mm'
             )
             draw.text(
                 (x + s.grid_width / 2, y + s.grid_height / 2 + s.hex_offset),
-                f.color.hex,
+                col.hex,
                 font=ImageFont.truetype('renogare.ttf', size=s.hex_size),
                 fill=text_col,
                 anchor='mm'
@@ -38,7 +40,7 @@ def main():
         else:
             draw.text(
                 (x + s.grid_width / 2, y + s.grid_height / 2 + s.hex_offset_noname),
-                f.color.hex,
+                col.hex,
                 font=ImageFont.truetype('renogare.ttf', size=s.hex_size_noname),
                 fill=text_col,
                 anchor='mm'
