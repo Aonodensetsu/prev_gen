@@ -17,7 +17,7 @@ Version 6 - the rewrite update, the project is rewritten from scratch to fix any
 ![Current version](result.png)
 
 Archive of past results - to laugh or cry:  
-Version 5 - the README update, finally added the Usage section  
+Version 5 - the README update, finally added the Usage section (no image)  
 [Version 4](version4.png) - the little darker strip at the bottom goes a long way in making this look good  
 [Version 3](version3.png) - finally fixed the font, arial was making me angry, had to fix contrast again  
 [Version 2](version2.png) - made in a day, got text contrast to about where I want it  
