@@ -45,6 +45,22 @@ def main():
                 fill=text_col,
                 anchor='mm'
             )
+        if col.text_left:
+            draw.text(
+                (x + s.text_left_x, y + s.text_offset_top),
+                col.text_left,
+                font=ImageFont.truetype('renogare.ttf', size=s.text_size_top),
+                fill=text_col,
+                anchor='lt'
+            )
+        if col.text_right:
+            draw.text(
+                (x + s.grid_width - 1 - s.text_right_x, y + s.text_offset_top),
+                col.text_right,
+                font=ImageFont.truetype('renogare.ttf', size=s.text_size_top),
+                fill=text_col,
+                anchor='rt'
+            )
     img.save('result.png')
     startfile('result.png')
 
