@@ -8,6 +8,10 @@ class Color:
     name: str
     # hexadecimal string '#000000'
     hex: str
+    # left corner description
+    text_left: str
+    # right corner description
+    text_right: str
     # normalized RGB values 0-1
     rgb: tuple[float, float, float]
     # normalized HSV values 0-1
@@ -24,6 +28,8 @@ class Color:
     def __init__(self,
                  color: Union[str, tuple[float, float, float], tuple[int, int, int]],
                  name: str = None,
+                 text_left: str = None,
+                 text_right: str = None,
                  *,
                  mode: Literal['rgb', 'hsv', 'hls', 'yiq'] = 'rgb'
                  ):
@@ -45,6 +51,8 @@ class Color:
             # always keep RGB since it is used for conversions
             setattr(self, 'rgb', colorsys.__dict__[mode + '_to_rgb'](*color))
         self.name = name
+        self.text_left = text_left
+        self.text_right = text_right
 
     def __getattribute__(self, item):
         try:
@@ -102,12 +110,20 @@ class Settings:
     hex_offset: int
     # vertical offset of the hex value printed if no name given
     hex_offset_noname: int
+    # x position of the left corner description
+    text_left_x: int
+    # x position of the left corner description
+    text_right_x: int
+    # y offset of the corner descriptions
+    text_offset_top: int
     # text size of the name
     name_size: int
     # text size of the hex value printed under the name
     hex_size: int
     # text size of the hex value printed if no name given
     hex_size_noname: int
+    # text size of the corner descriptions
+    text_size_top: int
     # function to use for the darkened bar
     darken_fn: Callable[[Color], Color]
     # function to determine text color from background color
@@ -118,12 +134,16 @@ class Settings:
                  grid_height: int = 168,
                  grid_width: int = 224,
                  bar_height: int = 10,
-                 name_offset: int = -20,
-                 hex_offset: int = 25,
+                 name_offset: int = -10,
+                 hex_offset: int = 35,
                  hex_offset_noname: int = 0,
+                 text_left_x: int = 15,
+                 text_right_x: int = 15,
+                 text_offset_top: int = 15,
                  name_size: int = 40,
                  hex_size: int = 27,
                  hex_size_noname: int = 33,
+                 text_size_top: int = 25,
                  darken_fn: Callable[[Color], Color] = (
                     lambda x:
                     Color((x.hsv[0], x.hsv[1] * 1.05, x.hsv[2] * 0.85), mode='hsv')
@@ -142,9 +162,13 @@ class Settings:
         self.name_offset = name_offset
         self.hex_offset = hex_offset
         self.hex_offset_noname = hex_offset_noname
+        self.text_left_x = text_left_x
+        self.text_right_x = text_right_x
+        self.text_offset_top = text_offset_top
         self.name_size = name_size
         self.hex_size = hex_size
         self.hex_size_noname = hex_size_noname
+        self.text_size_top = text_size_top
         self.darken_fn = darken_fn
         self.text_col_fn = text_col_fn
 
