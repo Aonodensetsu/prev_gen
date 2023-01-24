@@ -44,7 +44,7 @@
 #   HEX works regardless of mode specified
 #     Color('#52c7a7', 'mint', mode='yiq') <- HEX with name (mode ignored)
 #
-#   colors also allow you to specify text_left and text_right keywords to add additional text in the corners
+#   colors also allow you to specify desc_left and desc_right keywords to add additional text in the corners
 #   these can also be used in special mode as the third and fourth argument respectively
 #
 # Settings:
@@ -64,11 +64,9 @@
 #       vertical offset of the hex value printed below name
 #     hex_offset_noname: int = 0
 #       vertical offset of the hex value printed if no name given
-#     text_left_x: int = 15
-#       horizontal offset for the left corner description
-#     text_right_x: int = 15
-#       horizontal offset for the left corner description
-#     text_offset_top: int = 15
+#     desc_offset_x: int = 15
+#       horizontal offset for the corner descriptions
+#     desc_offset_y: int = 20
 #       vertical offset for the corner descriptions
 #     name_size: int = 40
 #       text size of the name
@@ -76,7 +74,7 @@
 #       text size of the hex value printed under the name
 #     hex_size_noname: int = 30
 #       text size of the hex value printed if no name given
-#     text_size_top: int = 25
+#     desc_size: int = 25
 #       text size of the corner descriptions
 #     darken_fn: Callable[[Color], Color] = (default omitted, you really shouldn't touch this)
 #       function to use for the darkened bar

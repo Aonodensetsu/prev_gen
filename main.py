@@ -45,19 +45,19 @@ def main():
                 fill=text_col,
                 anchor='mm'
             )
-        if col.text_left:
+        if col.desc_left:
             draw.text(
-                (x + s.text_left_x, y + s.text_offset_top),
-                col.text_left,
-                font=ImageFont.truetype('renogare.ttf', size=s.text_size_top),
+                (x + s.desc_offset_x, y + s.desc_offset_y),
+                col.desc_left,
+                font=ImageFont.truetype('renogare.ttf', size=s.desc_size),
                 fill=text_col,
                 anchor='lt'
             )
-        if col.text_right:
+        if col.desc_right:
             draw.text(
-                (x + s.grid_width - 1 - s.text_right_x, y + s.text_offset_top),
-                col.text_right,
-                font=ImageFont.truetype('renogare.ttf', size=s.text_size_top),
+                (x + s.grid_width - 1 - s.desc_offset_x, y + s.desc_offset_y),
+                col.desc_right,
+                font=ImageFont.truetype('renogare.ttf', size=s.desc_size),
                 fill=text_col,
                 anchor='rt'
             )
