@@ -13,10 +13,11 @@ You need **Python** with modules: **os**, **pillow**, **math**, **colorsys**, **
 Simple as can be!
 
 # Changelog:
-Version 7 - added little corner descriptions as in gruvbox, repositioned text a bit
+Version 8 - changed hex to uppercase, file name to save into is a setting now
 ![Current version](result.png)
 
 Archive of past results - to laugh or cry:  
+[Version 7](version7.png) - added little corner descriptions as in gruvbox, repositioned text a bit
 [Version 6](version6.png) - the rewrite update, the project is rewritten from scratch to fix any bugs and improve usability  
 Version 5 - the README update, finally added the Usage section (no image)  
 [Version 4](version4.png) - the little darker strip at the bottom goes a long way in making this look good  

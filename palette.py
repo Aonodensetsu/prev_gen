@@ -52,6 +52,8 @@
 #   you pass a Settings object as the first thing in the palette
 #   - if you don't want to overwrite any settings just omit it
 #   Available settings:
+#     file_name: str = 'result'
+#       file name to save into (no extension - will be png)
 #     grid_height: int = 168
 #       height of each individual color field
 #     grid_width: int = 224

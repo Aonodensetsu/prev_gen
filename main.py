@@ -61,8 +61,8 @@ def main():
                 fill=text_col,
                 anchor='rt'
             )
-    img.save('result.png')
-    startfile('result.png')
+    img.save(s.file_name)
+    startfile(s.file_name)
 
 
 if __name__ == '__main__':

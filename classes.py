@@ -35,8 +35,8 @@ class Color:
                  ):
         # hex is allowed regardless of mode
         if type(color) == str:
-            self.hex = color
-            self.rgb = tuple(int(color.lstrip('#')[i : i + 2], 16) / 255. for i in (0, 2, 4))
+            self.hex = color.upper()
+            self.rgb = tuple(int(color.lstrip('#')[i:i + 2], 16) / 255. for i in (0, 2, 4))
             # if mode was passed, precalculate the answer for convenience
             if not mode == 'rgb':
                 setattr(self, mode, colorsys.__dict__['rgb_to_' + mode](*self.rgb))
@@ -64,7 +64,7 @@ class Color:
             elif item == 'drgb':
                 setattr(self, item, tuple(int(a * 255) for a in self.rgb))
             elif item == 'hex':
-                setattr(self, item, '#%02x%02x%02x' % self.drgb)
+                setattr(self, item, ('#%02X%02X%02X' % self.drgb))
             elif item == 'isDark':
                 (r, g, b) = [  # linearized RGB
                     i / 12.92 if i < 0.04045 else math.pow((i + 0.055) / 1.055, 2.4)
@@ -98,6 +98,8 @@ class Field:
 
 
 class Settings:
+    # file name to save into (no extension - will be png)
+    file_name: str
     # height of each individual color field
     grid_height: int
     # width of each individual color field
@@ -129,6 +131,7 @@ class Settings:
 
     def __init__(self,
                  *,
+                 file_name: str = 'result',
                  grid_height: int = 168,
                  grid_width: int = 224,
                  bar_height: int = 10,
@@ -138,9 +141,9 @@ class Settings:
                  desc_offset_x: int = 15,
                  desc_offset_y: int = 20,
                  name_size: int = 40,
-                 hex_size: int = 27,
-                 hex_size_noname: int = 33,
-                 desc_size: int = 25,
+                 hex_size: int = 26,
+                 hex_size_noname: int = 34,
+                 desc_size: int = 24,
                  darken_fn: Callable[[Color], Color] = (
                     lambda x:
                     Color((x.hsv[0], x.hsv[1] * 1.05, x.hsv[2] * 0.85), mode='hsv')
@@ -153,6 +156,7 @@ class Settings:
                          else Color((x.hsv[0], x.hsv[1] * 0.95, x.hsv[2] * 0.6 - (1. - x.hsv[2]) * 0.2), mode='hsv')
                  )
                  ):
+        self.file_name = file_name + '.png'
         self.grid_height = grid_height
         self.grid_width = grid_width
         self.bar_height = bar_height
