@@ -10,26 +10,16 @@
 #   Usage 2 - "literal mode" (2d list):
 #     each inner list will be treated as a single row of colors, left-to-right
 #     use this for full control over the placement of colors in the final image
-#     inner lists will have their lengths automatically equalized with None
+#     inner lists will have their lengths automatically equalized
 #     - this means that a shorter row will end with transparent spaces by default
-#     - you can even leave entire rows transparent if you pass an empty inner list
+#     - you can even leave entire rows transparent if you pass an empty list
 #
 # Colors:
-#   in the default mode you can make a color using HEX or RGB:
-#     HEX: Color('#52c7a7')
+#   in the default mode you can make a color using RGB:
 #     RGB: Color((0.2, 0.4, 0.7))          <- normalized
 #          Color((0., 0., 0.), 'black')    <- make sure to include the dots (type: float)
 #          Color((200, 100, 235))          <- denormalized
 #          Color((0, 0, 0), 'still black') <- this is the option without dots (type: int)
-#
-#   the default mode has a "special" mode
-#   which enables you to not write Color(...) every single time
-#   you can use it whenever the color you create does not take keyword arguments
-#   - which means it only works with HEX and RGB
-#   simply omit the name of the class
-#     HEX: ('#52c7a7',)              <- notice the comma at the end (type: tuple)
-#     RGB: ((0.2, 0.4, 0.7),)        <- double parentheses and a comma
-#          ((200, 100, 235), 'name') <- names work too
 #
 #   you can change the mode by specifying the type of color you want
 #   all the modes other than RGB do not currently allow denormalized values
@@ -44,8 +34,15 @@
 #   HEX works regardless of mode specified
 #     Color('#52c7a7', 'mint', mode='yiq') <- HEX with name (mode ignored)
 #
-#   colors also allow you to specify desc_left and desc_right keywords to add additional text in the corners
-#   these can also be used in special mode as the third and fourth argument respectively
+#   there is a special syntax which allows you to omit the Color keyword
+#   but you need to adhere to the order of parameters that create a Color
+#   (color, name, desc_left, desc_right, mode)
+#     HEX: ('#000000',)                                      <- comma at the end if only one element
+#          ('#ffffff', 'white')                              <- name is the second parameter
+#          ('#ffffff', 'white', None, None, 'hls')           <- HEX still works regardless of mode
+#     RGB: ((0., 0., 1.), 'blue')                         <- RGB is the default mode
+#     HSV: ((0., 1., 1.), None, None, None, 'hsv')        <- HSV without a name or descriptions
+#          ((0., 0., 0.), 'black', None, None, 'yiq') <- YIQ with a name but no comments
 #
 # Settings:
 #   an object that controls the behavior of the program
@@ -78,15 +75,28 @@
 #       text size of the hex value printed if no name given
 #     desc_size: int = 25
 #       text size of the corner descriptions
-#     darken_fn: Callable[[Color], Color] = (default omitted, you really shouldn't touch this)
+#     darken_fn: Callable[[Color], Color] = (
+#         lambda x:
+#         Color((x.hsv[0], x.hsv[1] * 1.05, x.hsv[2] * 0.85), mode='hsv')
+#     )
 #       function to use for the darkened bar
-#     text_col_fn: Callable[[Color], Color] = (default omitted, you really shouldn't touch this)
+#       don't touch this unless you know what the default value means
+#     text_col_fn: Callable[[Color], Color] = (
+#         lambda x:
+#         Color((x.hsv[0], x.hsv[1] * 0.95, x.hsv[2] * 1.1 + (1. - x.hsv[2]) * 0.3), mode='hsv')
+#         if x.isDark
+#         else Color((x.hsv[0], x.hsv[1] * 0.95, x.hsv[2] * 0.6 - (1. - x.hsv[2]) * 0.2), mode='hsv')
+#     )
 #       function to determine text color from background color
+#       don't touch this unless you know what the default value means
 #
 # the example below is Gruvbox, a really nice color scheme which inspired this project
-# - uses the special default mode with HEX
+# - uses the special syntax
 # - literal mode (each array is one row)
+# - changes the file name to gruvbox.png
+from main import Settings
 palette = [
+    Settings(file_name='gruvbox'),
     [
         ('#282828', 'bg', '235', '0'),     ('#cc241d', 'red', '124', '1'),  ('#98971a', 'green', '106', '2'),
         ('#d79921', 'yellow', '172', '3'), ('#458588', 'blue', '66', '4'),  ('#b16286', 'purple', '132', '5'),
@@ -108,3 +118,8 @@ palette = [
         ('#fbf1c7', 'fg0', '229', '-'), ('#fe8019', 'orange', '208', '-')
     ]
 ]
+
+# start the program
+if __name__ == '__main__':
+    from main import App
+    App.run(palette)
