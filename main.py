@@ -41,7 +41,7 @@ class Color:
         hls: HLS normalized color
         yiq: YIQ normalized color
         drgb: RGB denormalized color
-        dark: Is the color dark based on human perception?
+        dark: Whether the color is dark based on human perception
     """
     name: str | None
     desc_left: str | None
