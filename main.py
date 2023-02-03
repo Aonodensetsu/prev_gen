@@ -325,7 +325,7 @@ class Table:
         # get the explicitly given size and flatten list
         if isinstance(colors[0], list):
             self.height = len(colors)
-            self.width = max((len(i) for i in colors))
+            self.width = max(len(i) for i in colors)
             for i in colors:
                 while len(i) < self.width:
                     i.append(None)
