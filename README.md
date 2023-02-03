@@ -6,16 +6,17 @@ Based on the great [gruvbox](https://github.com/morhetz/gruvbox) theme, where ev
 # Usage:
 You need **Python** with **pillow** module installed
 1. Open up [pallete.py](palette.py) and set up the colors how you want (instruction in the file)  
-2. Run either of the Python files to generate a palette
-3. by default you will find your PNG in result.png
+2. Run any of the python files to start the app
+3. by default you will find your PNG in result.png (the example uses gruvbox.png instead)
 
 Simple as can be!
 
 # Changelog:
-Version 9 - moved the classes to main, that third file really was unnecessary (no image)
-![Current version](result.png)
+Version 10 - fixed a namespacing bug I didn't notice earlier, added docstrings, it's essentially a library now
+![Current version](gruvbox.png)
 
 Archive of past results - to laugh or cry:  
+Version 9 - moved the classes to main, that third file really was unnecessary (no image)  
 [Version 8](version8.png) - changed hex to uppercase, file name to save into is a setting now  
 [Version 7](version7.png) - added little corner descriptions as in gruvbox, repositioned text a bit
 [Version 6](version6.png) - the rewrite update, the project is rewritten from scratch to fix any bugs and improve usability  

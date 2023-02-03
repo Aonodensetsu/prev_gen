@@ -1,58 +1,87 @@
-from dataclasses import dataclass
-from typing import Literal, Callable, Generator
-from math import pow, sqrt, floor
-from os import startfile
+from typing import NamedTuple, Literal, Callable, Generator
 from PIL import Image, ImageDraw, ImageFont
+from math import pow, sqrt, floor
+from dataclasses import dataclass
+from os import startfile
 import colorsys
+
+
+# type aliases are declared as needed, so they are spread throughout the file
+# some depend on the presence of classes, so they cannot be moved to the top of the file
+
+# used for normalized color representations
+#   (R, G, B)
+#   (H, S, V)
+#   (H, L, S)
+#   (Y, I, Q)
+f3 = tuple[float, float, float]
+# used for denormalized color representations
+#   (R, G, B) - currently only RGB supported denormalized
+i3 = tuple[int, int, int]
 
 
 @dataclass(slots=True)
 class Color:
-    # color name
+    """
+    Represents one tile in the image, its color and any descriptions
+
+    Attributes:
+        name: Color name
+        desc_left: Left corner description
+        desc_right: right corner description
+        hex: Hexadecimal color
+        rgb: RGB normalized color
+        hsv: HSV normalized color
+        hls: HLS normalized color
+        yiq: YIQ normalized color
+        drgb: RGB denormalized color
+        isDark: Is the color dark based on human perception
+    """
     name: str | None
-    # left corner description
     desc_left: str | None
-    # right corner description
     desc_right: str | None
-    # hexadecimal string '#000000'
     hex: str
-    # normalized RGB values 0-1
-    rgb: tuple[float, float, float]
-    # normalized HSV values 0-1
-    hsv: tuple[float, float, float]
-    # normalized HLS values 0-1
-    hls: tuple[float, float, float]
-    # normalized YIQ values 0-1
-    yiq: tuple[float, float, float]
-    # denormalized RGB values 0-255
-    drgb: tuple[int, int, int]
-    # based on human perception
+    rgb: f3
+    hsv: f3
+    hls: f3
+    yiq: f3
+    drgb: i3
     isDark: bool
 
     def __init__(self,
-                 color: str | tuple[float, float, float] | tuple[int, int, int],
+                 color: str | f3 | i3 | None = None,
                  name: str | None = None,
                  desc_left: str | None = None,
                  desc_right: str | None = None,
                  mode: Literal['rgb', 'hsv', 'hls', 'yiq'] = 'rgb'
-                 ):
+                 ) -> None:
+        """
+        Create a color from a given value
+
+        Parameters:
+            color: The color value to assign
+            name: The name to display
+            desc_left: Left corner description
+            desc_right: Right corner description
+            mode: Specifies type of color to convert from
+        """
         # hex is allowed regardless of mode
         if isinstance(color, str):
-            self.hex = color.upper()
-            self.rgb = tuple(int(color.lstrip('#')[i:i + 2], 16) / 255. for i in (0, 2, 4))
-            # if mode was passed, precalculate the answer for convenience
+            self.hex = '#'+color.lstrip('#').upper()
+            self.rgb = tuple(int(self.hex[i:i + 2], 16) / 255. for i in (1, 3, 5))
+            # precalculate the given mode if not default, the user probably intends to use it
             if not mode == 'rgb':
                 setattr(self, mode, colorsys.__dict__['rgb_to_' + mode](*self.rgb))
         elif mode == 'rgb':
             # allow passing denormalized RGB
-            if all(isinstance(a, int) for a in color):
+            if all(isinstance(i, int) for i in color):
                 self.drgb = color
                 color = tuple(i / 255. for i in color)
             setattr(self, mode, color)
         else:
-            setattr(self, mode, color)
-            # always keep RGB since it is used for conversions
+            # always calculate RGB since it is used for conversions
             self.rgb = colorsys.__dict__[mode + '_to_rgb'](*color)
+            setattr(self, mode, color)
         self.name = name
         self.desc_left = desc_left
         self.desc_right = desc_right
@@ -66,12 +95,14 @@ class Color:
                 case 'hsv' | 'hls' | 'yiq':
                     setattr(self, item, colorsys.__dict__['rgb_to_' + item](*self.rgb))
                 case 'drgb':
-                    self.drgb = tuple(int(a * 255) for a in self.rgb)
+                    self.drgb = tuple(int(i * 255) for i in self.rgb)
                 case 'hex':
                     self.hex = '#%02X%02X%02X' % self.drgb
                 case 'isDark':
                     r, g, b = [  # linearized RGB
-                        i / 12.92 if i < 0.04045 else pow((i + 0.055) / 1.055, 2.4)
+                        i / 12.92
+                        if i < 0.04045
+                        else pow((i + 0.055) / 1.055, 2.4)
                         for i in self.rgb
                     ]
                     lum = 0.2126 * r + 0.7152 * g + 0.0722 * b  # luminance
@@ -80,99 +111,197 @@ class Color:
                         if lum <= 216 / 24389
                         else (pow(lum, 1 / 3) * 116 - 16) / 100
                     )
-                    if perc < 0.4:
+                    if perc <= 0.4:
                         self.isDark = True
                     else:
                         self.isDark = False
             return object.__getattribute__(self, item)
 
 
-@dataclass(slots=True)
-class Field:
-    # x, y position within the image
-    pos: tuple[int, int]
-    # color that should be drawn
-    color: Color | None
+# used for Color transformations
+#   darkening - calculates dark bar color from background color
+#   text - calculates text color from background color
+tf = Callable[[Color], Color]
 
 
 @dataclass(kw_only=True, slots=True)
 class Settings:
-    # file name to save into (no extension - will be png)
+    """
+    Image generation settings
+
+    Attributes:
+        file_name: File name to save into (no extension - png)
+        font: Font used (no extension - true type)
+        grid_height: Height of each individual color field
+        grid_width: Width of each individual color field
+        bar_height: Height of the darkened bar at the bottom of each field
+        name_offset: Vertical offset of the color name printed within the field
+        hex_offset: Vertical offset of the hex value printed below color name
+        hex_offset_noname: Vertical offset of the hex value printed if no name given
+        desc_offset_x: Horizontal offset of the corner descriptions
+        desc_offset_y: Vertical offset of the corner descriptions
+        name_size: Text size of the color name
+        hex_size: Text size of the hex value printed under the color name
+        hex_size_noname: Text size of the hex value printed if no name given
+        desc_size: Text size of the corner descriptions
+        darken_fn: Function to determine darkened bar color from background color
+        text_col_fn: Function to determine text color from background color
+    """
     file_name: str = 'result'
-    # height of each individual color field
+    font: str = 'renogare'
     grid_height: int = 168
-    # width of each individual color field
     grid_width: int = 224
-    # height of the darkened bar at the bottom of each field
     bar_height: int = 10
-    # vertical offset of the name printed within the field
     name_offset: int = -10
-    # vertical offset of the hex value printed below name
     hex_offset: int = 35
-    # vertical offset of the hex value printed if no name given
     hex_offset_noname: int = 0
-    # horizontal offset of the corner descriptions
     desc_offset_x: int = 15
-    # vertical offset of the corner descriptions
     desc_offset_y: int = 20
-    # text size of the name
     name_size: int = 40
-    # text size of the hex value printed under the name
     hex_size: int = 26
-    # text size of the hex value printed if no name given
     hex_size_noname: int = 34
-    # text size of the corner descriptions
     desc_size: int = 26
-    # function to use for the darkened bar
-    darken_fn: Callable[[Color], Color] = (
+    darken_fn: tf = (
         lambda x:
-        Color((x.hsv[0], x.hsv[1] * 1.05, x.hsv[2] * 0.85), mode='hsv')
+        Color(
+            (
+                x.hsv[0],
+                x.hsv[1] * 1.05,
+                x.hsv[2] * 0.85
+            ),
+            mode='hsv'
+        )
     )
-    # function to determine text color from background color
-    text_col_fn: Callable[[Color], Color] = (
-        # fix text contrast (using LERP and magic numbers)
+    text_col_fn: tf = (
         lambda x:
-        Color((x.hsv[0], x.hsv[1] * 0.95, x.hsv[2] * 1.1 + (1. - x.hsv[2]) * 0.3), mode='hsv')
+        Color(
+            (
+                x.hsv[0],
+                x.hsv[1] * 0.95,
+                x.hsv[2] * 1.1 + (1. - x.hsv[2]) * 0.3
+            ),
+            mode='hsv'
+        )
         if x.isDark
-        else Color((x.hsv[0], x.hsv[1] * 0.95, x.hsv[2] * 0.6 - (1. - x.hsv[2]) * 0.2), mode='hsv')
+        else Color(
+            (
+                x.hsv[0],
+                x.hsv[1] * 0.95,
+                x.hsv[2] * 0.6 - (1. - x.hsv[2]) * 0.2
+            ),
+            mode='hsv'
+        )
     )
 
 
+# used to typehint palettes
+# usage 1
+#   list of
+#     None to mark an empty element
+#     Settings (as the first element)
+#     Color
+#     tuple representing a color in special syntax
+l1 = list[None | Settings | Color | tuple]
+# usage 2
+#   list of
+#     None to mark an empty row
+#     Settings (as the first element)
+#     list of
+#       None to mark an empty element
+#       Color
+#       tuple representing a color in special syntax
+l2 = list[None | Settings | list[None | Color | tuple]]
+
+
+# used for position and size when placing tiles in an image
+# and for the size of the image itself
+class Distance(NamedTuple):
+    """
+    Absolute distance in pixels
+
+    Attributes:
+        x: Horizontal offset
+        y: Vertical offset
+    """
+    x: int
+    y: int
+
+
+# used as a container of data when drawing tiles
+class Field(NamedTuple):
+    """
+    A single field in the table, which contains a tile (color) and its geometry
+
+    Attributes:
+        pos: Pixel offset from (0,0) to the top left corner
+        size: Pixel offset from the top left corner to the bottom right corner
+        col: Color of this field
+    """
+    pos: Distance
+    size: Distance
+    col: Color
+
+
+@dataclass(slots=True)
 class Table:
-    # list of colors after normalization
+    """
+    A table of colors
+
+    Attributes:
+        colors: List of colors, flattened
+        settings: The settings available to the user
+        height: Height of the table in fields
+        width: Width of the table in fields
+        size: Size of table in pixels
+        fields: Iterable of Fields within the table
+    """
     colors: list[Color | None]
-    # the settings available to the user
     settings: Settings
-    __height: int
-    __width: int
+    height: int
+    width: int
 
     @property
-    def height(self) -> int:
-        return self.__height
+    def size(self) -> Distance:
+        """Size of table in pixels"""
+        return Distance(
+            self.width * self.settings.grid_width,
+            self.height * self.settings.grid_height
+        )
 
     @property
-    def width(self) -> int:
-        return self.__width
-
-    def size(self) -> tuple[int, int]:
-        return self.__width * self.settings.grid_width, self.__height * self.settings.grid_height
-
     def fields(self) -> Generator[Field, None, None]:
+        """Iterable of Fields within the table"""
         i = 0
-        h = self.settings.grid_height
-        w = self.settings.grid_width
         while i < len(self.colors):
             if self.colors[i] is not None:
-                yield Field((i % self.__width * w, i // self.__width * h), self.colors[i])
+                yield Field(
+                    Distance(
+                        i % self.width * self.settings.grid_width,
+                        i // self.width * self.settings.grid_height
+                    ),
+                    Distance(
+                        self.settings.grid_width - 1,
+                        self.settings.grid_height - 1
+                    ),
+                    self.colors[i]
+                )
             i += 1
 
-    def __init__(self,
-                 colors: list[Settings | Color | None] | list[Settings | list[Color | None]]
-                 ):
+    def __init__(self, colors: l1 | l2) -> None:
+        """
+        Creates a table from a palette
+
+        Parameters:
+             colors: The list of colors to use for this table
+        """
+        # special syntax handling, converts tuples to Colors
+        # kinda complicated because supports both usage types
         colors = [
             [
-                Color(*a) if type(a) == tuple else a
-                for a in i
+                Color(*j)
+                if isinstance(j, tuple)
+                else j
+                for j in i
             ]
             if isinstance(i, list)
             else Color(*i)
@@ -180,91 +309,118 @@ class Table:
             else i
             for i in colors
         ]
-        if type(colors[0]) == Settings:
+        # extract settings from palette
+        if isinstance(colors[0], Settings):
             self.settings = colors[0]
             colors = colors[1:]
         else:
             self.settings = Settings()
-        if type(colors[0]) == list:
-            self.__height = len(colors)
-            self.__width = max((len(a) for a in colors))
+        # get the explicitly given size and flatten list
+        if isinstance(colors[0], list):
+            self.height = len(colors)
+            self.width = max((len(i) for i in colors))
             for i in colors:
-                while len(i) < self.__width:
+                while len(i) < self.width:
                     i.append(None)
-            colors = sum(colors, [])
+            colors = [j for i in colors for j in i]
+        # calculate the correct size
+        else:
+            self.height = floor(sqrt(len(colors)))
+            self.width = self.height
+            while self.width * self.height < len(colors):
+                self.width += 1
         self.colors = colors
-        try:
-            self.__height
-        except AttributeError:
-            self.__height = floor(sqrt(len(colors)))
-            self.__width = self.__height
-            while self.__width * self.__height < len(colors):
-                self.__width += 1
 
 
 class App:
-    @staticmethod
-    def run(p: list[Settings | Color | None] | list[Settings | list[Color | None]]) -> None:
-        t = Table(p)
+    """A wrapper for the main function to allow simpler usage"""
+    def __new__(cls,
+                palette: l1 | l2,
+                show: bool = True,
+                save: bool = True
+                ) -> Image:
+        """
+        Parameters:
+            palette: The palette of colors to generate an image for
+            show: Whether to display the generated image
+            save: Whether to save the generated palette
+
+        Returns:
+            (PIL.Image) the created image
+        """
+        t = Table(palette)
         s = t.settings
-        img = Image.new('RGBA', t.size())
+        img = Image.new('RGBA', t.size)
         draw = ImageDraw.Draw(img)
-        for f in t.fields():
-            col = f.color
-            text_col = s.text_col_fn(col).drgb
+        font = s.font+'.ttf'
+        for i in t.fields:
+            l, t = i.pos
+            w, h = i.size
+            col = i.col
+            bg_col = col.drgb
             dark_col = s.darken_fn(col).drgb
-            (x, y) = f.pos
+            text_col = s.text_col_fn(col).drgb
             draw.rectangle(
-                ((x, y), (x + s.grid_width - 1, y + s.grid_height - 1)),
-                fill=col.drgb
+                (
+                    (l, t),
+                    (l + w, t + h)
+                ),
+                fill=bg_col
             )
             draw.rectangle(
-                ((x, y + s.grid_height - s.bar_height - 1), (x + s.grid_width - 1, y + s.grid_height - 1)),
+                (
+                    (l, t + h - s.bar_height),
+                    (l + w, t + h)
+                ),
                 fill=dark_col
             )
-            if col.name:
+            if col.name is not None:
                 draw.text(
-                    (x + s.grid_width / 2, y + s.grid_height / 2 + s.name_offset),
+                    (l + w / 2, t + h / 2 + s.name_offset),
                     col.name,
-                    font=ImageFont.truetype('renogare.ttf', size=s.name_size),
+                    font=ImageFont.truetype(font, size=s.name_size),
                     fill=text_col,
                     anchor='mm'
                 )
                 draw.text(
-                    (x + s.grid_width / 2, y + s.grid_height / 2 + s.hex_offset),
+                    (l + w / 2, t + h / 2 + s.hex_offset),
                     col.hex,
-                    font=ImageFont.truetype('renogare.ttf', size=s.hex_size),
+                    font=ImageFont.truetype(font, size=s.hex_size),
                     fill=text_col,
                     anchor='mm'
                 )
             else:
                 draw.text(
-                    (x + s.grid_width / 2, y + s.grid_height / 2 + s.hex_offset_noname),
+                    (l + w / 2, t + h / 2 + s.hex_offset_noname),
                     col.hex,
-                    font=ImageFont.truetype('renogare.ttf', size=s.hex_size_noname),
+                    font=ImageFont.truetype(font, size=s.hex_size_noname),
                     fill=text_col,
                     anchor='mm'
                 )
-            if col.desc_left:
+            if col.desc_left is not None:
                 draw.text(
-                    (x + s.desc_offset_x, y + s.desc_offset_y),
+                    (l + s.desc_offset_x, t + s.desc_offset_y),
                     col.desc_left,
-                    font=ImageFont.truetype('renogare.ttf', size=s.desc_size),
+                    font=ImageFont.truetype(font, size=s.desc_size),
                     fill=text_col,
                     anchor='lt'
                 )
-            if col.desc_right:
+            if col.desc_right is not None:
                 draw.text(
-                    (x + s.grid_width - 1 - s.desc_offset_x, y + s.desc_offset_y),
+                    (l + w - 1 - s.desc_offset_x, t + s.desc_offset_y),
                     col.desc_right,
-                    font=ImageFont.truetype('renogare.ttf', size=s.desc_size),
+                    font=ImageFont.truetype(font, size=s.desc_size),
                     fill=text_col,
                     anchor='rt'
                 )
-        img.save(s.file_name + '.png')
-        startfile(s.file_name + '.png')
+        if save:
+            img.save(s.file_name + '.png')
+        if show:
+            img.show() if not save else startfile(s.file_name + '.png')
+        return img
 
 
+# start the program
 if __name__ == '__main__':
-    from palette import palette
-    App.run(palette)
+    from run import run
+    run()

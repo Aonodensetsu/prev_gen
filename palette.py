@@ -94,7 +94,7 @@
 # - uses the special syntax
 # - literal mode (each array is one row)
 # - changes the file name to gruvbox.png
-from main import Settings
+from main import Color, Settings
 palette = [
     Settings(file_name='gruvbox'),
     [
@@ -121,5 +121,5 @@ palette = [
 
 # start the program
 if __name__ == '__main__':
-    from main import App
-    App.run(palette)
+    from run import run
+    run()
