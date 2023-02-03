@@ -365,7 +365,7 @@ class App:
             w, h = i.size
             col = i.col
             bg_col = col.drgb
-            dark_col = s.bar_col_fn(col).drgb
+            bar_col = s.bar_col_fn(col).drgb
             text_col = s.text_col_fn(col).drgb
             draw.rectangle(
                 (
@@ -379,7 +379,7 @@ class App:
                     (l, t + h - s.bar_height),
                     (l + w, t + h)
                 ),
-                fill=dark_col
+                fill=bar_col
             )
             if col.name is not None:
                 draw.text(
