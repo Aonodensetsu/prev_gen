@@ -16,14 +16,20 @@ import colorsys
 #   (Y, I, Q)
 f3 = tuple[float, float, float]
 # used for denormalized color representations
-#   (R, G, B) - currently only RGB supported denormalized
+#   (R, G, B) - currently only RGB supports denormalized values
 i3 = tuple[int, int, int]
+
+
+class LazyloadError(AttributeError):
+    """Attribute was not assigned a value and does not support lazyloading"""
+    def __init__(self):
+        super().__init__(self.__doc__)
 
 
 @dataclass(slots=True)
 class Color:
     """
-    Represents one tile in the image, its color and any descriptions
+    Represents one tile in the image, its color, and any descriptions
 
     Attributes:
         name: Color name
@@ -35,7 +41,7 @@ class Color:
         hls: HLS normalized color
         yiq: YIQ normalized color
         drgb: RGB denormalized color
-        isDark: Is the color dark based on human perception
+        dark: Is the color dark based on human perception?
     """
     name: str | None
     desc_left: str | None
@@ -46,10 +52,10 @@ class Color:
     hls: f3
     yiq: f3
     drgb: i3
-    isDark: bool
+    dark: bool
 
     def __init__(self,
-                 color: str | f3 | i3 | None = None,
+                 color: str | f3 | i3,
                  name: str | None = None,
                  desc_left: str | None = None,
                  desc_right: str | None = None,
@@ -72,15 +78,14 @@ class Color:
             # precalculate the given mode if not default, the user probably intends to use it
             if not mode == 'rgb':
                 setattr(self, mode, colorsys.__dict__['rgb_to_' + mode](*self.rgb))
-        elif mode == 'rgb':
-            # allow passing denormalized RGB
-            if all(isinstance(i, int) for i in color):
-                self.drgb = color
-                color = tuple(i / 255. for i in color)
-            setattr(self, mode, color)
         else:
             # always calculate RGB since it is used for conversions
-            self.rgb = colorsys.__dict__[mode + '_to_rgb'](*color)
+            if not mode == 'rgb':
+                self.rgb = colorsys.__dict__[mode + '_to_rgb'](*color)
+            # allow passing denormalized RGB
+            if mode == 'rgb' and all(isinstance(i, int) for i in color):
+                self.drgb = color
+                color = tuple(i / 255. for i in color)
             setattr(self, mode, color)
         self.name = name
         self.desc_left = desc_left
@@ -98,7 +103,7 @@ class Color:
                     self.drgb = tuple(int(i * 255) for i in self.rgb)
                 case 'hex':
                     self.hex = '#%02X%02X%02X' % self.drgb
-                case 'isDark':
+                case 'dark':
                     r, g, b = [  # linearized RGB
                         i / 12.92
                         if i < 0.04045
@@ -112,14 +117,16 @@ class Color:
                         else (pow(lum, 1 / 3) * 116 - 16) / 100
                     )
                     if perc <= 0.4:
-                        self.isDark = True
+                        self.dark = True
                     else:
-                        self.isDark = False
+                        self.dark = False
+                case _:
+                    raise LazyloadError
             return object.__getattribute__(self, item)
 
 
 # used for Color transformations
-#   darkening - calculates dark bar color from background color
+#   bar - calculates dark bar color from background color
 #   text - calculates text color from background color
 tf = Callable[[Color], Color]
 
@@ -144,7 +151,7 @@ class Settings:
         hex_size: Text size of the hex value printed under the color name
         hex_size_noname: Text size of the hex value printed if no name given
         desc_size: Text size of the corner descriptions
-        darken_fn: Function to determine darkened bar color from background color
+        bar_col_fn: Function to determine bar color from background color
         text_col_fn: Function to determine text color from background color
     """
     file_name: str = 'result'
@@ -161,7 +168,7 @@ class Settings:
     hex_size: int = 26
     hex_size_noname: int = 34
     desc_size: int = 26
-    darken_fn: tf = (
+    bar_col_fn: tf = (
         lambda x:
         Color(
             (
@@ -182,7 +189,7 @@ class Settings:
             ),
             mode='hsv'
         )
-        if x.isDark
+        if x.dark
         else Color(
             (
                 x.hsv[0],
@@ -201,7 +208,7 @@ class Settings:
 #     Settings (as the first element)
 #     Color
 #     tuple representing a color in special syntax
-l1 = list[None | Settings | Color | tuple]
+u1 = list[None | Settings | Color | tuple]
 # usage 2
 #   list of
 #     None to mark an empty row
@@ -210,7 +217,7 @@ l1 = list[None | Settings | Color | tuple]
 #       None to mark an empty element
 #       Color
 #       tuple representing a color in special syntax
-l2 = list[None | Settings | list[None | Color | tuple]]
+u2 = list[None | Settings | list[None | Color | tuple]]
 
 
 # used for position and size when placing tiles in an image
@@ -287,7 +294,7 @@ class Table:
                 )
             i += 1
 
-    def __init__(self, colors: l1 | l2) -> None:
+    def __init__(self, colors: u1 | u2) -> None:
         """
         Creates a table from a palette
 
@@ -335,7 +342,7 @@ class Table:
 class App:
     """A wrapper for the main function to allow simpler usage"""
     def __new__(cls,
-                palette: l1 | l2,
+                palette: u1 | u2,
                 show: bool = True,
                 save: bool = True
                 ) -> Image:
@@ -358,7 +365,7 @@ class App:
             w, h = i.size
             col = i.col
             bg_col = col.drgb
-            dark_col = s.darken_fn(col).drgb
+            dark_col = s.bar_col_fn(col).drgb
             text_col = s.text_col_fn(col).drgb
             draw.rectangle(
                 (
