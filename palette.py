@@ -5,7 +5,7 @@
 #     place colors in the order you want them to appear in the generated image
 #     the program will make a rectangle big enough to fit them all
 #     - it actually makes the biggest square *smaller than* required, then extends it horizontally until everything fits
-#     - it will always make a rectangle that's close to a square in shape (in my opinion it's the most useful option)
+#     - it will always make a rectangle that's close to a square in shape (in my opinion it's the most useful shape)
 #
 #   Usage 2 - "literal mode" (2d list):
 #     each inner list will be treated as a single row of colors, left-to-right
@@ -13,13 +13,26 @@
 #     inner lists will have their lengths automatically equalized
 #     - this means that a shorter row will end with transparent spaces by default
 #     - you can even leave entire rows transparent if you pass an empty list
+
+# Color:
+#   an object that represents a single color
+#   Available parameters:
+#     color (str | tuple[float, float, float] | tuple[int, int, int])
+#       The color value to assign
+#     name (str | None) = None
+#       The name to display
+#     desc_left (str | None) = None
+#       Left corner description
+#     desc_right (str | None) = None
+#       Right corner description
+#     mode ( Literal: 'rgb', 'hsv', 'hls' or 'yiq' ) = 'rgb'
+#       Specifies type of color to convert from
 #
-# Colors:
-#   in the default mode you can make a color using RGB:
+#   in the default mode you make a color that uses RGB:
 #     RGB: Color((0.2, 0.4, 0.7))          <- normalized
-#          Color((0., 0., 0.), 'black')    <- make sure to include the dots (type: float)
+#          Color((0., 0., 0.))             <- make sure to include the dots (type: float)
 #          Color((200, 100, 235))          <- denormalized
-#          Color((0, 0, 0), 'still black') <- this is the option without dots (type: int)
+#          Color((0, 0, 0))                <- this is the option without dots (type: int)
 #
 #   you can change the mode by specifying the type of color you want
 #   all the modes other than RGB do not currently allow denormalized values
@@ -32,16 +45,17 @@
 #     Color((0.2, 0.4, 0.7), 'green', mode='hsv')  <- HSV with name
 #
 #   HEX works regardless of mode specified
-#     Color('#52c7a7', 'mint', mode='yiq') <- HEX with name (mode ignored)
+#     Color('#52c7a7', 'mint', mode='yiq') <- HEX with name (mode ignored*)
+#       *YIQ colors will be generated when creating the color for later use
 #
 #   there is a special syntax which allows you to omit the Color keyword
 #   but you need to adhere to the order of parameters that create a Color
 #   (color, name, desc_left, desc_right, mode)
-#     HEX: ('#000000',)                                      <- comma at the end if only one element
-#          ('#ffffff', 'white')                              <- name is the second parameter
-#          ('#ffffff', 'white', None, None, 'hls')           <- HEX still works regardless of mode
-#     RGB: ((0., 0., 1.), 'blue')                         <- RGB is the default mode
-#     HSV: ((0., 1., 1.), None, None, None, 'hsv')        <- HSV without a name or descriptions
+#     HEX: ('#000000',)                               <- comma at the end if only one element
+#          ('#ffffff', 'white')                       <- name is the second parameter
+#          ('#ffffff', 'white', None, None, 'hls')    <- HEX still works regardless of mode
+#     RGB: ((0., 0., 1.), 'blue')                     <- RGB is the default mode
+#     HSV: ((0., 1., 1.), None, None, None, 'hsv')    <- HSV without a name or descriptions
 #          ((0., 0., 0.), 'black', None, None, 'yiq') <- YIQ with a name but no comments
 #
 # Settings:
@@ -49,51 +63,46 @@
 #   you pass a Settings object as the first thing in the palette
 #   - if you don't want to overwrite any settings just omit it
 #   Available settings:
-#     file_name: str = 'result'
-#       file name to save into (no extension - will be png)
-#     grid_height: int = 168
-#       height of each individual color field
-#     grid_width: int = 224
-#       width of each individual color field
-#     bar_height: int = 10
-#       height of the darkened bar at the bottom of each field
-#     name_offset: int = -10
-#       vertical offset of the name printed within the field
-#     hex_offset: int = 35
-#       vertical offset of the hex value printed below name
-#     hex_offset_noname: int = 0
-#       vertical offset of the hex value printed if no name given
-#     desc_offset_x: int = 15
-#       horizontal offset for the corner descriptions
-#     desc_offset_y: int = 20
-#       vertical offset for the corner descriptions
-#     name_size: int = 40
-#       text size of the name
-#     hex_size: int = 27
-#       text size of the hex value printed under the name
-#     hex_size_noname: int = 30
-#       text size of the hex value printed if no name given
-#     desc_size: int = 25
-#       text size of the corner descriptions
-#     darken_fn: Callable[[Color], Color] = (
-#         lambda x:
-#         Color((x.hsv[0], x.hsv[1] * 1.05, x.hsv[2] * 0.85), mode='hsv')
-#     )
-#       function to use for the darkened bar
-#       don't touch this unless you know what the default value means
-#     text_col_fn: Callable[[Color], Color] = (
-#         lambda x:
-#         Color((x.hsv[0], x.hsv[1] * 0.95, x.hsv[2] * 1.1 + (1. - x.hsv[2]) * 0.3), mode='hsv')
-#         if x.isDark
-#         else Color((x.hsv[0], x.hsv[1] * 0.95, x.hsv[2] * 0.6 - (1. - x.hsv[2]) * 0.2), mode='hsv')
-#     )
-#       function to determine text color from background color
-#       don't touch this unless you know what the default value means
+#     file_name (str) = 'result'
+#       File name to save into (no extension - png)
+#     font (str) = 'renogare'
+#       Font used (no extension - true type)
+#     grid_height (int) = 168
+#       Height of each individual color field
+#     grid_width (int) = 224
+#       Width of each individual color field
+#     bar_height (int) = 10
+#       Height of the darkened bar at the bottom of each field
+#     name_offset (int) = -10
+#       Vertical offset of the color name printed within the field
+#     hex_offset (int) = 35
+#       Vertical offset of the hex value printed below color name
+#     hex_offset_noname (int) = 0
+#       Vertical offset of the hex value printed if no name given
+#     desc_offset_x (int) = 15
+#       Horizontal offset of the corner descriptions
+#     desc_offset_y (int) = 20
+#       Vertical offset of the corner descriptions
+#     name_size (int) = 40
+#       Text size of the color name
+#     hex_size (int) = 26
+#       Text size of the hex value printed under the color name
+#     hex_size_noname (int) = 34
+#       Text size of the hex value printed if no name given
+#     desc_size (int) = 26
+#       Text size of the corner descriptions
+#     bar_col_fn ( fn Color => Color ) = (default omitted)
+#       Function to determine bar color from background color
+#       You probably shouldn't touch this
+#     text_col_fn ( fn Color => Color ) = (default omitted)
+#       Function to determine text color from background color
+#       You probably shouldn't touch this
 #
 # the example below is Gruvbox, a really nice color scheme which inspired this project
 # - uses the special syntax
 # - literal mode (each array is one row)
 # - changes the file name to gruvbox.png
+#
 from main import Color, Settings
 palette = [
     Settings(file_name='gruvbox'),
