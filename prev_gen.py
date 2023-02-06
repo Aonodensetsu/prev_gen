@@ -2,9 +2,7 @@ from typing import NamedTuple, Literal, Callable, Generator
 from PIL import Image, ImageDraw, ImageFont
 from math import pow, sqrt, floor
 from dataclasses import dataclass
-from os import startfile
-import colorsys
-
+import os, sys, colorsys, subprocess
 
 # type aliases are declared as needed, so they are spread throughout the file
 # some depend on the presence of classes, so they cannot be moved to the top of the file
@@ -19,12 +17,10 @@ f3 = tuple[float, float, float]
 #   (R, G, B) - currently only RGB supports denormalized values
 i3 = tuple[int, int, int]
 
-
 class LazyloadError(AttributeError):
     """Attribute was not assigned a value and does not support lazyloading"""
     def __init__(self):
         super().__init__(self.__doc__)
-
 
 @dataclass(slots=True)
 class Color:
@@ -124,12 +120,10 @@ class Color:
                     raise LazyloadError
             return object.__getattribute__(self, item)
 
-
 # used for Color transformations
 #   bar - calculates dark bar color from background color
 #   text - calculates text color from background color
 tf = Callable[[Color], Color]
-
 
 @dataclass(kw_only=True, slots=True)
 class Settings:
@@ -200,7 +194,6 @@ class Settings:
         )
     )
 
-
 # used to typehint palettes
 # usage 1
 #   list of
@@ -219,7 +212,6 @@ u1 = list[None | Settings | Color | tuple]
 #       tuple representing a color in special syntax
 u2 = list[None | Settings | list[None | Color | tuple]]
 
-
 # used for position and size when placing tiles in an image
 # and for the size of the image itself
 class Distance(NamedTuple):
@@ -232,7 +224,6 @@ class Distance(NamedTuple):
     """
     x: int
     y: int
-
 
 # used as a container of data when drawing tiles
 class Field(NamedTuple):
@@ -247,7 +238,6 @@ class Field(NamedTuple):
     pos: Distance
     size: Distance
     col: Color
-
 
 @dataclass(slots=True)
 class Table:
@@ -338,7 +328,6 @@ class Table:
                 self.width += 1
         self.colors = colors
 
-
 class App:
     """A wrapper for the main function to allow simpler usage"""
     def __new__(cls,
@@ -423,11 +412,20 @@ class App:
         if save:
             img.save(s.file_name + '.png')
         if show:
-            img.show() if not save else startfile(s.file_name + '.png')
+            if not save:
+                img.show()
+            elif sys.platform == 'win32':
+                os.startfile(s.file_name + '.png')
+            else:
+                try:
+                    opener = 'open' if sys.platform == 'darwin' else 'xdg-open'
+                    subprocess.call([opener, s.file_name + '.png'])
+                except FileNotFoundError:
+                    pass
         return img
-
 
 # start the program
 if __name__ == '__main__':
-    from run import run
-    run()
+    from palette import *
+    App(palette)
+
