@@ -426,6 +426,6 @@ class App:
 
 # start the program
 if __name__ == '__main__':
-    from palette import *
+    from palette import palette, Settings, Color
     App(palette)
 
