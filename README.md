@@ -8,7 +8,7 @@ You need **Python 3.10+** with the **pillow** module installed
 1. Open up [pallete.py](palette.py) and set up the colors how you want (instructions in the file)
 2. Run either of the python files to start the app
 
-You can also import [prev-gen.py](prev-gen.py) to use this as a library, simply pass an appropriate palette to the App class.  
+You can also import [prev_gen.py](prev_gen.py) to use this as a library, simply pass an appropriate palette to the App class.  
 Simple as can be!
 
 # Changelog
