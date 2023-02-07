@@ -1,8 +1,11 @@
-from typing import NamedTuple, Literal, Callable, Generator
-from PIL import Image, ImageDraw, ImageFont
+import os
+import sys
+import colorsys
+import subprocess
 from math import pow, sqrt, floor
 from dataclasses import dataclass
-import os, sys, colorsys, subprocess
+from PIL import Image, ImageDraw, ImageFont
+from typing import NamedTuple, Literal, Callable, Generator
 
 # type aliases are declared as needed, so they are spread throughout the file
 # some depend on the presence of classes, so they cannot be moved to the top of the file
@@ -14,13 +17,18 @@ import os, sys, colorsys, subprocess
 #   (Y, I, Q)
 f3 = tuple[float, float, float]
 # used for denormalized color representations
-#   (R, G, B) - currently only RGB supports denormalized values
+#   (R: 0-255,  G: 0-255,  B: 0-255)
+#   (H: 0-179,  S: 0-255,  V: 0-255)
+#   (H: 0-360,  S: 0-100,  L: 0-100)
+#   (Y: 0.255,  I: 0-255,  Q: 0-255)
 i3 = tuple[int, int, int]
 
+
 class LazyloadError(AttributeError):
-    """Attribute was not assigned a value and does not support lazyloading"""
-    def __init__(self):
-        super().__init__(self.__doc__)
+    """Attribute was not assigned a value and does not support lazy loading"""
+    def __init__(self, item):
+        super().__init__(f'({item}) ' + self.__doc__)
+
 
 @dataclass(slots=True)
 class Color:
@@ -36,7 +44,10 @@ class Color:
         hsv: HSV normalized color
         hls: HLS normalized color
         yiq: YIQ normalized color
-        drgb: RGB denormalized color
+        rgb_d: RGB denormalized color
+        hsv_d: HSV denormalized color
+        hls_d: HLS denormalized color
+        yiq_d: YIQ denormalized color
         dark: Whether the color is dark based on human perception
     """
     name: str | None
@@ -47,7 +58,10 @@ class Color:
     hsv: f3
     hls: f3
     yiq: f3
-    drgb: i3
+    rgb_d: i3
+    hsv_d: i3
+    hls_d: i3
+    yiq_d: i3
     dark: bool
 
     def __init__(self,
@@ -71,18 +85,31 @@ class Color:
         if isinstance(color, str):
             self.hex = '#'+color.lstrip('#').upper()
             self.rgb = tuple(int(self.hex[i:i + 2], 16) / 255. for i in (1, 3, 5))
-            # precalculate the given mode if not default, the user probably intends to use it
-            if not mode == 'rgb':
-                setattr(self, mode, colorsys.__dict__['rgb_to_' + mode](*self.rgb))
+            # precalculate the given mode, the user probably intends to use it
+            self.__getattribute__(mode)
         else:
+            if all(isinstance(i, int) for i in color):
+                match mode:
+                    case 'rgb':
+                        self.rgb_d = color
+                        r, g, b = color
+                        color = (r / 255., g / 255., b / 255.)
+                    case 'hsv':
+                        self.hsv_d = color
+                        h, s, v = color
+                        color = (h / 179., s / 255., v / 255.)
+                    case 'hls':
+                        self.hls_d = color
+                        h, l, s = color
+                        color = (h / 360., l / 100., s / 100.)
+                    case 'yiq':
+                        self.yiq_d = color
+                        y, i, q = color
+                        color = (y / 255., i / 255., q / 255.)
+            setattr(self, mode, color)
             # always calculate RGB since it is used for conversions
             if not mode == 'rgb':
                 self.rgb = colorsys.__dict__[mode + '_to_rgb'](*color)
-            # allow passing denormalized RGB
-            if mode == 'rgb' and all(isinstance(i, int) for i in color):
-                self.drgb = color
-                color = tuple(i / 255. for i in color)
-            setattr(self, mode, color)
         self.name = name
         self.desc_left = desc_left
         self.desc_right = desc_right
@@ -95,10 +122,18 @@ class Color:
             match item:
                 case 'hsv' | 'hls' | 'yiq':
                     setattr(self, item, colorsys.__dict__['rgb_to_' + item](*self.rgb))
-                case 'drgb':
-                    self.drgb = tuple(int(i * 255) for i in self.rgb)
+                case 'rgb_d':
+                    self.rgb_d = tuple(int(i * 255) for i in self.rgb)
+                case 'hsv_d':
+                    h, s, v = self.hsv
+                    self.hsv_d = (int(h * 179), int(s * 255), int(v * 255))
+                case 'hls_d':
+                    h, l, s = self.hls
+                    self.hls_d = (int(h * 360), int(l * 100), int(s * 100))
+                case 'yiq_d':
+                    self.yiq_d = tuple(int(i * 255) for i in self.yiq)
                 case 'hex':
-                    self.hex = '#%02X%02X%02X' % self.drgb
+                    self.hex = '#%02X%02X%02X' % self.rgb_d
                 case 'dark':
                     r, g, b = [  # linearized RGB
                         i / 12.92
@@ -117,13 +152,15 @@ class Color:
                     else:
                         self.dark = False
                 case _:
-                    raise LazyloadError
+                    raise LazyloadError(item)
             return object.__getattribute__(self, item)
+
 
 # used for Color transformations
 #   bar - calculates dark bar color from background color
 #   text - calculates text color from background color
 tf = Callable[[Color], Color]
+
 
 @dataclass(kw_only=True, slots=True)
 class Settings:
@@ -194,6 +231,7 @@ class Settings:
         )
     )
 
+
 # used to typehint palettes
 # usage 1
 #   list of
@@ -212,6 +250,7 @@ u1 = list[None | Settings | Color | tuple]
 #       tuple representing a color in special syntax
 u2 = list[None | Settings | list[None | Color | tuple]]
 
+
 # used for position and size when placing tiles in an image
 # and for the size of the image itself
 class Distance(NamedTuple):
@@ -224,6 +263,7 @@ class Distance(NamedTuple):
     """
     x: int
     y: int
+
 
 # used as a container of data when drawing tiles
 class Field(NamedTuple):
@@ -238,6 +278,7 @@ class Field(NamedTuple):
     pos: Distance
     size: Distance
     col: Color
+
 
 @dataclass(slots=True)
 class Table:
@@ -328,12 +369,13 @@ class Table:
                 self.width += 1
         self.colors = colors
 
+
 class App:
     """A wrapper for the main function to allow simpler usage"""
     def __new__(cls,
                 palette: u1 | u2,
-                show: bool = True,
-                save: bool = True
+                show: bool = False,
+                save: bool = False
                 ) -> Image:
         """
         Parameters:
@@ -353,9 +395,9 @@ class App:
             l, t = i.pos
             w, h = i.size
             col = i.col
-            bg_col = col.drgb
-            bar_col = s.bar_col_fn(col).drgb
-            text_col = s.text_col_fn(col).drgb
+            bg_col = col.rgb_d
+            bar_col = s.bar_col_fn(col).rgb_d
+            text_col = s.text_col_fn(col).rgb_d
             draw.rectangle(
                 (
                     (l, t),
@@ -417,15 +459,13 @@ class App:
             elif sys.platform == 'win32':
                 os.startfile(s.file_name + '.png')
             else:
-                try:
-                    opener = 'open' if sys.platform == 'darwin' else 'xdg-open'
-                    subprocess.call([opener, s.file_name + '.png'])
-                except FileNotFoundError:
-                    pass
+                opener = 'open' if sys.platform == 'darwin' else 'xdg-open'
+                subprocess.call([opener, s.file_name + '.png'])
         return img
+
 
 # start the program
 if __name__ == '__main__':
     from palette import palette, Settings, Color
-    App(palette)
+    App(palette, save=True, show=True)
 
