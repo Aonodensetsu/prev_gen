@@ -1,5 +1,5 @@
 # Palette:
-#   with either option below you can always put None in the table instead of a Color to leave one field transparent
+#   with either option you can put "None" in the table instead of a Color to leave one field transparent
 #
 #   Usage 1 - "it just works" (1d list):
 #     place colors in the order you want them to appear in the generated image
@@ -27,7 +27,7 @@
 #       Left corner description
 #     desc_right: str | None = None
 #       Right corner description
-#     mode: Literal['rgb', 'hsv', 'hls'] = 'rgb'
+#     mode: Literal['rgb', 'hsv', 'hls', 'yiq'] = 'rgb'
 #       Specifies type of color to convert from
 #
 #   in the default mode you make a color that uses RGB:
@@ -37,10 +37,16 @@
 #          Color((255, 255, 255))  <- this is the option without dots (type: int)
 #
 #   you can change the mode by specifying the type of color you want
-#   all the modes other than RGB do not currently allow denormalized values
 #     HSV: Color((0.2, 0.4, 0.7), mode='hsv')
 #     HLS: Color((0.2, 0.4, 0.7), mode='hls')
 #     YIQ: Color((0.2, 0.4, 0.7), mode='yiq')
+#
+#   all the modes support normalized and denormalized values
+#   but make sure to look at the ranges of values if you want to use denormalized ones
+#     (R: 0-255,  G: 0-255,  B: 0-255)
+#     (H: 0-179,  S: 0-255,  V: 0-255)
+#     (H: 0-360,  S: 0-100,  L: 0-100)
+#     (Y: 0.255,  I: 0-255,  Q: 0-255)
 #
 #   you can also specify a name for a color or not
 #     Color((200, 100, 235), 'purple')    <- RGB with name
@@ -50,16 +56,6 @@
 #     Color('#52c7a7', 'mint', mode='hls')  <- HEX with name (mode ignored*)
 #       *HLS values will be generated when creating the color for later use
 #
-#   there is a special syntax which allows you to omit the Color keyword
-#   but you need to adhere to the order of parameters that create a Color
-#   (color, name, desc_left, desc_right, mode)
-#     HEX: ('#000000',)                                <- comma at the end if only one element
-#          ('#ffffff',    'white')                     <- name is the second parameter
-#          ('#ffffff',    'white', None, None, 'hls')  <- HEX still works regardless of mode
-#     RGB: ((0., 0., 1.), 'blue')                      <- RGB is the default mode
-#     HSV: ((0., 1., 1.),  None,   None, None, 'hsv')  <- HSV without a name or descriptions
-#     HLS: ((0., 0., 0.), 'black', None, None, 'hls')  <- HSL with a name but no comments
-#
 # Settings:
 #   an object that controls the behavior of the program
 #   you pass a Settings object as the first thing in the palette
@@ -67,8 +63,8 @@
 #   Available settings:
 #     file_name: str = 'result'
 #       File name to save into (no extension - png)
-#     font:str = 'renogare'
-#       Font used (no extension - true type)
+#     font:str = None
+#       Font used (no extension - true type) - if none, will use bundled
 #     grid_height: int = 168
 #       Height of each individual color field
 #     grid_width: int = 224
@@ -110,36 +106,37 @@
 #        Whether to display the generated image to the user
 #
 # the example below is Gruvbox, a really nice color scheme which inspired this project
-# - uses the special syntax
-# - usage 2: literal mode
 # - changes the file name to gruvbox.png
+# - usage 2: literal mode
 #
-from prev_gen import Color, Settings
+from prev_gen import Color as C, Settings
 palette = [
     Settings(file_name='gruvbox'),
     [
-        ('#282828', 'bg',     '235', '0'),  ('#cc241d', 'red',    '124', '1'),  ('#98971a', 'green',  '106', '2'),
-        ('#d79921', 'yellow', '172', '3'),  ('#458588', 'blue',   '66',  '4'),  ('#b16286', 'purple', '132', '5'),
-        ('#689d6a', 'aqua',   '72',  '6'),  ('#a89984', 'gray',   '246', '7')
+        C('#282828', 'bg',     '235', '0'),  C('#cc241d', 'red',    '124', '1'),  C('#98971a', 'green',  '106', '2'),
+        C('#d79921', 'yellow', '172', '3'),  C('#458588', 'blue',   '66',  '4'),  C('#b16286', 'purple', '132', '5'),
+        C('#689d6a', 'aqua',   '72',  '6'),  C('#a89984', 'gray',   '246', '7')
     ],
     [
-        ('#928374', 'gray',   '245', '8'),  ('#fb4934', 'red',    '167', '9'),  ('#b8bb26', 'green',  '142', '10'),
-        ('#fabd2f', 'yellow', '214', '11'), ('#83a598', 'blue',   '109', '12'), ('#d3869b', 'purple', '175', '13'),
-        ('#8ec07c', 'aqua',   '108', '14'), ('#ebdbb2', 'fg',     '223', '15')
+        C('#928374', 'gray',   '245', '8'),  C('#fb4934', 'red',    '167', '9'),  C('#b8bb26', 'green',  '142', '10'),
+        C('#fabd2f', 'yellow', '214', '11'), C('#83a598', 'blue',   '109', '12'), C('#d3869b', 'purple', '175', '13'),
+        C('#8ec07c', 'aqua',   '108', '14'), C('#ebdbb2', 'fg',     '223', '15')
     ],
     [
-        ('#1d2021', 'bg0_h',  '234', '0'),  ('#282828', 'bg0',    '235', '0'),  ('#3c3836', 'bg1',    '237', '-'),
-        ('#504945', 'bg2',    '239', '-'),  ('#665c54', 'bg3',    '241', '-'),  ('#7c6f64', 'bg4',    '243', '-'),
-        ('#928374', 'gray',   '245', '8'),  ('#d65d0e', 'orange', '166', '-')
+        C('#1d2021', 'bg0_h',  '234', '0'),  C('#282828', 'bg0',    '235', '0'),  C('#3c3836', 'bg1',    '237', '-'),
+        C('#504945', 'bg2',    '239', '-'),  C('#665c54', 'bg3',    '241', '-'),  C('#7c6f64', 'bg4',    '243', '-'),
+        C('#928374', 'gray',   '245', '8'),  C('#d65d0e', 'orange', '166', '-')
     ],
     [
-        None,                               ('#32302f', 'bg0_s',  '236', '0'),  ('#a89984', 'fg4',    '246', '7'),
-        ('#bdae93', 'fg3',    '248', '-'),  ('#d5c4a1', 'fg2',    '250', '-'),  ('#ebdbb2', 'fg1',    '223', '15'),
-        ('#fbf1c7', 'fg0',    '229', '-'),  ('#fe8019', 'orange', '208', '-')
+        None,                               C('#32302f', 'bg0_s',  '236', '0'),  C('#a89984', 'fg4',    '246', '7'),
+        C('#bdae93', 'fg3',    '248', '-'),  C('#d5c4a1', 'fg2',    '250', '-'),  C('#ebdbb2', 'fg1',    '223', '15'),
+        C('#fbf1c7', 'fg0',    '229', '-'),  C('#fe8019', 'orange', '208', '-')
     ]
 ]
 
 # start the program
 if __name__ == '__main__':
-    from prev_gen import PrevGen
-    PrevGen(palette, save=True, show=True)
+    # you can use these same two lines in your own code
+    # to use this as a library
+    from prev_gen import Preview
+    Preview(palette, save=True, show=True)

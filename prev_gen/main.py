@@ -1,4 +1,5 @@
 import colorsys
+import os.path
 from math import pow, sqrt, floor
 from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
@@ -166,7 +167,7 @@ class Settings:
 
     Attributes:
         file_name: File name to save into (no extension - png)
-        font: Font used (no extension - true type)
+        font: Font used (no extension - true type) if none, will use bundled
         grid_height: Height of each individual color field
         grid_width: Width of each individual color field
         bar_height: Height of the darkened bar at the bottom of each field
@@ -183,7 +184,7 @@ class Settings:
         text_col_fn: Function to determine text color from background color
     """
     file_name: str = 'result'
-    font: str = 'renogare'
+    font: str | None = None
     grid_height: int = 168
     grid_width: int = 224
     bar_height: int = 10
@@ -310,21 +311,6 @@ class Table:
         Parameters:
              colors: The list of colors to use for this table
         """
-        # special syntax handling, converts tuples to Colors
-        # kinda complicated because supports both usage types
-        colors = [
-            [
-                Color(*j)
-                if isinstance(j, tuple)
-                else j
-                for j in i
-            ]
-            if isinstance(i, list)
-            else Color(*i)
-            if isinstance(i, tuple)
-            else i
-            for i in colors
-        ]
         # extract settings from palette
         if isinstance(colors[0], Settings):
             self.settings = colors[0]
@@ -374,7 +360,7 @@ class Table:
         )
 
 
-class PrevGen:
+class Preview:
     """A wrapper for the main function to allow simpler usage"""
     def __new__(cls,
                 palette: u1 | u2,
@@ -394,7 +380,11 @@ class PrevGen:
         s = t.settings
         img = Image.new('RGBA', t.size)
         draw = ImageDraw.Draw(img)
-        font = s.font+'.ttf'
+        if s.font is None:
+            from inspect import currentframe, getabsfile
+            font = os.path.dirname(getabsfile(currentframe())) + '/renogare.ttf'
+        else:
+            font = s.font + '.ttf'
         png = s.file_name + '.png'
         for i in t:
             l, t = i.pos
@@ -467,9 +457,3 @@ class PrevGen:
                 from webbrowser import open
                 open(png)
         return img
-
-
-# start the program
-if __name__ == '__main__':
-    from palette import palette, Settings, Color
-    PrevGen(palette, save=True, show=True)
