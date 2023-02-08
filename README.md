@@ -11,7 +11,7 @@ You can also import the package and use it in any of your code, simply pass an a
 # Example:
 Inspired by the great [Gruvbox](https://github.com/morhetz/gruvbox) theme, where even the preview is impressive  
 And so, below is the Gruvbox palette preview recreated with this app
-![example](https://github.com/Aonodensetsu/prev_gen/blob/main/gruvbox.png)
+[![example](https://github.com/Aonodensetsu/prev_gen/blob/main/gruvbox.png)](https://github.com/Aonodensetsu/prev_gen/blob/main/gruvbox.png)
 
 ## Links:
 [Changelog](https://github.com/Aonodensetsu/prev_gen/blob/main/CHANGELOG.md)
