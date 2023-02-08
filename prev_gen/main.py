@@ -83,8 +83,6 @@ class Color:
         if isinstance(color, str):
             self.hex = '#'+color.lstrip('#').upper()
             self.rgb = tuple(int(self.hex[i:i + 2], 16) / 255. for i in (1, 3, 5))
-            # precalculate the given mode, the user probably intends to use it
-            self.__getattribute__(mode)
         else:
             if all(isinstance(i, int) for i in color):
                 match mode:

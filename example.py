@@ -1,23 +1,18 @@
 # Palette:
-#   with either option you can put "None" in the table instead of a Color to leave one field transparent
+#   with either option you can put > None < in the table instead of a Color to leave one field transparent
 #
 #   Usage 1 - "it just works" (1d list):
 #     place colors in the order you want them to appear in the generated image
 #     the program will make a rectangle big enough to fit them all
-#     - it actually makes the biggest square *smaller than* required
-#       then extends it horizontally until everything fits
-#     - it will always make a rectangle that's close to a square in shape
-#       in my opinion it's the most useful shape
 #
 #   Usage 2 - "literal mode" (2d list):
 #     each inner list will be treated as a single row of colors, left-to-right
 #     use this for full control over the placement of colors in the final image
-#     inner lists will have their lengths automatically equalized
-#     - this means that a shorter row will end with transparent spaces by default
 #     - you can even leave entire rows transparent if you pass an empty list
 #
 # Color:
 #   an object that represents a single color
+#
 #   Available parameters:
 #     color: str | tuple[float, float, float] | tuple[int, int, int]
 #       The color value to assign, you need to include this value
@@ -30,13 +25,8 @@
 #     mode: Literal['rgb', 'hsv', 'hls', 'yiq'] = 'rgb'
 #       Specifies type of color to convert from
 #
-#   in the default mode you make a color that uses RGB:
-#     RGB: Color((0., 0., 0.))     <- normalized
-#          Color((1., 1., 1.))     <- make sure to include the dots (type: float)
-#          Color((0, 0, 0))        <- denormalized
-#          Color((255, 255, 255))  <- this is the option without dots (type: int)
-#
 #   you can change the mode by specifying the type of color you want
+#     RGB: Color((0.2, 0.4, 0.7))              <- RGB is the default
 #     HSV: Color((0.2, 0.4, 0.7), mode='hsv')
 #     HLS: Color((0.2, 0.4, 0.7), mode='hls')
 #     YIQ: Color((0.2, 0.4, 0.7), mode='yiq')
@@ -46,20 +36,19 @@
 #     (R: 0-255,  G: 0-255,  B: 0-255)
 #     (H: 0-179,  S: 0-255,  V: 0-255)
 #     (H: 0-360,  S: 0-100,  L: 0-100)
-#     (Y: 0.255,  I: 0-255,  Q: 0-255)
+#     (Y: 0-255,  I: 0-255,  Q: 0-255)
 #
 #   you can also specify a name for a color or not
 #     Color((200, 100, 235), 'purple')    <- RGB with name
 #     Color((0.2, 0.4, 0.7), mode='hsv')  <- HSV without name
 #
 #   HEX works regardless of mode specified
-#     Color('#52c7a7', 'mint', mode='hls')  <- HEX with name (mode ignored*)
-#       *HLS values will be generated when creating the color for later use
+#     Color('#52c7a7', 'mint', mode='hls')  <- HEX with name (mode ignored)
 #
 # Settings:
 #   an object that controls the behavior of the program
-#   you pass a Settings object as the first thing in the palette
 #   - if you don't want to overwrite any settings just omit it
+#
 #   Available settings:
 #     file_name: str = 'result'
 #       File name to save into (no extension - png)
@@ -99,6 +88,7 @@
 # App:
 #   the entrypoint that starts the program
 #   it always returns the generated image, even if you choose to also save it
+#
 #   Available settings:
 #     save: bool = False
 #       Whether to save the image to disk
@@ -106,10 +96,8 @@
 #        Whether to display the generated image to the user
 #
 # the example below is Gruvbox, a really nice color scheme which inspired this project
-# - changes the file name to gruvbox.png
-# - usage 2: literal mode
-#
-from prev_gen import Color as C, Settings
+# Color is imported under the name "C" to not repeat "Color" this many times
+from prev_gen import Settings, Color as C
 palette = [
     Settings(file_name='gruvbox'),
     [
@@ -128,7 +116,7 @@ palette = [
         C('#928374', 'gray',   '245', '8'),  C('#d65d0e', 'orange', '166', '-')
     ],
     [
-        None,                               C('#32302f', 'bg0_s',  '236', '0'),  C('#a89984', 'fg4',    '246', '7'),
+        None,                                C('#32302f', 'bg0_s',  '236', '0'),  C('#a89984', 'fg4',    '246', '7'),
         C('#bdae93', 'fg3',    '248', '-'),  C('#d5c4a1', 'fg2',    '250', '-'),  C('#ebdbb2', 'fg1',    '223', '15'),
         C('#fbf1c7', 'fg0',    '229', '-'),  C('#fe8019', 'orange', '208', '-')
     ]
@@ -136,7 +124,7 @@ palette = [
 
 # start the program
 if __name__ == '__main__':
-    # you can use these same two lines in your own code
-    # to use this as a library
+    # you can use the two lines below in your own code
+    # Preview returns a pillow Image, you can do anything with it
     from prev_gen import Preview
     Preview(palette, save=True, show=True)
