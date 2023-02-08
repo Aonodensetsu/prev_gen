@@ -141,5 +141,5 @@ palette = [
 
 # start the program
 if __name__ == '__main__':
-    from prev_gen import App
-    App(palette, save=True, show=True)
+    from prev_gen import PrevGen
+    PrevGen(palette, save=True, show=True)

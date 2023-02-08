@@ -1,11 +1,8 @@
-import os
-import sys
 import colorsys
-import subprocess
 from math import pow, sqrt, floor
 from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
-from typing import NamedTuple, Literal, Callable, Generator
+from typing import NamedTuple, Literal, Callable
 
 # type aliases are declared as needed, so they are spread throughout the file
 # some depend on the presence of classes, so they cannot be moved to the top of the file
@@ -283,7 +280,7 @@ class Field(NamedTuple):
 @dataclass(slots=True)
 class Table:
     """
-    A table of colors
+    A table of colors, which you can iterate over
 
     Attributes:
         colors: List of colors, flattened
@@ -291,12 +288,12 @@ class Table:
         height: Height of the table in fields
         width: Width of the table in fields
         size: Size of table in pixels
-        fields: Iterable of Fields within the table
     """
     colors: list[Color | None]
     settings: Settings
     height: int
     width: int
+    _iter: int
 
     @property
     def size(self) -> Distance:
@@ -305,25 +302,6 @@ class Table:
             self.width * self.settings.grid_width,
             self.height * self.settings.grid_height
         )
-
-    @property
-    def fields(self) -> Generator[Field, None, None]:
-        """Iterable of Fields within the table"""
-        i = 0
-        while i < len(self.colors):
-            if self.colors[i] is not None:
-                yield Field(
-                    Distance(
-                        i % self.width * self.settings.grid_width,
-                        i // self.width * self.settings.grid_height
-                    ),
-                    Distance(
-                        self.settings.grid_width - 1,
-                        self.settings.grid_height - 1
-                    ),
-                    self.colors[i]
-                )
-            i += 1
 
     def __init__(self, colors: u1 | u2) -> None:
         """
@@ -368,9 +346,35 @@ class Table:
             while self.width * self.height < len(colors):
                 self.width += 1
         self.colors = colors
+        self._iter = 0
+
+    def __iter__(self) -> 'Table':
+        self._iter = 0
+        return self
+
+    def __next__(self) -> Field:
+        i = self._iter
+        self._iter += 1
+        while i < len(self.colors) - 1 and self.colors[i] is None:
+            i += 1
+            self._iter += 1
+        if i >= len(self.colors) or self.colors[i] is None:
+            self._iter = 0
+            raise StopIteration
+        return Field(
+            Distance(
+                i % self.width * self.settings.grid_width,
+                i // self.width * self.settings.grid_height
+            ),
+            Distance(
+                self.settings.grid_width - 1,
+                self.settings.grid_height - 1
+            ),
+            self.colors[i]
+        )
 
 
-class App:
+class PrevGen:
     """A wrapper for the main function to allow simpler usage"""
     def __new__(cls,
                 palette: u1 | u2,
@@ -391,7 +395,8 @@ class App:
         img = Image.new('RGBA', t.size)
         draw = ImageDraw.Draw(img)
         font = s.font+'.ttf'
-        for i in t.fields:
+        png = s.file_name + '.png'
+        for i in t:
             l, t = i.pos
             w, h = i.size
             col = i.col
@@ -452,20 +457,19 @@ class App:
                     anchor='rt'
                 )
         if save:
-            img.save(s.file_name + '.png')
+            img.save(png)
         if show:
             if not save:
                 img.show()
-            elif sys.platform == 'win32':
-                os.startfile(s.file_name + '.png')
             else:
-                opener = 'open' if sys.platform == 'darwin' else 'xdg-open'
-                subprocess.call([opener, s.file_name + '.png'])
+                # a hacky system-agnostic way to try to open the image
+                # unlike what the name suggests, it will try to use native apps as well
+                from webbrowser import open
+                open(png)
         return img
 
 
 # start the program
 if __name__ == '__main__':
     from palette import palette, Settings, Color
-    App(palette, save=True, show=True)
-
+    PrevGen(palette, save=True, show=True)
