@@ -1,5 +1,6 @@
 Version 1.0 - published to PyPI  
-Versions from before publishing (0.x)  
+
+Versions from before publishing (0.x):  
 Version 11 - since it's a library it needs a name, the main file got renamed to prev_gen  
 Version 10 - fixed a namespacing bug, added docstrings, essentially a library now  
 Version 9 - moved the classes to main, that third file was unnecessary  

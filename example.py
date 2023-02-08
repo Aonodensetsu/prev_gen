@@ -1,3 +1,5 @@
+# this text is also available in Markdown format in WIKI.md
+#
 # Palette:
 #   with either option you can put > None < in the table instead of a Color to leave one field transparent
 #
@@ -52,16 +54,16 @@
 #   Available settings:
 #     file_name: str = 'result'
 #       File name to save into (no extension - png)
-#     font:str = None
+#     font: str | None = None
 #       Font used (no extension - true type) - if none, will use bundled
 #     grid_height: int = 168
-#       Height of each individual color field
+#       Height of each individual color tile
 #     grid_width: int = 224
-#       Width of each individual color field
+#       Width of each individual color tile
 #     bar_height: int = 10
-#       Height of the darkened bar at the bottom of each field
+#       Height of the darkened bar at the bottom of each tile
 #     name_offset: int = -10
-#       Vertical offset of the color name printed within the field
+#       Vertical offset of the color name printed within the tile
 #     hex_offset: int = 35
 #       Vertical offset of the hex value printed below color name
 #     hex_offset_noname: int = 0
@@ -90,13 +92,16 @@
 #   it always returns the generated image, even if you choose to also save it
 #
 #   Available settings:
+#     palette: list[None | Settings | Color] | list[None | Settings | list[None | Color]]
+#       The palette of colors to generate an image for, you need to include this value
+#       The stupid type hint is because of the two Usage modes
 #     save: bool = False
 #       Whether to save the image to disk
 #     show: bool = False
 #        Whether to display the generated image to the user
 #
 # the example below is Gruvbox, a really nice color scheme which inspired this project
-# Color is imported under the name "C" to not repeat "Color" this many times
+# Color is imported under the name "C" to avoid repeating "Color" this many times
 from prev_gen import Settings, Color as C
 palette = [
     Settings(file_name='gruvbox'),
@@ -124,7 +129,6 @@ palette = [
 
 # start the program
 if __name__ == '__main__':
-    # you can use the two lines below in your own code
-    # Preview returns a pillow Image, you can do anything with it
+    # use the two lines below in your own code
     from prev_gen import Preview
     Preview(palette, save=True, show=True)

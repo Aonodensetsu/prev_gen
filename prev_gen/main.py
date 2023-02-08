@@ -166,10 +166,10 @@ class Settings:
     Attributes:
         file_name: File name to save into (no extension - png)
         font: Font used (no extension - true type) if none, will use bundled
-        grid_height: Height of each individual color field
-        grid_width: Width of each individual color field
-        bar_height: Height of the darkened bar at the bottom of each field
-        name_offset: Vertical offset of the color name printed within the field
+        grid_height: Height of each individual color tile
+        grid_width: Width of each individual color tile
+        bar_height: Height of the darkened bar at the bottom of each tile
+        name_offset: Vertical offset of the color name printed within the tile
         hex_offset: Vertical offset of the hex value printed below color name
         hex_offset_noname: Vertical offset of the hex value printed if no name given
         desc_offset_x: Horizontal offset of the corner descriptions
@@ -234,8 +234,7 @@ class Settings:
 #     None to mark an empty element
 #     Settings (as the first element)
 #     Color
-#     tuple representing a color in special syntax
-u1 = list[None | Settings | Color | tuple]
+u1 = list[None | Settings | Color]
 # usage 2
 #   list of
 #     None to mark an empty row
@@ -243,8 +242,7 @@ u1 = list[None | Settings | Color | tuple]
 #     list of
 #       None to mark an empty element
 #       Color
-#       tuple representing a color in special syntax
-u2 = list[None | Settings | list[None | Color | tuple]]
+u2 = list[None | Settings | list[None | Color]]
 
 
 # used for position and size when placing tiles in an image
