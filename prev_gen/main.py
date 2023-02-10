@@ -2,6 +2,8 @@ import colorsys
 import os.path
 from math import pow, sqrt, floor
 from dataclasses import dataclass
+
+import PIL.Image
 from PIL import Image, ImageDraw, ImageFont
 from typing import NamedTuple, Literal, Callable
 
@@ -453,3 +455,66 @@ class Preview:
                 from webbrowser import open
                 open(png)
         return img
+
+
+class GUI:
+    def __init__(self):
+        import tkinter as tk
+        from inspect import currentframe, getabsfile
+        from PIL import ImageTk, ImageOps
+        import idlelib.colorizer as ic
+        import idlelib.percolator as ip
+
+        def preview():
+            local = {}
+            exec(editor.get('1.0', tk.END), None, local)
+            i = Preview(local['palette'])
+            i = ImageOps.contain(i, (prev.winfo_width(), prev.winfo_height()))
+            img = ImageTk.PhotoImage(i)
+            prev.image = img
+            prev.config(image=img)
+
+        def save():
+            local = {}
+            exec(editor.get('1.0', tk.END), None, local)
+            i = Preview(local['palette'])
+            if isinstance(local['palette'][0], Settings):
+                i.save(local['palette'][0].file_name+'.png')
+            else:
+                i.save(Settings().file_name+'.png')
+
+        ui = tk.Tk()
+        ui.geometry('1280x720')
+        ui.title('Preview Generator GUI')
+        ui.rowconfigure(0, weight=1)
+        ui.rowconfigure(1, minsize=350)
+        ui.columnconfigure(0, minsize=100)
+        ui.columnconfigure(1, weight=1)
+        ui.config(bg='#282828')
+        ui.attributes('-fullscreen', True)
+        f_cmd = tk.Frame(ui, bg='#282828')
+        f_edit = tk.Frame(ui, bg='#282828', border=10)
+        f_prev = tk.Frame(ui, bg='#282828', border=10)
+        f_cmd.grid(row=0, column=0, rowspan=2, sticky='nsew')
+        f_edit.grid(row=0, column=1, sticky='nsew')
+        f_prev.grid(row=1, column=1, sticky='nsew')
+        tk.Button(f_cmd, text='Preview', command=preview, borderwidth=0, bg='#7daea3').pack(fill='x')
+        tk.Button(f_cmd, text='Save', command=save, borderwidth=0, bg='#7daea3').pack(fill='x')
+        tk.Button(f_cmd, text='Exit', command=exit, borderwidth=0, bg='#7daea3').pack(fill='x')
+        editor = tk.Text(f_edit, bg='#282828', fg='#d4be98', insertbackground='#d4be98', borderwidth=0, font=(None, 13))
+        with open(os.path.dirname(getabsfile(currentframe())) + '/example.txt', 'r') as f:
+            editor.insert(tk.END, f.read())
+        editor.winfo_height()
+        editor.pack(fill='both', expand=True)
+        col = ic.ColorDelegator()
+        col.tagdefs['STRING'] = {'foreground': '#a9b665', 'background': '#282828'}
+        col.tagdefs['COMMENT'] = {'foreground': '#5a524c', 'background': '#282828'}
+        col.tagdefs['KEYWORD'] = {'foreground': '#ea6962', 'background': '#282828'}
+        col.tagdefs['BUILTIN'] = {'foreground': '#d8a657', 'background': '#282828'}
+        col.tagdefs['DEFINITION'] = {'foreground': '#7daea3', 'background': '#282828'}
+        ip.Percolator(editor).insertfilter(col)
+        prev = tk.Label(f_prev, bg='#282828')
+        prev.pack(fill='both', expand=True)
+        ui.wait_visibility(prev)
+        preview()
+        ui.mainloop()
