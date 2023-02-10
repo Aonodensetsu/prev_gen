@@ -87,7 +87,7 @@
 #       Function to determine text color from background color
 #       You probably shouldn't touch this
 #
-# App:
+# Preview:
 #   the entrypoint that starts the program
 #   it always returns the generated image, even if you choose to also save it
 #
@@ -99,6 +99,13 @@
 #       Whether to save the image to disk
 #     show: bool = False
 #        Whether to display the generated image to the user
+#
+# GUI:
+#   an interactive editor
+#   it also returns the image, just in case you wanted it
+#
+#   from prev_gen import GUI
+#   GUI()
 #
 # the example below is Gruvbox, a really nice color scheme which inspired this project
 # Color is imported under the name "C" to avoid repeating "Color" this many times
