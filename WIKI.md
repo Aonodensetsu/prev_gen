@@ -124,3 +124,13 @@ show: bool = False
 # Whether to display the generated image to the user
 ```
 </details>
+
+## GUI:
+### An interactive editor
+it also returns the image, just in case you wanted it
+
+```python
+# this is how you use it
+from prev_gen import GUI
+GUI()
+```
