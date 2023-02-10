@@ -1,3 +1,4 @@
+Version 1.2.1 - changed README  
 Version 1.2.0 - added a GUI  
 Version 1.1.1 - fixed an error i made in 1.1.0  
 Version 1.1.0 - renamed a few things   

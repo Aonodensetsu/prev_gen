@@ -127,7 +127,8 @@ show: bool = False
 
 ## GUI:
 ### An interactive editor
-it also returns the image, just in case you wanted it
+it also returns the image, just in case you wanted it  
+if you change the example, it will be saved to gui.py
 
 ```python
 # this is how you use it

@@ -103,6 +103,7 @@
 # GUI:
 #   an interactive editor
 #   it also returns the image, just in case you wanted it
+#   if you change the example, it will be saved to gui.py
 #
 #   from prev_gen import GUI
 #   GUI()
