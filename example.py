@@ -1,116 +1,8 @@
-# this text is also available in Markdown format in WIKI.md
-#
-# Palette:
-#   with either option you can put > None < in the table instead of a Color to leave one field transparent
-#
-#   Usage 1 - "it just works" (1d list):
-#     place colors in the order you want them to appear in the generated image
-#     the program will make a rectangle big enough to fit them all
-#
-#   Usage 2 - "literal mode" (2d list):
-#     each inner list will be treated as a single row of colors, left-to-right
-#     use this for full control over the placement of colors in the final image
-#     - you can even leave entire rows transparent if you pass an empty list
-#
-# Color:
-#   an object that represents a single color
-#
-#   Available parameters:
-#     color: str | tuple[float, float, float] | tuple[int, int, int]
-#       The color value to assign, you need to include this value
-#     name: str | None = None
-#       The name to display
-#     desc_left: str | None = None
-#       Left corner description
-#     desc_right: str | None = None
-#       Right corner description
-#     mode: Literal['rgb', 'hsv', 'hls', 'yiq'] = 'rgb'
-#       Specifies type of color to convert from
-#
-#   you can change the mode by specifying the type of color you want
-#     RGB: Color((0.2, 0.4, 0.7))              <- RGB is the default
-#     HSV: Color((0.2, 0.4, 0.7), mode='hsv')
-#     HLS: Color((0.2, 0.4, 0.7), mode='hls')
-#     YIQ: Color((0.2, 0.4, 0.7), mode='yiq')
-#
-#   all the modes support normalized and denormalized values
-#   but make sure to look at the ranges of values if you want to use denormalized ones
-#     (R: 0-255,  G: 0-255,  B: 0-255)
-#     (H: 0-179,  S: 0-255,  V: 0-255)
-#     (H: 0-360,  S: 0-100,  L: 0-100)
-#     (Y: 0-255,  I: 0-255,  Q: 0-255)
-#
-#   you can also specify a name for a color or not
-#     Color((200, 100, 235), 'purple')    <- RGB with name
-#     Color((0.2, 0.4, 0.7), mode='hsv')  <- HSV without name
-#
-#   HEX works regardless of mode specified
-#     Color('#52c7a7', 'mint', mode='hls')  <- HEX with name (mode ignored)
-#
-# Settings:
-#   an object that controls the behavior of the program
-#   - if you don't want to overwrite any settings just omit it
-#
-#   Available settings:
-#     file_name: str = 'result'
-#       File name to save into (no extension - png)
-#     font: str | None = None
-#       Font used (no extension - true type) - if none, will use bundled
-#     grid_height: int = 168
-#       Height of each individual color tile
-#     grid_width: int = 224
-#       Width of each individual color tile
-#     bar_height: int = 10
-#       Height of the darkened bar at the bottom of each tile
-#     name_offset: int = -10
-#       Vertical offset of the color name printed within the tile
-#     hex_offset: int = 35
-#       Vertical offset of the hex value printed below color name
-#     hex_offset_noname: int = 0
-#       Vertical offset of the hex value printed if no name given
-#     desc_offset_x: int = 15
-#       Horizontal offset of the corner descriptions
-#     desc_offset_y: int = 20
-#       Vertical offset of the corner descriptions
-#     name_size: int = 40
-#       Text size of the color name
-#     hex_size: int = 26
-#       Text size of the hex value printed under the color name
-#     hex_size_noname: int = 34
-#       Text size of the hex value printed if no name given
-#     desc_size: int = 26
-#       Text size of the corner descriptions
-#     bar_col_fn: Callable[[Color], Color] = (default omitted)
-#       Function to determine bar color from background color
-#       You probably shouldn't touch this
-#     text_col_fn: Callable[[Color], Color] = (default omitted)
-#       Function to determine text color from background color
-#       You probably shouldn't touch this
-#
-# Preview:
-#   the entrypoint that starts the program
-#   it always returns the generated image, even if you choose to also save it
-#
-#   Available settings:
-#     palette: list[None | Settings | Color] | list[None | Settings | list[None | Color]]
-#       The palette of colors to generate an image for, you need to include this value
-#       The stupid type hint is because of the two Usage modes
-#     save: bool = False
-#       Whether to save the image to disk
-#     show: bool = False
-#        Whether to display the generated image to the user
-#
-# GUI:
-#   an interactive editor
-#   it also returns the image, just in case you wanted it
-#   if you change the example, it will be saved to gui.py
-#
-#   from prev_gen import GUI
-#   GUI()
+# the instruction is now available in Markdown format in WIKI.md
 #
 # the example below is Gruvbox, a really nice color scheme which inspired this project
 # Color is imported under the name "C" to avoid repeating "Color" this many times
-from prev_gen import Settings, Color as C
+from prev_gen import Preview, Settings, Color as C
 palette = [
     Settings(file_name='gruvbox'),
     [
@@ -137,6 +29,4 @@ palette = [
 
 # start the program
 if __name__ == '__main__':
-    # use the two lines below in your own code
-    from prev_gen import Preview
     Preview(palette, save=True, show=True)

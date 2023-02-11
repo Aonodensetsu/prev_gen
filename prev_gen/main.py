@@ -472,7 +472,7 @@ class GUI:
             exec(editor.get('1.0', tk.END), None, local)
             p = local['palette']
             i = Preview(p)
-            j = ImageOps.contain(i, (prev.winfo_width(), 300))
+            j = ImageOps.contain(i, (prev.winfo_width()-10, prev.winfo_height()-10))
             img = ImageTk.PhotoImage(j)
             prev.image = img
             prev.config(image=img)
@@ -493,7 +493,6 @@ class GUI:
             exit()
 
         ui = tk.Tk()
-        ui.geometry('1280x720')
         ui.title('Preview Generator GUI')
         ui.rowconfigure(0, weight=1)
         ui.rowconfigure(1, minsize=350)
@@ -501,24 +500,13 @@ class GUI:
         ui.columnconfigure(1, minsize=100)
         ui.config(bg='#282828')
         ui.attributes('-fullscreen', True)
-        f_cmd = tk.Frame(ui, bg='#282828')
-        f_cmd.grid(row=0, column=1, sticky='nsew')
-        tk.Button(f_cmd, text='Preview', command=preview, borderwidth=0, bg='#7daea3').pack(fill='x')
-        tk.Button(f_cmd, text='Save', command=save, borderwidth=0, bg='#7daea3').pack(fill='x')
-        tk.Button(f_cmd, text='Exit', command=leave, borderwidth=0, bg='#7daea3').pack(fill='x')
         f_edit = tk.Frame(ui, bg='#282828', border=10)
         f_edit.grid(row=0, column=0, sticky='nsew')
         editor = tk.Text(
-            f_edit,
-            bg='#282828',
-            fg='#d4be98',
-            insertbackground='#d4be98',
-            borderwidth=0,
-            font=('Verdana', 13)
+            f_edit, bg='#282828', fg='#d4be98', insertbackground='#d4be98', borderwidth=0, font=('Verdana', 13)
         )
         with open(os.path.dirname(getabsfile(currentframe())) + '/example.txt', 'r') as f:
             editor.insert(tk.END, f.read())
-        editor.winfo_height()
         editor.pack(fill='both', expand=True)
         editor.edited = False
         editor.bind('<Key>', onedit)
@@ -529,6 +517,11 @@ class GUI:
         col.tagdefs['BUILTIN'] = {'foreground': '#d8a657', 'background': '#282828'}
         col.tagdefs['DEFINITION'] = {'foreground': '#7daea3', 'background': '#282828'}
         ip.Percolator(editor).insertfilter(col)
+        f_cmd = tk.Frame(ui, bg='#282828')
+        f_cmd.grid(row=0, column=1, sticky='nsew')
+        tk.Button(f_cmd, text='Preview', command=preview, borderwidth=0, bg='#7daea3').pack(fill='x')
+        tk.Button(f_cmd, text='Save', command=save, borderwidth=0, bg='#7daea3').pack(fill='x')
+        tk.Button(f_cmd, text='Exit', command=leave, borderwidth=0, bg='#7daea3').pack(fill='x')
         f_prev = tk.Frame(ui, bg='#282828', border=10)
         f_prev.grid(row=1, column=0, columnspan=2, sticky='nsew')
         prev = tk.Label(f_prev, bg='#282828')
