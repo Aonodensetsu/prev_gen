@@ -1,7 +1,7 @@
 ## Create a palette preview image by using a simple config file
 
 ![size](https://img.shields.io/github/repo-size/aonodensetsu/prev_gen?label=size) ![files](https://img.shields.io/github/directory-file-count/aonodensetsu/prev_gen) ![lines](https://img.shields.io/tokei/lines/github/aonodensetsu/prev_gen)   
-![py dep](https://img.shields.io/pypi/pyversions/prev-gen) [![version](https://img.shields.io/pypi/v/prev-gen)](https://pypi.org/project/prev-gen/1.2.2/)  
+![py dep](https://img.shields.io/pypi/pyversions/prev-gen) [![version](https://img.shields.io/pypi/v/prev-gen)](https://pypi.org/project/prev-gen/1.3.0/)  
 ![license](https://img.shields.io/pypi/l/prev-gen) [![downloads](https://img.shields.io/badge/releases-here-green?logo=pypi)](https://pypi.org/project/prev-gen/#history)  
 [![downloads](https://img.shields.io/badge/wiki-here-pink)](https://github.com/Aonodensetsu/prev_gen/blob/main/WIKI.md) [![downloads](https://img.shields.io/badge/changelog-here-pink)](https://github.com/Aonodensetsu/prev_gen/blob/main/CHANGELOG.md)  
 
@@ -10,10 +10,9 @@
 2. Open up [the wiki](https://github.com/Aonodensetsu/prev_gen/blob/main/WIKI.md) to see how everything works
 3. Create a file based on instructions (or just edit [the example](https://github.com/Aonodensetsu/prev_gen/blob/main/example.py))
 4. ```python
-   palette = [...]
+   # palette = [...]
    from prev_gen import Preview
    Preview(palette)
-   # then run this code
    ```
 
 # Example:

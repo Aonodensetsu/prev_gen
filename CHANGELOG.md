@@ -1,3 +1,4 @@
+Version 1.3.0 - small refactors  
 Version 1.2.2 - removed the duplicate instructions  
 Version 1.2.1 - changed README  
 Version 1.2.0 - added a GUI  

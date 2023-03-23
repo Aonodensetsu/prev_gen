@@ -1,12 +1,13 @@
+from __future__ import annotations
 import colorsys
 import os.path
 from math import pow, sqrt, floor
 from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont
-from typing import NamedTuple, Literal, Callable
+from typing import Optional, NamedTuple, Literal, Callable
 
-# type aliases are declared as needed, so they are spread throughout the file
-# some depend on the presence of classes, so they cannot be moved to the top of the file
+# some type aliases depend on the presence of classes
+# they are declared below their dependencies, spread throughout the file
 
 # used for normalized color representations
 #   (R, G, B)
@@ -34,23 +35,23 @@ class Color:
     Represents one tile in the image, its color, and any descriptions
 
     Attributes:
-        name: Color name
-        desc_left: Left corner description
-        desc_right: right corner description
-        hex: Hexadecimal color
-        rgb: RGB normalized color
-        hsv: HSV normalized color
-        hls: HLS normalized color
-        yiq: YIQ normalized color
-        rgb_d: RGB denormalized color
-        hsv_d: HSV denormalized color
-        hls_d: HLS denormalized color
-        yiq_d: YIQ denormalized color
-        dark: Whether the color is dark based on human perception
+        name:       Color name
+        desc_left:  Left corner description
+        desc_right: Right corner description
+        hex:        Hexadecimal color
+        rgb:        RGB normalized color
+        hsv:        HSV normalized color
+        hls:        HLS normalized color
+        yiq:        YIQ normalized color
+        rgb_d:      RGB denormalized color
+        hsv_d:      HSV denormalized color
+        hls_d:      HLS denormalized color
+        yiq_d:      YIQ denormalized color
+        dark:       Whether the color is dark based on human perception
     """
-    name: str | None
-    desc_left: str | None
-    desc_right: str | None
+    name: Optional[str]
+    desc_left: Optional[str]
+    desc_right: Optional[str]
     hex: str
     rgb: f3
     hsv: f3
@@ -64,25 +65,26 @@ class Color:
 
     def __init__(self,
                  color: str | f3 | i3,
-                 name: str | None = None,
-                 desc_left: str | None = None,
-                 desc_right: str | None = None,
+                 name: Optional[str] = None,
+                 desc_left: Optional[str] = None,
+                 desc_right: Optional[str] = None,
                  mode: Literal['rgb', 'hsv', 'hls', 'yiq'] = 'rgb'
                  ) -> None:
         """
         Create a color from a given value
 
         Parameters:
-            color: The color value to assign
-            name: The name to display
-            desc_left: Left corner description
+            color:      The color value to assign
+            name:       The name to display
+            desc_left:  Left corner description
             desc_right: Right corner description
-            mode: Specifies type of color to convert from
+            mode:       Specifies type of color created
         """
         # hex is allowed regardless of mode
         if isinstance(color, str):
-            self.hex = '#'+color.lstrip('#').upper()
-            self.rgb = tuple(int(self.hex[i:i + 2], 16) / 255. for i in (1, 3, 5))
+            self.hex = '#' + color.lstrip('#').upper()
+            r, g, b = tuple(int(self.hex[i:i + 2], 16) / 255. for i in (1, 3, 5))
+            self.rgb = (r, g, b)
         else:
             if all(isinstance(i, int) for i in color):
                 match mode:
@@ -119,7 +121,8 @@ class Color:
                 case 'hsv' | 'hls' | 'yiq':
                     setattr(self, item, colorsys.__dict__['rgb_to_' + item](*self.rgb))
                 case 'rgb_d':
-                    self.rgb_d = tuple(int(i * 255) for i in self.rgb)
+                    r, g, b = self.rgb
+                    self.rgb_d = (int(r * 255), int(g * 255), int(b * 255))
                 case 'hsv_d':
                     h, s, v = self.hsv
                     self.hsv_d = (int(h * 179), int(s * 255), int(v * 255))
@@ -127,7 +130,8 @@ class Color:
                     h, l, s = self.hls
                     self.hls_d = (int(h * 360), int(l * 100), int(s * 100))
                 case 'yiq_d':
-                    self.yiq_d = tuple(int(i * 255) for i in self.yiq)
+                    y, i, q = self.yiq
+                    self.yiq_d = (int(y * 255), int(i * 255), int(q * 255))
                 case 'hex':
                     self.hex = '#%02X%02X%02X' % self.rgb_d
                 case 'dark':
@@ -143,10 +147,7 @@ class Color:
                         if lum <= 216 / 24389
                         else (pow(lum, 1 / 3) * 116 - 16) / 100
                     )
-                    if perc <= 0.4:
-                        self.dark = True
-                    else:
-                        self.dark = False
+                    self.dark = perc <= 0.4
                 case _:
                     raise LazyloadError(item)
             return object.__getattribute__(self, item)
@@ -164,25 +165,25 @@ class Settings:
     Image generation settings
 
     Attributes:
-        file_name: File name to save into (no extension - png)
-        font: Font used (no extension - true type) if none, will use bundled
-        grid_height: Height of each individual color tile
-        grid_width: Width of each individual color tile
-        bar_height: Height of the darkened bar at the bottom of each tile
-        name_offset: Vertical offset of the color name printed within the tile
-        hex_offset: Vertical offset of the hex value printed below color name
+        file_name:         File name to save into (no extension - png)
+        font:              Font used (no extension - true type) if none, will use bundled
+        grid_height:       Height of each individual color tile
+        grid_width:        Width of each individual color tile
+        bar_height:        Height of the darkened bar at the bottom of each tile
+        name_offset:       Vertical offset of the color name printed within the tile
+        hex_offset:        Vertical offset of the hex value printed below color name
         hex_offset_noname: Vertical offset of the hex value printed if no name given
-        desc_offset_x: Horizontal offset of the corner descriptions
-        desc_offset_y: Vertical offset of the corner descriptions
-        name_size: Text size of the color name
-        hex_size: Text size of the hex value printed under the color name
-        hex_size_noname: Text size of the hex value printed if no name given
-        desc_size: Text size of the corner descriptions
-        bar_col_fn: Function to determine bar color from background color
-        text_col_fn: Function to determine text color from background color
+        desc_offset_x:     Horizontal offset of the corner descriptions
+        desc_offset_y:     Vertical offset of the corner descriptions
+        name_size:         Text size of the color name
+        hex_size:          Text size of the hex value printed under the color name
+        hex_size_noname:   Text size of the hex value printed if no name given
+        desc_size:         Text size of the corner descriptions
+        bar_col_fn:        Function to determine bar color from background color
+        text_col_fn:       Function to determine text color from background color
     """
     file_name: str = 'result'
-    font: str | None = None
+    font: Optional[str] = None
     grid_height: int = 168
     grid_width: int = 224
     bar_height: int = 10
@@ -213,15 +214,8 @@ class Settings:
                 x.hsv[0],
                 x.hsv[1] * 0.95,
                 x.hsv[2] * 1.1 + (1. - x.hsv[2]) * 0.3
-            ),
-            mode='hsv'
-        )
-        if x.dark
-        else Color(
-            (
-                x.hsv[0],
-                x.hsv[1] * 0.95,
-                x.hsv[2] * 0.6 - (1. - x.hsv[2]) * 0.2
+                if x.dark
+                else x.hsv[2] * 0.6 - (1. - x.hsv[2]) * 0.2
             ),
             mode='hsv'
         )
@@ -234,7 +228,7 @@ class Settings:
 #     None to mark an empty element
 #     Settings (as the first element)
 #     Color
-u1 = list[None | Settings | Color]
+u1 = list[Optional[Settings | Color]]
 # usage 2
 #   list of
 #     None to mark an empty row
@@ -242,7 +236,7 @@ u1 = list[None | Settings | Color]
 #     list of
 #       None to mark an empty element
 #       Color
-u2 = list[None | Settings | list[None | Color]]
+u2 = list[Optional[Settings | list[Optional[Color]]]]
 
 
 # used for position and size when placing tiles in an image
@@ -265,9 +259,9 @@ class Field(NamedTuple):
     A single field in the table, which contains a tile (color) and its geometry
 
     Attributes:
-        pos: Pixel offset from (0,0) to the top left corner
+        pos:  Pixel offset from (0,0) to the top left corner
         size: Pixel offset from the top left corner to the bottom right corner
-        col: Color of this field
+        col:  Color of this field
     """
     pos: Distance
     size: Distance
@@ -280,13 +274,13 @@ class Table:
     A table of colors, which you can iterate over
 
     Attributes:
-        colors: List of colors, flattened
+        colors:   List of colors, flattened
         settings: The settings available to the user
-        height: Height of the table in fields
-        width: Width of the table in fields
-        size: Size of table in pixels
+        height:   Height of the table in fields
+        width:    Width of the table in fields
+        size:     Size of table in pixels
     """
-    colors: list[Color | None]
+    colors: list[Optional[Color]]
     settings: Settings
     height: int
     width: int
@@ -300,7 +294,9 @@ class Table:
             self.height * self.settings.grid_height
         )
 
-    def __init__(self, colors: u1 | u2) -> None:
+    def __init__(self,
+                 colors: u1 | u2
+                 ) -> None:
         """
         Creates a table from a palette
 
@@ -330,7 +326,7 @@ class Table:
         self.colors = colors
         self._iter = 0
 
-    def __iter__(self) -> 'Table':
+    def __iter__(self) -> Table:
         self._iter = 0
         return self
 
@@ -358,7 +354,7 @@ class Table:
 
 class Preview:
     """A wrapper for the main function to allow simpler usage"""
-    def __new__(cls,
+    def __new__(_,
                 palette: u1 | u2,
                 show: bool = False,
                 save: bool = False
@@ -366,8 +362,8 @@ class Preview:
         """
         Parameters:
             palette: The palette of colors to generate an image for
-            show: Whether to display the generated image
-            save: Whether to save the generated palette
+            show:    Whether to display the generated image
+            save:    Whether to save the generated palette
 
         Returns:
             (PIL.Image) the created image
@@ -456,7 +452,7 @@ class Preview:
 
 
 class GUI:
-    def __new__(cls) -> Image:
+    def __new__(_) -> Image:
         import tkinter as tk
         from inspect import currentframe, getabsfile
         from PIL import ImageTk, ImageOps
