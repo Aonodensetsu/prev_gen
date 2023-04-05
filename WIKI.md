@@ -1,5 +1,13 @@
-## Palette
+# Classes
+Each entry below is a class you can import from this library  
+(except the palette, that entry is needed to explain the usage)
+
+## Palette:
 ### The colors you want to convert to an image
+
+The class that corresponds to this is Table, however it is used internally for brevity
+- the user writes Preview(palette) instead of Preview(Table(palette))
+
 <details><summary>Usage 1 - "It just works"</summary>
 
 (1d list) place colors in the order you want them to appear in the generated image  
@@ -14,7 +22,7 @@ use this for full control over the placement of colors in the final image
 
 with either option you can put `None` in the table to leave one field transparent  
 
-## Color
+## Color:
 ### An object that represents a single color  
 <details><summary>Available parameters</summary>
 
@@ -63,6 +71,22 @@ Color((0.2, 0.4, 0.7), mode='hsv')  # HSV without name
 Color('#52c7a7', 'mint', mode='hls') # HEX with name (mode ignored)
 Color('darkred', mode='hls')         # CSS with no name (mode ignored)
 # name not added by to CSS by default to allow for palettes without any names
+```
+</details>
+
+## Table:
+### Not really meant for usage
+But not stopping you  
+This class actually converts the palette into a standard representation and contains meta information  
+This is also an iterator of the colors so you might find some use there
+I don't expect this to actually be useful to anyone, but you can check the code out if you want
+
+<details><summary>Available parameters</summary>
+
+```python
+colors: list[Optional[Settings | Color]] | list[Optional[Settings | list[Optional[Color]]]]
+# ...The color palette used
+# The stupid type hint is because of the two Usage modes
 ```
 </details>
 
@@ -118,7 +142,7 @@ it always returns the generated image, even if you choose to also save it
 
 ```python
 palette: list[None | Settings | Color] | list[None | Settings | list[None | Color]]
-# The palette of colors to generate an image for, you need to include this value
+# The palette of colors to generate an image for
 # The stupid type hint is because of the two Usage modes
 save: bool = False
 # Whether to save the image to disk
@@ -127,13 +151,23 @@ show: bool = False
 ```
 </details>
 
+## Reverse:
+### Regenerate the code
+Take an image and get back the code used to generate it  
+*Only the colors for now, descriptions and settings are not yet supported
+
+<details><summary>Available parameters</summary>
+
+```python
+image: Image | str
+# The image generated with this tool (or compatible) or a path to it
+changes: tuple[int, int] = (0, 1)
+# The amount of color changes in the x/y axis to ignore per tile (for the darker bar)
+```
+</details>
+
 ## GUI:
 ### An interactive editor
 it also returns the image, just in case you wanted it  
 if you change the example, it will be saved to gui.py
 
-```python
-# this is how you use it
-from prev_gen import GUI
-GUI()
-```

@@ -1,3 +1,4 @@
+Version 1.5.0 - added the Reverse class  
 Version 1.4.1 - fixed README links  
 Version 1.4.0 - added CSS color support  
 Version 1.3.0 - small refactors  
