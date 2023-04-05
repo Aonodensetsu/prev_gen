@@ -9,7 +9,7 @@ the program will make a rectangle big enough to fit them all
 
 (2d list) each inner list will be treated as a single row of colors, left-to-right  
 use this for full control over the placement of colors in the final image  
-\- you can even leave entire rows transparent if you pass an empty list  
+- you can even leave entire rows transparent if you pass an empty list  
 </details>
 
 with either option you can put `None` in the table to leave one field transparent  
@@ -57,16 +57,18 @@ Color((200, 100, 235), 'purple')    # RGB with name
 Color((0.2, 0.4, 0.7), mode='hsv')  # HSV without name
 ```
 </details>
-<details><summary>HEX works regardless of mode specified</summary>
+<details><summary>HEX and CSS works regardless of mode specified</summary>
     
 ```python
 Color('#52c7a7', 'mint', mode='hls') # HEX with name (mode ignored)
+Color('darkred', mode='hls')         # CSS with no name (mode ignored)
+# name not added by to CSS by default to allow for palettes without any names
 ```
 </details>
 
 ## Settings:
 ### An object that controls the behavior of the program  
-\- if you don't want to overwrite any settings just omit it  
+- if you don't want to overwrite any settings just omit it  
 
 <details><summary>Available parameters</summary>
 
