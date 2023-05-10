@@ -1048,12 +1048,14 @@ class PreviewSVG:
             draw.append(svg.Rectangle(
                 l, t,
                 w + 1, h - s.bar_height + 1,
-                fill=bg_col
+                fill=bg_col,
+                stroke=bg_col
             ))
             draw.append(svg.Rectangle(
                 l, t + h - s.bar_height + 1,
                 w + 1, s.bar_height,
-                fill=bar_col
+                fill=bar_col,
+                stroke=bar_col
             ))
             if col.name is not None:
                 draw.append(svg.Text(

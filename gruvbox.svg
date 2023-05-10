@@ -12,188 +12,188 @@
 /*]]>*/</style>
 <defs>
 </defs>
-<rect x="0" y="0" width="224" height="158" fill="#282828" />
-<rect x="0" y="158" width="224" height="10" fill="#222222" />
+<rect x="0" y="0" width="224" height="158" fill="#282828" stroke="#282828" />
+<rect x="0" y="158" width="224" height="10" fill="#222222" stroke="#222222" />
 <text x="111.5" y="73.5" font-size="40" fill="#6C6C6C" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg</text>
 <text x="111.5" y="118.5" font-size="26" fill="#6C6C6C" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#282828</text>
 <text x="15" y="33.0" font-size="26" text-anchor="start" fill="#6C6C6C" font-family="Nunito" dominant-baseline="central">235</text>
 <text x="207" y="33.0" font-size="26" text-anchor="end" fill="#6C6C6C" font-family="Nunito" dominant-baseline="central">0</text>
-<rect x="224" y="0" width="224" height="158" fill="#CC241D" />
-<rect x="224" y="158" width="224" height="10" fill="#AD1711" />
+<rect x="224" y="0" width="224" height="158" fill="#CC241D" stroke="#CC241D" />
+<rect x="224" y="158" width="224" height="10" fill="#AD1711" stroke="#AD1711" />
 <text x="335.5" y="73.5" font-size="40" fill="#701814" font-family="Nunito" text-anchor="middle" dominant-baseline="central">red</text>
 <text x="335.5" y="118.5" font-size="26" fill="#701814" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#CC241D</text>
 <text x="239" y="33.0" font-size="26" text-anchor="start" fill="#701814" font-family="Nunito" dominant-baseline="central">124</text>
 <text x="431" y="33.0" font-size="26" text-anchor="end" fill="#701814" font-family="Nunito" dominant-baseline="central">1</text>
-<rect x="448" y="0" width="224" height="158" fill="#98971A" />
-<rect x="448" y="158" width="224" height="10" fill="#818010" />
+<rect x="448" y="0" width="224" height="158" fill="#98971A" stroke="#98971A" />
+<rect x="448" y="158" width="224" height="10" fill="#818010" stroke="#818010" />
 <text x="559.5" y="73.5" font-size="40" fill="#46460F" font-family="Nunito" text-anchor="middle" dominant-baseline="central">green</text>
 <text x="559.5" y="118.5" font-size="26" fill="#46460F" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#98971A</text>
 <text x="463" y="33.0" font-size="26" text-anchor="start" fill="#46460F" font-family="Nunito" dominant-baseline="central">106</text>
 <text x="655" y="33.0" font-size="26" text-anchor="end" fill="#46460F" font-family="Nunito" dominant-baseline="central">2</text>
-<rect x="672" y="0" width="224" height="158" fill="#D79921" />
-<rect x="672" y="158" width="224" height="10" fill="#B67F14" />
+<rect x="672" y="0" width="224" height="158" fill="#D79921" stroke="#D79921" />
+<rect x="672" y="158" width="224" height="10" fill="#B67F14" stroke="#B67F14" />
 <text x="783.5" y="73.5" font-size="40" fill="#795717" font-family="Nunito" text-anchor="middle" dominant-baseline="central">yellow</text>
 <text x="783.5" y="118.5" font-size="26" fill="#795717" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#D79921</text>
 <text x="687" y="33.0" font-size="26" text-anchor="start" fill="#795717" font-family="Nunito" dominant-baseline="central">172</text>
 <text x="879" y="33.0" font-size="26" text-anchor="end" fill="#795717" font-family="Nunito" dominant-baseline="central">3</text>
-<rect x="896" y="0" width="224" height="158" fill="#458588" />
-<rect x="896" y="158" width="224" height="10" fill="#377073" />
+<rect x="896" y="0" width="224" height="158" fill="#458588" stroke="#458588" />
+<rect x="896" y="158" width="224" height="10" fill="#377073" stroke="#377073" />
 <text x="1007.5" y="73.5" font-size="40" fill="#1E3839" font-family="Nunito" text-anchor="middle" dominant-baseline="central">blue</text>
 <text x="1007.5" y="118.5" font-size="26" fill="#1E3839" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#458588</text>
 <text x="911" y="33.0" font-size="26" text-anchor="start" fill="#1E3839" font-family="Nunito" dominant-baseline="central">66</text>
 <text x="1103" y="33.0" font-size="26" text-anchor="end" fill="#1E3839" font-family="Nunito" dominant-baseline="central">4</text>
-<rect x="1120" y="0" width="224" height="158" fill="#B16286" />
-<rect x="1120" y="158" width="224" height="10" fill="#964F70" />
+<rect x="1120" y="0" width="224" height="158" fill="#B16286" stroke="#B16286" />
+<rect x="1120" y="158" width="224" height="10" fill="#964F70" stroke="#964F70" />
 <text x="1231.5" y="73.5" font-size="40" fill="#5A3445" font-family="Nunito" text-anchor="middle" dominant-baseline="central">purple</text>
 <text x="1231.5" y="118.5" font-size="26" fill="#5A3445" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#B16286</text>
 <text x="1135" y="33.0" font-size="26" text-anchor="start" fill="#5A3445" font-family="Nunito" dominant-baseline="central">132</text>
 <text x="1327" y="33.0" font-size="26" text-anchor="end" fill="#5A3445" font-family="Nunito" dominant-baseline="central">5</text>
-<rect x="1344" y="0" width="224" height="158" fill="#689D6A" />
-<rect x="1344" y="158" width="224" height="10" fill="#568557" />
+<rect x="1344" y="0" width="224" height="158" fill="#689D6A" stroke="#689D6A" />
+<rect x="1344" y="158" width="224" height="10" fill="#568557" stroke="#568557" />
 <text x="1455.5" y="73.5" font-size="40" fill="#324A33" font-family="Nunito" text-anchor="middle" dominant-baseline="central">aqua</text>
 <text x="1455.5" y="118.5" font-size="26" fill="#324A33" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#689D6A</text>
 <text x="1359" y="33.0" font-size="26" text-anchor="start" fill="#324A33" font-family="Nunito" dominant-baseline="central">72</text>
 <text x="1551" y="33.0" font-size="26" text-anchor="end" fill="#324A33" font-family="Nunito" dominant-baseline="central">6</text>
-<rect x="1568" y="0" width="224" height="158" fill="#A89984" />
-<rect x="1568" y="158" width="224" height="10" fill="#8E816E" />
+<rect x="1568" y="0" width="224" height="158" fill="#A89984" stroke="#A89984" />
+<rect x="1568" y="158" width="224" height="10" fill="#8E816E" stroke="#8E816E" />
 <text x="1679.5" y="73.5" font-size="40" fill="#534C42" font-family="Nunito" text-anchor="middle" dominant-baseline="central">gray</text>
 <text x="1679.5" y="118.5" font-size="26" fill="#534C42" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#A89984</text>
 <text x="1583" y="33.0" font-size="26" text-anchor="start" fill="#534C42" font-family="Nunito" dominant-baseline="central">246</text>
 <text x="1775" y="33.0" font-size="26" text-anchor="end" fill="#534C42" font-family="Nunito" dominant-baseline="central">7</text>
-<rect x="0" y="168" width="224" height="158" fill="#928374" />
-<rect x="0" y="326" width="224" height="10" fill="#7C6E61" />
+<rect x="0" y="168" width="224" height="158" fill="#928374" stroke="#928374" />
+<rect x="0" y="326" width="224" height="10" fill="#7C6E61" stroke="#7C6E61" />
 <text x="111.5" y="241.5" font-size="40" fill="#413B34" font-family="Nunito" text-anchor="middle" dominant-baseline="central">gray</text>
 <text x="111.5" y="286.5" font-size="26" fill="#413B34" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#928374</text>
 <text x="15" y="201.0" font-size="26" text-anchor="start" fill="#413B34" font-family="Nunito" dominant-baseline="central">245</text>
 <text x="207" y="201.0" font-size="26" text-anchor="end" fill="#413B34" font-family="Nunito" dominant-baseline="central">8</text>
-<rect x="224" y="168" width="224" height="158" fill="#FB4934" />
-<rect x="224" y="326" width="224" height="10" fill="#D53623" />
+<rect x="224" y="168" width="224" height="158" fill="#FB4934" stroke="#FB4934" />
+<rect x="224" y="326" width="224" height="10" fill="#D53623" stroke="#D53623" />
 <text x="335.5" y="241.5" font-size="40" fill="#953024" font-family="Nunito" text-anchor="middle" dominant-baseline="central">red</text>
 <text x="335.5" y="286.5" font-size="26" fill="#953024" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#FB4934</text>
 <text x="239" y="201.0" font-size="26" text-anchor="start" fill="#953024" font-family="Nunito" dominant-baseline="central">167</text>
 <text x="431" y="201.0" font-size="26" text-anchor="end" fill="#953024" font-family="Nunito" dominant-baseline="central">9</text>
-<rect x="448" y="168" width="224" height="158" fill="#B8BB26" />
-<rect x="448" y="326" width="224" height="10" fill="#9C9E19" />
+<rect x="448" y="168" width="224" height="158" fill="#B8BB26" stroke="#B8BB26" />
+<rect x="448" y="326" width="224" height="10" fill="#9C9E19" stroke="#9C9E19" />
 <text x="559.5" y="241.5" font-size="40" fill="#616217" font-family="Nunito" text-anchor="middle" dominant-baseline="central">green</text>
 <text x="559.5" y="286.5" font-size="26" fill="#616217" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#B8BB26</text>
 <text x="463" y="201.0" font-size="26" text-anchor="start" fill="#616217" font-family="Nunito" dominant-baseline="central">142</text>
 <text x="655" y="201.0" font-size="26" text-anchor="end" fill="#616217" font-family="Nunito" dominant-baseline="central">10</text>
-<rect x="672" y="168" width="224" height="158" fill="#FABD2F" />
-<rect x="672" y="326" width="224" height="10" fill="#D49E1F" />
+<rect x="672" y="168" width="224" height="158" fill="#FABD2F" stroke="#FABD2F" />
+<rect x="672" y="326" width="224" height="10" fill="#D49E1F" stroke="#D49E1F" />
 <text x="783.5" y="241.5" font-size="40" fill="#947222" font-family="Nunito" text-anchor="middle" dominant-baseline="central">yellow</text>
 <text x="783.5" y="286.5" font-size="26" fill="#947222" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#FABD2F</text>
 <text x="687" y="201.0" font-size="26" text-anchor="start" fill="#947222" font-family="Nunito" dominant-baseline="central">214</text>
 <text x="879" y="201.0" font-size="26" text-anchor="end" fill="#947222" font-family="Nunito" dominant-baseline="central">11</text>
-<rect x="896" y="168" width="224" height="158" fill="#83A598" />
-<rect x="896" y="326" width="224" height="10" fill="#6D8C80" />
+<rect x="896" y="168" width="224" height="158" fill="#83A598" stroke="#83A598" />
+<rect x="896" y="326" width="224" height="10" fill="#6D8C80" stroke="#6D8C80" />
 <text x="1007.5" y="241.5" font-size="40" fill="#41514A" font-family="Nunito" text-anchor="middle" dominant-baseline="central">blue</text>
 <text x="1007.5" y="286.5" font-size="26" fill="#41514A" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#83A598</text>
 <text x="911" y="201.0" font-size="26" text-anchor="start" fill="#41514A" font-family="Nunito" dominant-baseline="central">109</text>
 <text x="1103" y="201.0" font-size="26" text-anchor="end" fill="#41514A" font-family="Nunito" dominant-baseline="central">12</text>
-<rect x="1120" y="168" width="224" height="158" fill="#D3869B" />
-<rect x="1120" y="326" width="224" height="10" fill="#B36E81" />
+<rect x="1120" y="168" width="224" height="158" fill="#D3869B" stroke="#D3869B" />
+<rect x="1120" y="326" width="224" height="10" fill="#B36E81" stroke="#B36E81" />
 <text x="1231.5" y="241.5" font-size="40" fill="#754C58" font-family="Nunito" text-anchor="middle" dominant-baseline="central">purple</text>
 <text x="1231.5" y="286.5" font-size="26" fill="#754C58" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#D3869B</text>
 <text x="1135" y="201.0" font-size="26" text-anchor="start" fill="#754C58" font-family="Nunito" dominant-baseline="central">175</text>
 <text x="1327" y="201.0" font-size="26" text-anchor="end" fill="#754C58" font-family="Nunito" dominant-baseline="central">13</text>
-<rect x="1344" y="168" width="224" height="158" fill="#8EC07C" />
-<rect x="1344" y="326" width="224" height="10" fill="#76A366" />
+<rect x="1344" y="168" width="224" height="158" fill="#8EC07C" stroke="#8EC07C" />
+<rect x="1344" y="326" width="224" height="10" fill="#76A366" stroke="#76A366" />
 <text x="1455.5" y="241.5" font-size="40" fill="#4D6644" font-family="Nunito" text-anchor="middle" dominant-baseline="central">aqua</text>
 <text x="1455.5" y="286.5" font-size="26" fill="#4D6644" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#8EC07C</text>
 <text x="1359" y="201.0" font-size="26" text-anchor="start" fill="#4D6644" font-family="Nunito" dominant-baseline="central">108</text>
 <text x="1551" y="201.0" font-size="26" text-anchor="end" fill="#4D6644" font-family="Nunito" dominant-baseline="central">14</text>
-<rect x="1568" y="168" width="224" height="158" fill="#EBDBB2" />
-<rect x="1568" y="326" width="224" height="10" fill="#C7B994" />
+<rect x="1568" y="168" width="224" height="158" fill="#EBDBB2" stroke="#EBDBB2" />
+<rect x="1568" y="326" width="224" height="10" fill="#C7B994" stroke="#C7B994" />
 <text x="1679.5" y="241.5" font-size="40" fill="#888069" font-family="Nunito" text-anchor="middle" dominant-baseline="central">fg</text>
 <text x="1679.5" y="286.5" font-size="26" fill="#888069" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#EBDBB2</text>
 <text x="1583" y="201.0" font-size="26" text-anchor="start" fill="#888069" font-family="Nunito" dominant-baseline="central">223</text>
 <text x="1775" y="201.0" font-size="26" text-anchor="end" fill="#888069" font-family="Nunito" dominant-baseline="central">15</text>
-<rect x="0" y="336" width="224" height="158" fill="#1D2021" />
-<rect x="0" y="494" width="224" height="10" fill="#181B1C" />
+<rect x="0" y="336" width="224" height="158" fill="#1D2021" stroke="#1D2021" />
+<rect x="0" y="494" width="224" height="10" fill="#181B1C" stroke="#181B1C" />
 <text x="111.5" y="409.5" font-size="40" fill="#5B6366" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg0_h</text>
 <text x="111.5" y="454.5" font-size="26" fill="#5B6366" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#1D2021</text>
 <text x="15" y="369.0" font-size="26" text-anchor="start" fill="#5B6366" font-family="Nunito" dominant-baseline="central">234</text>
 <text x="207" y="369.0" font-size="26" text-anchor="end" fill="#5B6366" font-family="Nunito" dominant-baseline="central">0</text>
-<rect x="224" y="336" width="224" height="158" fill="#282828" />
-<rect x="224" y="494" width="224" height="10" fill="#222222" />
+<rect x="224" y="336" width="224" height="158" fill="#282828" stroke="#282828" />
+<rect x="224" y="494" width="224" height="10" fill="#222222" stroke="#222222" />
 <text x="335.5" y="409.5" font-size="40" fill="#6C6C6C" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg0</text>
 <text x="335.5" y="454.5" font-size="26" fill="#6C6C6C" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#282828</text>
 <text x="239" y="369.0" font-size="26" text-anchor="start" fill="#6C6C6C" font-family="Nunito" dominant-baseline="central">235</text>
 <text x="431" y="369.0" font-size="26" text-anchor="end" fill="#6C6C6C" font-family="Nunito" dominant-baseline="central">0</text>
-<rect x="448" y="336" width="224" height="158" fill="#3C3836" />
-<rect x="448" y="494" width="224" height="10" fill="#322F2D" />
+<rect x="448" y="336" width="224" height="158" fill="#3C3836" stroke="#3C3836" />
+<rect x="448" y="494" width="224" height="10" fill="#322F2D" stroke="#322F2D" />
 <text x="559.5" y="409.5" font-size="40" fill="#7C7470" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg1</text>
 <text x="559.5" y="454.5" font-size="26" fill="#7C7470" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#3C3836</text>
 <text x="463" y="369.0" font-size="26" text-anchor="start" fill="#7C7470" font-family="Nunito" dominant-baseline="central">237</text>
 <text x="655" y="369.0" font-size="26" text-anchor="end" fill="#7C7470" font-family="Nunito" dominant-baseline="central">-</text>
-<rect x="672" y="336" width="224" height="158" fill="#504945" />
-<rect x="672" y="494" width="224" height="10" fill="#443D3A" />
+<rect x="672" y="336" width="224" height="158" fill="#504945" stroke="#504945" />
+<rect x="672" y="494" width="224" height="10" fill="#443D3A" stroke="#443D3A" />
 <text x="783.5" y="409.5" font-size="40" fill="#8C807A" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg2</text>
 <text x="783.5" y="454.5" font-size="26" fill="#8C807A" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#504945</text>
 <text x="687" y="369.0" font-size="26" text-anchor="start" fill="#8C807A" font-family="Nunito" dominant-baseline="central">239</text>
 <text x="879" y="369.0" font-size="26" text-anchor="end" fill="#8C807A" font-family="Nunito" dominant-baseline="central">-</text>
-<rect x="896" y="336" width="224" height="158" fill="#665C54" />
-<rect x="896" y="494" width="224" height="10" fill="#564D46" />
+<rect x="896" y="336" width="224" height="158" fill="#665C54" stroke="#665C54" />
+<rect x="896" y="494" width="224" height="10" fill="#564D46" stroke="#564D46" />
 <text x="1007.5" y="409.5" font-size="40" fill="#9E8F83" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg3</text>
 <text x="1007.5" y="454.5" font-size="26" fill="#9E8F83" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#665C54</text>
 <text x="911" y="369.0" font-size="26" text-anchor="start" fill="#9E8F83" font-family="Nunito" dominant-baseline="central">241</text>
 <text x="1103" y="369.0" font-size="26" text-anchor="end" fill="#9E8F83" font-family="Nunito" dominant-baseline="central">-</text>
-<rect x="1120" y="336" width="224" height="158" fill="#7C6F64" />
-<rect x="1120" y="494" width="224" height="10" fill="#695D53" />
+<rect x="1120" y="336" width="224" height="158" fill="#7C6F64" stroke="#7C6F64" />
+<rect x="1120" y="494" width="224" height="10" fill="#695D53" stroke="#695D53" />
 <text x="1231.5" y="409.5" font-size="40" fill="#302B27" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg4</text>
 <text x="1231.5" y="454.5" font-size="26" fill="#302B27" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#7C6F64</text>
 <text x="1135" y="369.0" font-size="26" text-anchor="start" fill="#302B27" font-family="Nunito" dominant-baseline="central">243</text>
 <text x="1327" y="369.0" font-size="26" text-anchor="end" fill="#302B27" font-family="Nunito" dominant-baseline="central">-</text>
-<rect x="1344" y="336" width="224" height="158" fill="#928374" />
-<rect x="1344" y="494" width="224" height="10" fill="#7C6E61" />
+<rect x="1344" y="336" width="224" height="158" fill="#928374" stroke="#928374" />
+<rect x="1344" y="494" width="224" height="10" fill="#7C6E61" stroke="#7C6E61" />
 <text x="1455.5" y="409.5" font-size="40" fill="#413B34" font-family="Nunito" text-anchor="middle" dominant-baseline="central">gray</text>
 <text x="1455.5" y="454.5" font-size="26" fill="#413B34" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#928374</text>
 <text x="1359" y="369.0" font-size="26" text-anchor="start" fill="#413B34" font-family="Nunito" dominant-baseline="central">245</text>
 <text x="1551" y="369.0" font-size="26" text-anchor="end" fill="#413B34" font-family="Nunito" dominant-baseline="central">8</text>
-<rect x="1568" y="336" width="224" height="158" fill="#D65D0E" />
-<rect x="1568" y="494" width="224" height="10" fill="#B54903" />
+<rect x="1568" y="336" width="224" height="158" fill="#D65D0E" stroke="#D65D0E" />
+<rect x="1568" y="494" width="224" height="10" fill="#B54903" stroke="#B54903" />
 <text x="1679.5" y="409.5" font-size="40" fill="#78370D" font-family="Nunito" text-anchor="middle" dominant-baseline="central">orange</text>
 <text x="1679.5" y="454.5" font-size="26" fill="#78370D" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#D65D0E</text>
 <text x="1583" y="369.0" font-size="26" text-anchor="start" fill="#78370D" font-family="Nunito" dominant-baseline="central">166</text>
 <text x="1775" y="369.0" font-size="26" text-anchor="end" fill="#78370D" font-family="Nunito" dominant-baseline="central">-</text>
-<rect x="224" y="504" width="224" height="158" fill="#32302F" />
-<rect x="224" y="662" width="224" height="10" fill="#2A2827" />
+<rect x="224" y="504" width="224" height="158" fill="#32302F" stroke="#32302F" />
+<rect x="224" y="662" width="224" height="10" fill="#2A2827" stroke="#2A2827" />
 <text x="335.5" y="577.5" font-size="40" fill="#74706D" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg0_s</text>
 <text x="335.5" y="622.5" font-size="26" fill="#74706D" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#32302F</text>
 <text x="239" y="537.0" font-size="26" text-anchor="start" fill="#74706D" font-family="Nunito" dominant-baseline="central">236</text>
 <text x="431" y="537.0" font-size="26" text-anchor="end" fill="#74706D" font-family="Nunito" dominant-baseline="central">0</text>
-<rect x="448" y="504" width="224" height="158" fill="#A89984" />
-<rect x="448" y="662" width="224" height="10" fill="#8E816E" />
+<rect x="448" y="504" width="224" height="158" fill="#A89984" stroke="#A89984" />
+<rect x="448" y="662" width="224" height="10" fill="#8E816E" stroke="#8E816E" />
 <text x="559.5" y="577.5" font-size="40" fill="#534C42" font-family="Nunito" text-anchor="middle" dominant-baseline="central">fg4</text>
 <text x="559.5" y="622.5" font-size="26" fill="#534C42" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#A89984</text>
 <text x="463" y="537.0" font-size="26" text-anchor="start" fill="#534C42" font-family="Nunito" dominant-baseline="central">246</text>
 <text x="655" y="537.0" font-size="26" text-anchor="end" fill="#534C42" font-family="Nunito" dominant-baseline="central">7</text>
-<rect x="672" y="504" width="224" height="158" fill="#BDAE93" />
-<rect x="672" y="662" width="224" height="10" fill="#A0937B" />
+<rect x="672" y="504" width="224" height="158" fill="#BDAE93" stroke="#BDAE93" />
+<rect x="672" y="662" width="224" height="10" fill="#A0937B" stroke="#A0937B" />
 <text x="783.5" y="577.5" font-size="40" fill="#645C4F" font-family="Nunito" text-anchor="middle" dominant-baseline="central">fg3</text>
 <text x="783.5" y="622.5" font-size="26" fill="#645C4F" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#BDAE93</text>
 <text x="687" y="537.0" font-size="26" text-anchor="start" fill="#645C4F" font-family="Nunito" dominant-baseline="central">248</text>
 <text x="879" y="537.0" font-size="26" text-anchor="end" fill="#645C4F" font-family="Nunito" dominant-baseline="central">-</text>
-<rect x="896" y="504" width="224" height="158" fill="#D5C4A1" />
-<rect x="896" y="662" width="224" height="10" fill="#B5A586" />
+<rect x="896" y="504" width="224" height="158" fill="#D5C4A1" stroke="#D5C4A1" />
+<rect x="896" y="662" width="224" height="10" fill="#B5A586" stroke="#B5A586" />
 <text x="1007.5" y="577.5" font-size="40" fill="#776E5B" font-family="Nunito" text-anchor="middle" dominant-baseline="central">fg2</text>
 <text x="1007.5" y="622.5" font-size="26" fill="#776E5B" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#D5C4A1</text>
 <text x="911" y="537.0" font-size="26" text-anchor="start" fill="#776E5B" font-family="Nunito" dominant-baseline="central">250</text>
 <text x="1103" y="537.0" font-size="26" text-anchor="end" fill="#776E5B" font-family="Nunito" dominant-baseline="central">-</text>
-<rect x="1120" y="504" width="224" height="158" fill="#EBDBB2" />
-<rect x="1120" y="662" width="224" height="10" fill="#C7B994" />
+<rect x="1120" y="504" width="224" height="158" fill="#EBDBB2" stroke="#EBDBB2" />
+<rect x="1120" y="662" width="224" height="10" fill="#C7B994" stroke="#C7B994" />
 <text x="1231.5" y="577.5" font-size="40" fill="#888069" font-family="Nunito" text-anchor="middle" dominant-baseline="central">fg1</text>
 <text x="1231.5" y="622.5" font-size="26" fill="#888069" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#EBDBB2</text>
 <text x="1135" y="537.0" font-size="26" text-anchor="start" fill="#888069" font-family="Nunito" dominant-baseline="central">223</text>
 <text x="1327" y="537.0" font-size="26" text-anchor="end" fill="#888069" font-family="Nunito" dominant-baseline="central">15</text>
-<rect x="1344" y="504" width="224" height="158" fill="#FBF1C7" />
-<rect x="1344" y="662" width="224" height="10" fill="#D5CCA6" />
+<rect x="1344" y="504" width="224" height="158" fill="#FBF1C7" stroke="#FBF1C7" />
+<rect x="1344" y="662" width="224" height="10" fill="#D5CCA6" stroke="#D5CCA6" />
 <text x="1455.5" y="577.5" font-size="40" fill="#959078" font-family="Nunito" text-anchor="middle" dominant-baseline="central">fg0</text>
 <text x="1455.5" y="622.5" font-size="26" fill="#959078" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#FBF1C7</text>
 <text x="1359" y="537.0" font-size="26" text-anchor="start" fill="#959078" font-family="Nunito" dominant-baseline="central">229</text>
 <text x="1551" y="537.0" font-size="26" text-anchor="end" fill="#959078" font-family="Nunito" dominant-baseline="central">-</text>
-<rect x="1568" y="504" width="224" height="158" fill="#FE8019" />
-<rect x="1568" y="662" width="224" height="10" fill="#D7670B" />
+<rect x="1568" y="504" width="224" height="158" fill="#FE8019" stroke="#FE8019" />
+<rect x="1568" y="662" width="224" height="10" fill="#D7670B" stroke="#D7670B" />
 <text x="1679.5" y="577.5" font-size="40" fill="#985015" font-family="Nunito" text-anchor="middle" dominant-baseline="central">orange</text>
 <text x="1679.5" y="622.5" font-size="26" fill="#985015" font-family="Nunito" text-anchor="middle" dominant-baseline="central">#FE8019</text>
 <text x="1583" y="537.0" font-size="26" text-anchor="start" fill="#985015" font-family="Nunito" dominant-baseline="central">208</text>
