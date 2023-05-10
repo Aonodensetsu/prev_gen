@@ -1,3 +1,4 @@
+Version 2.0.1 - fixed documentation image link  
 Version 2.0.0 - added support for SVG generation, changed default font  
 Version 1.5.0 - added the Reverse class  
 Version 1.4.1 - fixed README links  
