@@ -1,8 +1,10 @@
 from __future__ import annotations
-import colorsys
 import os.path
-from math import pow, sqrt, floor
+import colorsys
+import urllib.error
+import drawsvg as svg
 from dataclasses import dataclass
+from math import pow, sqrt, floor
 from PIL import Image, ImageDraw, ImageFont
 from typing import Optional, NamedTuple, Literal, Callable
 
@@ -718,8 +720,11 @@ class Settings:
     Image generation settings
 
     Attributes:
-        file_name:         File name to save into (no extension - png)
-        font:              Font used (no extension - true type) if none, will use bundled
+        file_name:         File name to save into (no extension, png)
+        font_name:
+            for png = local file name (no extension, true type),
+            for svg = Google Font name
+        font_opts:         Google Fonts API options (for svg)
         grid_height:       Height of each individual color tile
         grid_width:        Width of each individual color tile
         bar_height:        Height of the darkened bar at the bottom of each tile
@@ -736,7 +741,8 @@ class Settings:
         text_col_fn:       Function to determine text color from background color
     """
     file_name: str = 'result'
-    font: Optional[str] = None
+    font_name: Optional[str] = None
+    font_opts: Optional[dict] = None
     grid_height: int = 168
     grid_width: int = 224
     bar_height: int = 10
@@ -909,7 +915,7 @@ class Preview:
     """A wrapper for the main function to allow simpler usage"""
     def __new__(_,
                 palette: u1 | u2,
-                show: bool = False,
+                show: bool = True,
                 save: bool = False
                 ) -> Image:
         """
@@ -925,12 +931,11 @@ class Preview:
         s = t.settings
         img = Image.new('RGBA', t.size)
         draw = ImageDraw.Draw(img)
-        if s.font is None:
+        if s.font_name is None:
             from inspect import currentframe, getabsfile
-            font = os.path.dirname(getabsfile(currentframe())) + '/renogare.ttf'
+            font = os.path.dirname(getabsfile(currentframe())) + '/nunito.ttf'
         else:
-            font = s.font + '.ttf'
-        png = s.file_name + '.png'
+            font = s.font_name + '.ttf'
         for i in t:
             l, t = i.pos
             w, h = i.size
@@ -941,7 +946,7 @@ class Preview:
             draw.rectangle(
                 (
                     (l, t),
-                    (l + w, t + h)
+                    (l + w, t + h - s.bar_height - 1)
                 ),
                 fill=bg_col
             )
@@ -992,7 +997,7 @@ class Preview:
                     anchor='rt'
                 )
         if save:
-            img.save(png)
+            img.save(s.file_name+'.png')
         if show:
             if not save:
                 img.show()
@@ -1000,8 +1005,119 @@ class Preview:
                 # a hacky system-agnostic way to try to open the image
                 # unlike what the name suggests, it will try to use native apps as well
                 from webbrowser import open
-                open(png)
+                open(s.file_name+'.png')
         return img
+
+
+class PreviewSVG:
+    """A wrapper for the main function to allow simpler usage"""
+    def __new__(_,
+                palette: u1 | u2,
+                show: bool = True,
+                save: bool = False
+                ) -> Image:
+        """
+        Parameters:
+            palette: The palette of colors to generate an image for
+            show:    Whether to display the generated image
+            save:    Whether to save the generated palette
+
+        Returns:
+            (drawsvg.Drawing) the created image
+        """
+        t = Table(palette)
+        s = t.settings
+        draw = svg.Drawing(*t.size, origin=(0, 0), id_prefix='prevgen')
+        font_name = s.font_name or 'Nunito'
+        font_opts = s.font_opts or {'wght': 700}
+        if 'wght' in font_opts:
+            draw.append_css('text{font-weight:'+str(font_opts['wght'])+';}')
+        # embed google font in svg for correct previews
+        try:
+            draw.embed_google_font(font_name, **font_opts)
+        except urllib.error.HTTPError:
+            print(f'\033[31;1mError: \'{font_name}\' with opts \'{font_opts}\' is not available in Google Fonts')
+            exit(1)
+        for i in t:
+            l, t = i.pos
+            w, h = i.size
+            col = i.col
+            bg_col = col.hex
+            bar_col = s.bar_col_fn(col).hex
+            text_col = s.text_col_fn(col).hex
+            draw.append(svg.Rectangle(
+                l, t,
+                w + 1, h - s.bar_height + 1,
+                fill=bg_col
+            ))
+            draw.append(svg.Rectangle(
+                l, t + h - s.bar_height + 1,
+                w + 1, s.bar_height,
+                fill=bar_col
+            ))
+            if col.name is not None:
+                draw.append(svg.Text(
+                    col.name,
+                    x=l + w / 2,
+                    y=t + h / 2 + s.name_offset,
+                    fill=text_col,
+                    center=True,
+                    font_size=s.name_size,
+                    font_family=font_name
+                ))
+                draw.append(svg.Text(
+                    col.hex,
+                    x=l + w / 2,
+                    y=t + h / 2 + s.hex_offset,
+                    fill=text_col,
+                    center=True,
+                    font_size=s.hex_size,
+                    font_family=font_name
+                ))
+            else:
+                draw.append(svg.Text(
+                    col.hex,
+                    x=l + w / 2,
+                    y=t + h / 2 + s.hex_offset_noname,
+                    fill=text_col,
+                    center=True,
+                    font_size=s.hex_size_noname,
+                    font_family=font_name
+                ))
+            if col.desc_left is not None:
+                draw.append(svg.Text(
+                    col.desc_left,
+                    x=l + s.desc_offset_x,
+                    y=t + s.desc_size/2 + s.desc_offset_y,
+                    center=True,
+                    text_anchor='start',
+                    fill=text_col,
+                    font_size=s.desc_size,
+                    font_family=font_name
+                ))
+            if col.desc_right is not None:
+                draw.append(svg.Text(
+                    col.desc_right,
+                    x=l + w - 1 - s.desc_offset_x,
+                    y=t + s.desc_size/2 + s.desc_offset_y,
+                    center=True,
+                    text_anchor='end',
+                    fill=text_col,
+                    font_size=s.desc_size,
+                    font_family=font_name
+                ))
+        draw.save_svg(s.file_name + '.svg')
+        if show:
+            # a hacky system-agnostic way to try to open the image
+            # unlike what the name suggests, it will try to use native apps as well
+            from webbrowser import open
+            from time import sleep
+            open(s.file_name + '.svg')
+            sleep(1)
+        # had to save temporarily to display in browser, remove if user did not intend to keep the file
+        if not save:
+            os.remove(s.file_name + '.svg')
+        return draw
 
 
 class Reverse:
@@ -1014,7 +1130,7 @@ class Reverse:
         Supports one bit of transparency
 
         Parameters:
-            image: The image generated with this tool (or compatible)
+            image: The image generated with this tool (png) (or compatible)
             changes: The amount of color changes in the x/y axis to ignore per tile (for the darker bar)
 
         Returns:
