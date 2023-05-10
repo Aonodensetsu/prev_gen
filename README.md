@@ -18,4 +18,4 @@
 # Example:
 Inspired by the great [Gruvbox](https://github.com/morhetz/gruvbox) theme, where even the preview is impressive  
 And so, below is the Gruvbox palette preview recreated with this app  
-[![example](https://raw.githubusercontent.com/Aonodensetsu/prev_gen/main/gruvbox.svg)](https://github.com/Aonodensetsu/prev_gen/blob/main/gruvbox.svg)
+[![example](https://raw.githubusercontent.com/Aonodensetsu/prev_gen/main/gruvbox.svg)](https://raw.githubusercontent.com/Aonodensetsu/prev_gen/main/gruvbox.svg)
