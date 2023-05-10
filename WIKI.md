@@ -98,9 +98,12 @@ colors: list[Optional[Settings | Color]] | list[Optional[Settings | list[Optiona
 
 ```python
 file_name: str = 'result'
-# File name to save into (no extension - png)
-font: str | None = None
-# Font used (no extension - true type) - if none, will use bundled
+# File name to save into (no extension, png)
+font_fame: str | None = None
+# for png = local file name (no extension, true type)
+# for svg = Google Font name
+font_opts: dict | None = None
+# Google Fonts API options (for svg)
 grid_height: int = 168
 # Height of each individual color tile
 grid_width: int = 224
@@ -144,10 +147,27 @@ it always returns the generated image, even if you choose to also save it
 palette: list[None | Settings | Color] | list[None | Settings | list[None | Color]]
 # The palette of colors to generate an image for
 # The stupid type hint is because of the two Usage modes
+show: bool = True
+# Whether to display the generated image to the user
 save: bool = False
 # Whether to save the image to disk
-show: bool = False
+```
+</details>
+
+## PreviewSVG:
+### The entrypoint that generates the image but in SVG format
+it always returns the generated image, even if you choose to also save it  
+  
+<details><summary>Available parameters</summary>
+
+```python
+palette: list[None | Settings | Color] | list[None | Settings | list[None | Color]]
+# The palette of colors to generate an image for
+# The stupid type hint is because of the two Usage modes
+show: bool = True
 # Whether to display the generated image to the user
+save: bool = False
+# Whether to save the image to disk (saves temporarily regardless)
 ```
 </details>
 
@@ -170,4 +190,3 @@ changes: tuple[int, int] = (0, 1)
 ### An interactive editor
 it also returns the image, just in case you wanted it  
 if you change the example, it will be saved to gui.py
-
