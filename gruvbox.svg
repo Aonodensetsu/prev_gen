@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
      width="1792" height="672" viewBox="0 0 1792 672">
-<style>/*<![CDATA[*/text{font-weight:700;}
+<style>/*<![CDATA[*/text{font-family:Nunito,Calibri,sans-serif;font-weight:700;}
 @font-face {
   font-family: 'Nunito';
   font-style: normal;

@@ -1031,7 +1031,9 @@ class PreviewSVG:
         font_name = s.font_name or 'Nunito'
         font_opts = s.font_opts or {'wght': 700}
         if 'wght' in font_opts:
-            draw.append_css('text{font-weight:'+str(font_opts['wght'])+';}')
+            draw.append_css('text{font-family:' + font_name + ',Calibri,sans-serif;font-weight:' + str(font_opts['wght']) + ';}')
+        else:
+            draw.append_css('text{font-family:' + font_name + ',Calibri,sans-serif;}')
         # embed google font in svg for correct previews
         try:
             draw.embed_google_font(font_name, **font_opts)
