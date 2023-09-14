@@ -1,12 +1,14 @@
 from __future__ import annotations
-import os.path
-import colorsys
-import urllib.error
-import drawsvg as svg
+from typing import NamedTuple, Literal, Callable
+from drawsvg import Drawing, Rectangle, Text
+from PIL import Image, ImageDraw, ImageFont
+from urllib.error import HTTPError
 from dataclasses import dataclass
 from math import pow, sqrt, floor
-from PIL import Image, ImageDraw, ImageFont
-from typing import Optional, NamedTuple, Literal, Callable
+from os.path import dirname
+from os import remove
+import colorsys  # need access to dict
+
 
 # some type aliases depend on the presence of classes
 # they are declared below their dependencies, spread throughout the file
@@ -26,13 +28,15 @@ i3 = tuple[int, int, int]
 
 
 class LazyloadError(AttributeError):
-    """Attribute was not assigned a value and does not support lazy loading"""
+    """
+    Attribute was not assigned a value and does not support lazy loading
+    """
     def __init__(self, item):
         super().__init__(f'({item}) ' + self.__doc__)
 
 
 # represents all CSS literals and their corresponding HEX value
-cssliterals = {
+css_literals = {
     'aliceblue':            '#F0F8FF',
     'antiquewhite':         '#FAEBD7',
     'antiquewhite1':        '#FFEFDB',
@@ -587,7 +591,6 @@ cssliterals = {
 }
 
 
-@dataclass(slots=True)
 class Color:
     """
     Represents one tile in the image, its color, and any descriptions
@@ -607,9 +610,9 @@ class Color:
         yiq_d:      YIQ denormalized color
         dark:       Whether the color is dark based on human perception
     """
-    name: Optional[str]
-    desc_left: Optional[str]
-    desc_right: Optional[str]
+    name: str | None
+    desc_left: str | None
+    desc_right: str | None
     hex: str
     rgb: f3
     hsv: f3
@@ -621,11 +624,16 @@ class Color:
     yiq_d: i3
     dark: bool
 
+    __slots__ = (
+        'name', 'desc_left', 'desc_right', 'hex', 'rgb', 'hsv',
+        'hls', 'yiq', 'rgb_d', 'hsv_d', 'hls_d', 'yiq_d', 'dark'
+    )
+
     def __init__(self,
                  color: str | f3 | i3,
-                 name: Optional[str] = None,
-                 desc_left: Optional[str] = None,
-                 desc_right: Optional[str] = None,
+                 name: str | None = None,
+                 desc_left: str | None = None,
+                 desc_right: str | None = None,
                  mode: Literal['rgb', 'hsv', 'hls', 'yiq'] = 'rgb'
                  ) -> None:
         """
@@ -640,10 +648,11 @@ class Color:
         """
         # hex is allowed regardless of mode
         if isinstance(color, str):
-            if col_l := color.lower() in cssliterals:
-                color = cssliterals[col_l]
+            if col_l := color.lower() in css_literals:
+                color = css_literals[col_l]
             self.hex = '#' + color.lstrip('#').upper()
-            self.rgb = tuple(int(self.hex[i:i + 2], 16) / 255. for i in (1, 3, 5))
+            r, g, b = (int(self.hex[i:i + 2], 16) / 255. for i in (1, 3, 5))
+            self.rgb = (r, g, b)
         else:
             if all(isinstance(i, int) for i in color):
                 match mode:
@@ -678,7 +687,8 @@ class Color:
                 case 'hsv' | 'hls' | 'yiq':
                     setattr(self, item, colorsys.__dict__['rgb_to_' + item](*self.rgb))
                 case 'rgb_d':
-                    self.rgb_d = tuple(int(i * 255) for i in self.rgb)
+                    r, g, b = self.rgb
+                    self.rgb_d = (int(r * 255), int(g * 255), int(b * 255))
                 case 'hsv_d':
                     h, s, v = self.hsv
                     self.hsv_d = (int(h * 179), int(s * 255), int(v * 255))
@@ -686,7 +696,8 @@ class Color:
                     h, l, s = self.hls
                     self.hls_d = (int(h * 360), int(l * 100), int(s * 100))
                 case 'yiq_d':
-                    self.yiq_d = tuple(int(i * 255) for i in self.yiq)
+                    y, i, q = self.yiq
+                    self.yiq_d = (int(y * 255), int(i * 255), int(q * 255))
                 case 'hex':
                     self.hex = '#%02X%02X%02X' % self.rgb_d
                 case 'dark':
@@ -721,8 +732,10 @@ class Settings:
 
     Attributes:
         file_name:         File name to save into (no extension, png)
-        font_name:
-            for png = local file name (no extension, true type),
+        font_name: .
+
+            for png = local file name (no extension, true type)
+
             for svg = Google Font name
         font_opts:         Google Fonts API options (for svg)
         grid_height:       Height of each individual color tile
@@ -741,8 +754,8 @@ class Settings:
         text_col_fn:       Function to determine text color from background color
     """
     file_name: str = 'result'
-    font_name: Optional[str] = None
-    font_opts: Optional[dict] = None
+    font_name: str | None = None
+    font_opts: dict | None = None
     grid_height: int = 168
     grid_width: int = 224
     bar_height: int = 10
@@ -787,7 +800,7 @@ class Settings:
 #     None to mark an empty element
 #     Settings (as the first element)
 #     Color
-u1 = list[Optional[Settings | Color]]
+u1 = list[Settings | Color | None]
 # usage 2
 #   list of
 #     None to mark an empty row
@@ -795,7 +808,7 @@ u1 = list[Optional[Settings | Color]]
 #     list of
 #       None to mark an empty element
 #       Color
-u2 = list[Optional[Settings | list[Optional[Color]]]]
+u2 = list[Settings | list[Color | None] | None]
 
 
 # used for position and size when placing tiles in an image
@@ -839,7 +852,7 @@ class Table:
         width:    Width of the table in fields
         size:     Size of table in pixels
     """
-    colors: list[Optional[Color]]
+    colors: list[Color | None]
     settings: Settings
     height: int
     width: int
@@ -854,7 +867,7 @@ class Table:
         )
 
     def __init__(self,
-                 colors: u1 | u2
+                 colors: u2 | u1
                  ) -> None:
         """
         Creates a table from a palette
@@ -912,8 +925,10 @@ class Table:
 
 
 class Preview:
-    """A wrapper for the main function to allow simpler usage"""
-    def __new__(_,
+    """
+    A wrapper for the main function to allow simpler usage
+    """
+    def __new__(cls,
                 palette: u1 | u2,
                 show: bool = True,
                 save: bool = False
@@ -933,7 +948,7 @@ class Preview:
         draw = ImageDraw.Draw(img)
         if s.font_name is None:
             from inspect import currentframe, getabsfile
-            font = os.path.dirname(getabsfile(currentframe())) + '/nunito.ttf'
+            font = dirname(getabsfile(currentframe())) + '/nunito.ttf'
         else:
             font = s.font_name + '.ttf'
         for i in t:
@@ -1010,8 +1025,10 @@ class Preview:
 
 
 class PreviewSVG:
-    """A wrapper for the main function to allow simpler usage"""
-    def __new__(_,
+    """
+    A wrapper for the main function to allow simpler usage
+    """
+    def __new__(cls,
                 palette: u1 | u2,
                 show: bool = True,
                 save: bool = False
@@ -1027,17 +1044,17 @@ class PreviewSVG:
         """
         t = Table(palette)
         s = t.settings
-        draw = svg.Drawing(*t.size, origin=(0, 0), id_prefix='prevgen')
+        draw = Drawing(*t.size, origin=(0, 0), id_prefix='prevgen')
         font_name = s.font_name or 'Nunito'
         font_opts = s.font_opts or {'wght': 700}
         if 'wght' in font_opts:
-            draw.append_css('text{font-family:' + font_name + ',Calibri,sans-serif;font-weight:' + str(font_opts['wght']) + ';}')
+            draw.append_css(f'text{{font-family:{font_name},Calibri,sans-serif;font-weight:{font_opts["wght"]};}}')
         else:
-            draw.append_css('text{font-family:' + font_name + ',Calibri,sans-serif;}')
+            draw.append_css(f'text{{font-family:{font_name},Calibri,sans-serif;}}')
         # embed google font in svg for correct previews
         try:
             draw.embed_google_font(font_name, **font_opts)
-        except urllib.error.HTTPError:
+        except HTTPError:
             print(f'\033[31;1mError: \'{font_name}\' with opts \'{font_opts}\' is not available in Google Fonts')
             exit(1)
         for i in t:
@@ -1047,20 +1064,20 @@ class PreviewSVG:
             bg_col = col.hex
             bar_col = s.bar_col_fn(col).hex
             text_col = s.text_col_fn(col).hex
-            draw.append(svg.Rectangle(
+            draw.append(Rectangle(
                 l, t,
                 w + 1, h - s.bar_height + 1,
                 fill=bg_col,
                 stroke=bg_col
             ))
-            draw.append(svg.Rectangle(
+            draw.append(Rectangle(
                 l, t + h - s.bar_height + 1,
                 w + 1, s.bar_height,
                 fill=bar_col,
                 stroke=bar_col
             ))
             if col.name is not None:
-                draw.append(svg.Text(
+                draw.append(Text(
                     col.name,
                     x=l + w / 2,
                     y=t + h / 2 + s.name_offset,
@@ -1069,7 +1086,7 @@ class PreviewSVG:
                     font_size=s.name_size,
                     font_family=font_name
                 ))
-                draw.append(svg.Text(
+                draw.append(Text(
                     col.hex,
                     x=l + w / 2,
                     y=t + h / 2 + s.hex_offset,
@@ -1079,7 +1096,7 @@ class PreviewSVG:
                     font_family=font_name
                 ))
             else:
-                draw.append(svg.Text(
+                draw.append(Text(
                     col.hex,
                     x=l + w / 2,
                     y=t + h / 2 + s.hex_offset_noname,
@@ -1089,7 +1106,7 @@ class PreviewSVG:
                     font_family=font_name
                 ))
             if col.desc_left is not None:
-                draw.append(svg.Text(
+                draw.append(Text(
                     col.desc_left,
                     x=l + s.desc_offset_x,
                     y=t + s.desc_size/2 + s.desc_offset_y,
@@ -1100,7 +1117,7 @@ class PreviewSVG:
                     font_family=font_name
                 ))
             if col.desc_right is not None:
-                draw.append(svg.Text(
+                draw.append(Text(
                     col.desc_right,
                     x=l + w - 1 - s.desc_offset_x,
                     y=t + s.desc_size/2 + s.desc_offset_y,
@@ -1120,21 +1137,25 @@ class PreviewSVG:
             sleep(1)
         # had to save temporarily to display in browser, remove if user did not intend to keep the file
         if not save:
-            os.remove(s.file_name + '.svg')
+            remove(s.file_name + '.svg')
         return draw
 
 
 class Reverse:
-    def __new__(_,
+    """
+    Takes colors back from a PNG
+    """
+    def __new__(cls,
                 image: Image | str,
                 changes: tuple[int, int] = (0, 1)
                 ) -> u2:
         """
         Takes an image and returns the palette used to generate it
+
         Supports one bit of transparency
 
         Parameters:
-            image: The image generated with this tool (png) (or compatible)
+            image: The png image generated with this tool (or compatible)
             changes: The amount of color changes in the x/y axis to ignore per tile (for the darker bar)
 
         Returns:
@@ -1170,14 +1191,14 @@ class Reverse:
 
 
 class GUI:
-    def __new__(_) -> Image:
+    def __new__(cls) -> Image:
         import tkinter as tk
         from inspect import currentframe, getabsfile
         from PIL import ImageTk, ImageOps
         import idlelib.colorizer as ic
         import idlelib.percolator as ip
 
-        def onedit(_):
+        def on_edit(_):
             editor.unbind('<Key>')
             editor.edited = True
 
@@ -1219,17 +1240,15 @@ class GUI:
         editor = tk.Text(
             f_edit, bg='#282828', fg='#d4be98', insertbackground='#d4be98', borderwidth=0, font=('Verdana', 13)
         )
-        with open(os.path.dirname(getabsfile(currentframe())) + '/example.txt', 'r') as f:
+        with open(dirname(getabsfile(currentframe())) + '/example.txt', 'r') as f:
             editor.insert(tk.END, f.read())
         editor.pack(fill='both', expand=True)
         editor.edited = False
-        editor.bind('<Key>', onedit)
+        editor.bind('<Key>', on_edit)
         col = ic.ColorDelegator()
-        col.tagdefs['STRING'] = {'foreground': '#a9b665', 'background': '#282828'}
-        col.tagdefs['COMMENT'] = {'foreground': '#5a524c', 'background': '#282828'}
-        col.tagdefs['KEYWORD'] = {'foreground': '#ea6962', 'background': '#282828'}
-        col.tagdefs['BUILTIN'] = {'foreground': '#d8a657', 'background': '#282828'}
-        col.tagdefs['DEFINITION'] = {'foreground': '#7daea3', 'background': '#282828'}
+        for i, j in zip(['STRING',  'COMMENT', 'KEYWORD', 'BUILTIN', 'DEFINITION'],
+                        ['#a9b665', '#5a524c', '#ea6962', '#d8a657', '#7daea3']):
+            col.tagdefs[i] = {'background': '#282828', 'foreground': j}
         ip.Percolator(editor).insertfilter(col)
         f_cmd = tk.Frame(ui, bg='#282828')
         f_cmd.grid(row=0, column=1, sticky='nsew')
