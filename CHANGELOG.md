@@ -1,3 +1,4 @@
+Version 3.0.0 - added transparency and made OKLCH the suggested format, breaking changes  
 Version 2.1.0 - added OKLCH colors  
 Version 2.0.6 - fix README  
 Version 2.0.5 - small changes  

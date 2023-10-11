@@ -1,6 +1,6 @@
 # Classes
 Each entry below is a class you can import from this library  
-(except the palette, that entry is needed to explain the usage)
+(except the palette, that entry is needed to explain the usage modes)
 
 ## Palette:
 ### The colors you want to convert to an image
@@ -17,52 +17,67 @@ the program will make a rectangle big enough to fit them all
 
 (2d list) each inner list will be treated as a single row of colors, left-to-right  
 use this for full control over the placement of colors in the final image  
-- you can even leave entire rows transparent if you pass an empty list  
+- you can leave entire rows transparent if you pass an empty list  
 </details>
 
-with either option you can put `None` in the table to leave one field transparent  
+Check the [example](example.py) for a more direct explanation, it uses mode two.  
+Use `Color('0000')` to leave a spot empty - it's simply a fully transparent color
 
 ## Color:
 ### An object that represents a single color  
 <details><summary>Available parameters</summary>
 
 ```python
-color: str | tuple[float, float, float] | tuple[int, int, int]
+color: Literals | str | tuple[float, float, float] | tuple[float, float, float, float] | tuple[int, int, int] | tuple[int, int, int, int]
 # The color value to assign, you need to include this value
+# Four values if using transparency, three otherwise (modes below)
+# Or a hex string
+#   '#fb0000fe' - off-red with almost full opacity
+#   '#00f8'     - blue with half opacity
+#   '#FFF'      - white, letters can be capital too
+#   '00fa00'    - off-green with full opacity
+#   '0000'      - black with full transparency, equivalent to no color at all
+#                 well, any fully transparent color works the same
+#                 this is the way to leave a field empty in 3.0
+# Or a css literal
+# Of which a full list is available in the Literals class
+#   'aliceblue' = Literals.aliceblue = '#f0f8ff'
 name: str | None = None
-# The name to display
+# The name to display, hex if empty
 desc_left: str | None = None
 # Left corner description
 desc_right: str | None = None
 # Right corner description
-mode: Literal['rgb', 'hsv', 'hls', 'yiq'] = 'rgb'
+mode: Literal['rgb', 'hsv', 'hls', 'yiq', 'lch'] = 'rgb'
 # Specifies type of color to convert from
 ```
 </details>
-<details><summary>you can change the mode by specifying the type of color you want</summary>
+<details><summary>You can change the mode by specifying the type of color you want</summary>
 
 ```python
-Color((0.2, 0.4, 0.7))              # RGB is the default
-Color((0.2, 0.4, 0.7), mode='hsv')  # other supported modes are HSV, HLS and YIQ
-Color((0.2, 0.4, 0.7), mode='hls')
-Color((0.2, 0.4, 0.7), mode='yiq')
+Color((0.4, 0.2, 0.7))             # RGB is the default
+Color((0.4, 0.2, 0.7), mode='lch') # OKLCH is the suggested mode due being based on human perception
+Color((0.4, 0.2, 0.7), mode='hsv') # other supported modes are HSV, HLS and YIQ
+Color((0.4, 0.2, 0.7, 0.5))        # all work with transparency
 ```
 </details>
-<details><summary>all the modes support normalized and denormalized values</summary>
+<details><summary>All the modes support normalized and denormalized values</summary>
 
 but make sure to look at the ranges of values if you want to use denormalized ones  
 ```python
 (R: 0-255,  G: 0-255,  B: 0-255)
 (H: 0-179,  S: 0-255,  V: 0-255)
-(H: 0-360,  S: 0-100,  L: 0-100)
+(H: 0-360,  L: 0-100,  S: 0-100)
 (Y: 0-255,  I: 0-255,  Q: 0-255)
+(L: 0-100,  C: 0-100,  H: 0-360)
+* alpha has a range of 0-100
 ```
 </details>
 <details><summary>you can also specify a name for a color or not</summary>
 
 ```python
-Color((200, 100, 235), 'purple')    # RGB with name
-Color((0.2, 0.4, 0.7), mode='hsv')  # HSV without name
+Color((200, 100, 235), 'purple')    # denormalized RGB with name
+Color((0.2, 0.4, 0.7), mode='hsv')  # normalized HSV without name
 ```
 </details>
 <details><summary>HEX and CSS works regardless of mode specified</summary>
@@ -70,9 +85,17 @@ Color((0.2, 0.4, 0.7), mode='hsv')  # HSV without name
 ```python
 Color('#52c7a7', 'mint', mode='hls') # HEX with name (mode ignored)
 Color('darkred', mode='hls')         # CSS with no name (mode ignored)
-# name not added by to CSS by default to allow for palettes without any names
+# for css, name not added by default to allow for palettes without any names
 ```
 </details>
+
+## Literals:
+### Just CSS Literals
+That's it, this is an enum of CSS colors, import and use in Color by name  
+Or simply write the name as a string
+
+Literals.aliceblue == 'aliceblue'  
+The class (enum) is just here for convenience if you don't remember them and your editor has hints
 
 ## Table:
 ### Not really meant for usage
@@ -84,7 +107,7 @@ I don't expect this to actually be useful to anyone, but you can check the code 
 <details><summary>Available parameters</summary>
 
 ```python
-colors: list[Optional[Settings | Color]] | list[Optional[Settings | list[Optional[Color]]]]
+colors: list[Settings | Color] | list[None | Settings | list[Color]]
 # ...The color palette used
 # The stupid type hint is because of the two Usage modes
 ```
@@ -99,9 +122,10 @@ colors: list[Optional[Settings | Color]] | list[Optional[Settings | list[Optiona
 ```python
 file_name: str = 'result'
 # File name to save into (no extension, png)
-font_fame: str | None = None
+font_fame: str = 'Nunito'
 # for png = local file name (no extension, true type)
 # for svg = Google Font name
+# the default is packaged with the module, no need to have installed
 font_opts: dict | None = None
 # Google Fonts API options (for svg)
 grid_height: int = 168
@@ -144,7 +168,7 @@ it always returns the generated image, even if you choose to also save it
 <details><summary>Available parameters</summary>
 
 ```python
-palette: list[None | Settings | Color] | list[None | Settings | list[None | Color]]
+palette: list[Settings | Color] | list[None | Settings | list[Color]]
 # The palette of colors to generate an image for
 # The stupid type hint is because of the two Usage modes
 show: bool = True
@@ -161,13 +185,15 @@ it always returns the generated image, even if you choose to also save it
 <details><summary>Available parameters</summary>
 
 ```python
-palette: list[None | Settings | Color] | list[None | Settings | list[None | Color]]
+palette: list[Settings | Color] | list[None | Settings | list[Color]]
 # The palette of colors to generate an image for
 # The stupid type hint is because of the two Usage modes
 show: bool = True
 # Whether to display the generated image to the user
 save: bool = False
-# Whether to save the image to disk (saves temporarily regardless)
+# Whether to save the image to disk
+# Saved temporarily regardless, just deleted if you don't want to keep it
+# This is to allow opening with a browser, since everyone has one of those
 ```
 </details>
 
@@ -183,10 +209,12 @@ image: Image | str
 # The image generated with this tool (or compatible) or a path to it
 changes: tuple[int, int] = (0, 1)
 # The amount of color changes in the x/y axis to ignore per tile (for the darker bar)
+# This is always the default in my program, but can be adjusted for other generators
+# Most commonly (0, 0) if the palette doesn't have any flair colors
 ```
 </details>
 
 ## GUI:
 ### An interactive editor
-it also returns the image, just in case you wanted it  
-if you change the example, it will be saved to gui.py
+If you change the example, it will be saved to gui.py  
+It also returns the image, just in case you wanted it
