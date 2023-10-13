@@ -44,9 +44,9 @@ color: Literals | str | tuple[float, float, float] | tuple[float, float, float, 
 #   'aliceblue' = Literals.aliceblue = '#f0f8ff'
 name: str | None = None
 # The name to display, hex if empty
-desc_left: str | None = None
+descLeft: str | None = None
 # Left corner description
-desc_right: str | None = None
+descRight: str | None = None
 # Right corner description
 mode: Literal['rgb', 'hsv', 'hls', 'yiq', 'lch'] = 'rgb'
 # Specifies type of color to convert from
@@ -70,7 +70,7 @@ but make sure to look at the ranges of values if you want to use denormalized on
 (H: 0-360,  L: 0-100,  S: 0-100)
 (Y: 0-255,  I: 0-255,  Q: 0-255)
 (L: 0-100,  C: 0-100,  H: 0-360)
-* alpha has a range of 0-100
+* alpha has a range of 0-255
 ```
 </details>
 <details><summary>you can also specify a name for a color or not</summary>
@@ -83,7 +83,7 @@ Color((0.2, 0.4, 0.7), mode='hsv')  # normalized HSV without name
 <details><summary>HEX and CSS works regardless of mode specified</summary>
     
 ```python
-Color('#52c7a7', 'mint', mode='hls') # HEX with name (mode ignored)
+Color('#52C7A7', 'mint', mode='hls') # HEX with name (mode ignored)
 Color('darkred', mode='hls')         # CSS with no name (mode ignored)
 # for css, name not added by default to allow for palettes without any names
 ```
@@ -120,42 +120,42 @@ colors: list[Settings | Color] | list[None | Settings | list[Color]]
 <details><summary>Available parameters</summary>
 
 ```python
-file_name: str = 'result'
+fileName: str = 'result'
 # File name to save into (no extension, png)
-font_fame: str = 'Nunito'
+fontName: str = 'Nunito'
 # for png = local file name (no extension, true type)
 # for svg = Google Font name
 # the default is packaged with the module, no need to have installed
-font_opts: dict | None = None
+fontOpts: dict | None = None
 # Google Fonts API options (for svg)
-grid_height: int = 168
+gridHeight: int = 168
 # Height of each individual color tile
-grid_width: int = 224
+gridWidth: int = 224
 # Width of each individual color tile
-bar_height: int = 10
+barHeight: int = 10
 # Height of the darkened bar at the bottom of each tile
-name_offset: int = -10
+nameOffset: int = -10
 # Vertical offset of the color name printed within the tile
-hex_offset: int = 35
+hexOffset: int = 35
 # Vertical offset of the hex value printed below color name
-hex_offset_noname: int = 0
+hexOffsetNameless: int = 0
 # Vertical offset of the hex value printed if no name given
-desc_offset_x: int = 15
+descOffsetX: int = 15
 # Horizontal offset of the corner descriptions
-desc_offset_y: int = 20
+descOffsetY: int = 20
 # Vertical offset of the corner descriptions
-name_size: int = 40
+nameSize: int = 40
 # Text size of the color name
-hex_size: int = 26
+hexSize: int = 26
 # Text size of the hex value printed under the color name
-hex_size_noname: int = 34
+hexSizeNameless: int = 34
 # Text size of the hex value printed if no name given
-desc_size: int = 26
+descSize: int = 26
 # Text size of the corner descriptions
-bar_col_fn: Callable[[Color], Color] = (default omitted)
+barFn: Callable[[Color], Color] = (default omitted)
 # Function to determine bar color from background color
 # You probably shouldn't touch this
-text_col_fn: Callable[[Color], Color] = (default omitted)
+textFn: Callable[[Color], Color] = (default omitted)
 # Function to determine text color from background color
 # You probably shouldn't touch this
 ```
@@ -178,6 +178,23 @@ save: bool = False
 ```
 </details>
 
+## Reverse:
+### Regenerate the code
+Take an image and get back the code used to generate it  
+*Descriptions are not yet supported
+
+<details><summary>Available parameters</summary>
+
+```python
+image: Image | str
+# The image generated with this tool (or compatible) or a path to it
+changes: tuple[int, int] = (0, 1)
+# The amount of color changes in the x/y axis to ignore per tile (for the darker bar)
+# This is always the default in my program, but can be adjusted for other generators
+# Most commonly (0, 0) if the palette doesn't have any flair colors
+```
+</details>
+
 ## PreviewSVG:
 ### The entrypoint that generates the image but in SVG format
 it always returns the generated image, even if you choose to also save it  
@@ -197,20 +214,15 @@ save: bool = False
 ```
 </details>
 
-## Reverse:
+## ReverseSVG:
 ### Regenerate the code
-Take an image and get back the code used to generate it  
-*Only the colors for now, descriptions and settings are not yet supported
+Take an image and get back the code used to generate it but in SVG
 
 <details><summary>Available parameters</summary>
 
 ```python
-image: Image | str
+image: str
 # The image generated with this tool (or compatible) or a path to it
-changes: tuple[int, int] = (0, 1)
-# The amount of color changes in the x/y axis to ignore per tile (for the darker bar)
-# This is always the default in my program, but can be adjusted for other generators
-# Most commonly (0, 0) if the palette doesn't have any flair colors
 ```
 </details>
 

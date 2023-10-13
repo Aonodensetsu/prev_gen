@@ -1,8 +1,9 @@
 from __future__ import annotations
+from drawsvg import Drawing, Rectangle, Text, DrawingElement
 from typing import NamedTuple, Literal, Callable
 from math import degrees, atan2, pi, cos, sin
-from drawsvg import Drawing, Rectangle, Text
 from PIL import Image, ImageDraw, ImageFont
+from PIL.PngImagePlugin import PngInfo
 from urllib.error import HTTPError
 from dataclasses import dataclass
 from os.path import dirname
@@ -602,70 +603,117 @@ class Literals(Enum):
         return x
 
 
+@dataclass(slots=True)
 class Color:
     """
-    Represents one color tile in the image, any descriptions it may have - and allows for color conversion
+    Represents one color tile in the image, any descriptions it may have - and allows for color conversions
 
     Attributes:
-        name:       Color name
-        desc_left:  Left corner description
-        desc_right: Right corner description
-        hex:        Hexadecimal color
-        hexa:       Hex color with transparency
-        rgb:        RGB normalized color
-        hsv:        HSV normalized color
-        hls:        HLS normalized color
-        yiq:        YIQ normalized color
-        lch:        OKLCH normalized color
-        alpha:      Transparency value
-        rgb_d:      RGB denormalized color
-        hsv_d:      HSV denormalized color
-        hls_d:      HLS denormalized color
-        yiq_d:      YIQ denormalized color
-        lch_d:      OKLCH denormalized color
-        alpha_d:    Transparency value, denormalized
-        dark:       Whether the color is dark based on human perception
-    """
-    name: str | None
-    desc_left: str | None
-    desc_right: str | None
-    hex: str
-    hexa: str
-    rgb: f3
-    hsv: f3
-    hls: f3
-    yiq: f3
-    lch: f3
-    alpha: float
-    rgb_d: i3
-    hsv_d: i3
-    hls_d: i3
-    yiq_d: i3
-    lch_d: i3
-    alpha_d: int
-    dark: bool
+        name:      Color name
 
-    __slots__ = (
-        'name', 'desc_left', 'desc_right', 'hex', 'hexa', 'rgb', 'hsv', 'hls', 'yiq', 'lch',
-        'alpha', 'rgb_d', 'hsv_d', 'hls_d', 'yiq_d', 'lch_d', 'alpha_d', 'dark'
-    )
+        descLeft:  Left corner description
+
+        descRight: Right corner description
+
+        dark:      Whether the color is dark based on human perception
+
+        alpha:     Transparency value
+
+        alphaD:    Denormalized transparency value
+
+        hex:       Hexadecimal color
+
+        hexa:      hex with transparency
+
+        rgb:       rgb normalized color
+
+        rgba:      rgb with transparency
+
+        rgbD:      rgb denormalized color
+
+        rgbaD:     rgbD with transparency
+
+        hsv:       hsv normalized color
+
+        hsva:      hsv with transparency
+
+        hsvD:      hsv denormalized color
+
+        hsvaD:     hsvD with transparency
+
+        hls:       hls normalized color
+
+        hlsa:      hls with transparency
+
+        hlsD:      hls denormalized color
+
+        hlsaD:     hlsD with transparency
+
+        yiq:       yiq normalized color
+
+        yiqa:      yiq with transparency
+
+        yiqD:      yiq denormalized color
+
+        yiqaD:     yiqD with transparency
+
+        lch:       (ok)lch normalized color
+
+        lcha:      (ok)lch with transparency
+
+        lchD:      (ok)lch denormalized color
+
+        lchaD:     (ok)lchD with transparency
+    """
+    name:      str | None
+    descLeft:  str | None
+    descRight: str | None
+    dark:      bool
+    hex:       str
+    hexa:      str
+    alpha:     float
+    alphaD:    int
+    rgb:       f3
+    rgba:      f4
+    rgbD:      i3
+    rgbaD:     i4
+    hsv:       f3
+    hsva:      f4
+    hsvD:      i3
+    hsvaD:     i4
+    hls:       f3
+    hlsa:      f4
+    hlsD:      i3
+    hlsaD:     i4
+    yiq:       f3
+    yiqa:      f4
+    yiqD:      i3
+    yiqaD:     i4
+    lch:       f3
+    lcha:      f4
+    lchD:      i3
+    lchaD:     i4
 
     def __init__(self,
                  color: Literals | str | f3 | f4 | i3 | i4,
                  name: str | None = None,
-                 desc_left: str | None = None,
-                 desc_right: str | None = None,
+                 descLeft: str | None = None,
+                 descRight: str | None = None,
                  mode: Literal['rgb', 'hsv', 'hls', 'yiq', 'lch'] = 'rgb'
                  ) -> None:
         """
         Create a color from a given value
 
         Parameters:
-            color:      The color value to assign
-            name:       The name to display
-            desc_left:  Left corner description
-            desc_right: Right corner description
-            mode:       Specifies type of color created
+            color:     The color value to assign
+
+            name:      The name to display
+
+            descLeft:  Left corner description
+
+            descRight: Right corner description
+
+            mode:      Specifies type of color created
         """
         # css literal parsing
         if isinstance(color, Literals):
@@ -679,12 +727,9 @@ class Color:
             # convert short hex to full hex
             if len(color) in (3, 4):
                 color = ''.join(i * 2 for i in color)
-            # extract alpha
-            self.alpha = (
-                int(color[6:8], 16) / 255
-                if len(color) >= 8
-                else 1
-            )
+            # extract alpha if present
+            if len(color) >= 8:
+                self.alpha = int(color[6:8], 16) / 255
             self.hex = color[:6]
             r, g, b = (
                 int(self.hex[i * 2:(i + 1) * 2], 16) / 255
@@ -697,8 +742,10 @@ class Color:
                 self.alpha = color[3]
                 color = color[:3]
             if all(isinstance(i, int) for i in color):
-                self.alpha /= 255
-                setattr(self, mode + '_d', color)
+                # if alpha was present, normalize it
+                if hasattr(self, 'alpha'):
+                    self.alpha /= 255
+                setattr(self, mode + 'D', color)
                 v1, v2, v3 = color
                 match mode:
                     case 'rgb' | 'yiq':
@@ -720,11 +767,9 @@ class Color:
                     a = C * cos(h)
                     b = C * sin(h)
                     # partial values
-                    l1, m, s = (
-                        (L + 0.3963377774 * a + 0.2158037573 * b) ** 3,
-                        (L - 0.1055613458 * a - 0.0638541728 * b) ** 3,
-                        (L - 0.0894841775 * a - 1.2914855480 * b) ** 3
-                    )
+                    l1 = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3
+                    m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3
+                    s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3
                     # some more math magic
                     rgb = (
                         4.0767245293 * l1 - 3.3072168827 * m + 0.2307590544 * s,
@@ -744,10 +789,11 @@ class Color:
                         for x in rgb
                     )
                     self.rgb = (r, g, b)
-        self.alpha = self.alpha or 1
+        if not hasattr(self, 'alpha'):
+            self.alpha = 1
         self.name = name
-        self.desc_left = desc_left
-        self.desc_right = desc_right
+        self.descLeft = descLeft
+        self.descRight = descRight
 
     def __getattribute__(self, item):
         """
@@ -760,6 +806,21 @@ class Color:
         except AttributeError:
             # lazyload attributes as needed
             match item:
+                case 'rgba' | 'hsva' | 'hlsa' | 'yiqa' | 'lcha' | 'rgbaD' | 'hsvaD' | 'hlsaD' | 'yiqaD' | 'lchaD':
+                    base = item.removesuffix('D').removesuffix('a')
+                    suffix = 'D' if 'D' in item else ''
+                    setattr(self, item, (*getattr(self, base + suffix), getattr(self, 'alpha' + suffix)))
+                case 'rgbD' | 'hsvD' | 'hlsD' | 'yiqD' | 'lchD':
+                    v1, v2, v3 = getattr(self, item.removesuffix('D'))
+                    mult = (255, 255, 255)
+                    match item:
+                        case 'hsvD':
+                            mult = (179, 255, 255)
+                        case 'hlsD':
+                            mult = (360, 100, 100)
+                        case 'lchD':
+                            mult = (100, 100, 360)
+                    setattr(self, item, (int(v1 * mult[0]), int(v2 * mult[1]), int(v3 * mult[2])))
                 case 'hsv' | 'hls' | 'yiq':
                     setattr(self, item, getattr(colorsys, 'rgb_to_' + item)(*self.rgb))
                 case 'lch':
@@ -771,45 +832,44 @@ class Color:
                         for x in self.rgb
                     )
                     # partial values
-                    l1 = 0.412165612 * r + 0.536275208 * g + 0.0514575653 * b
-                    m = 0.211859107 * r + 0.6807189584 * g + 0.107406579 * b
-                    s = 0.0883097947 * r + 0.2818474174 * g + 0.6302613616 * b
-                    l1_, m_, s_ = (x ** (1 / 3) for x in (l1, m, s))
-                    a = 1.9779984951 * l1_ - 2.428592205 * m_ + 0.4505937099 * s_
-                    b = 0.0259040371 * l1_ + 0.7827717662 * m_ - 0.808675766 * s_
+                    part = (
+                        0.412165612 * r + 0.536275208 * g + 0.0514575653 * b,
+                        0.211859107 * r + 0.6807189584 * g + 0.107406579 * b,
+                        0.0883097947 * r + 0.2818474174 * g + 0.6302613616 * b
+                    )
+                    l_, m_, s_ = (
+                        x ** (1 / 3)
+                        for x in part
+                    )
+                    a = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_
+                    b = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_
                     self.lch = (
-                        0.2104542553 * l1_ + 0.793617785 * m_ - 0.0040720468 * s_,
+                        0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_,
                         (a ** 2 + b ** 2) ** 0.5,
                         degrees(atan2(b, a)) % 360 / 360
                     )
                 case 'hex':
-                    self.hex = '%02X%02X%02X' % self.rgb_d
+                    self.hex = '%02X%02X%02X' % self.rgbD
                 case 'hexa':
-                    self.hexa = self.hex + '%02X' % self.alpha_d
-                case 'rgb_d':
-                    r, g, b = (int(x * 255) for x in self.rgb)
-                    self.rgb_d = (r, g, b)
-                case 'hsv_d':
-                    h, s, v = self.hsv
-                    self.hsv_d = (int(h * 179), int(s * 255), int(v * 255))
-                case 'hls_d':
-                    h, l, s = self.hls
-                    self.hls_d = (int(h * 360), int(l * 100), int(s * 100))
-                case 'yiq_d':
-                    y, i, q = (int(x * 255) for x in self.yiq)
-                    self.yiq_d = (y, i, q)
-                case 'lch_d':
-                    l, c, h = self.lch
-                    self.lch_d = (int(l * 100), int(c * 100), int(h * 360))
-                case 'alpha_d':
-                    self.alpha_d = int(self.alpha * 255)
+                    # if opacity = 1, don't write it down
+                    self.hexa = self.hex + '%02X' % self.alphaD
+                case 'alphaD':
+                    self.alphaD = int(self.alpha * 255)
                 case 'dark':
-                    # lch already has a perception-based lightness :)
+                    # lch has a perception-based lightness :)
                     self.dark = self.lch[0] <= 0.483
                 case _:
                     # lazyloading unsupported
                     raise LazyloadError(item)
             return object.__getattribute__(self, item)
+
+    def serializeText(self) -> str:
+        from base64 import b64encode
+        return str(b64encode(bytes(f'{self.name}\0{self.descLeft}\0{self.descRight}', 'utf-8')), 'latin1')
+
+    def deserializeText(self, text: str):
+        from base64 import b64decode
+        self.name, self.descLeft, self.descRight = str(b64decode(bytes(text, 'latin1')), 'utf-8').split('\0')
 
 
 # used for Color transformations
@@ -824,67 +884,101 @@ class Settings:
     Image generation settings
 
     Attributes:
-        file_name:         File name to save into (no extension, png)
-        font_name: .
+        fileName:          File name to save into (no extension, png)
 
-            for png = local file name (no extension, true type)
+        fontName:          for svg = Google Font name
 
-            for svg = Google Font name
-        font_opts:         Google Fonts API options (for svg)
-        grid_height:       Height of each individual color tile
-        grid_width:        Width of each individual color tile
-        bar_height:        Height of the darkened bar at the bottom of each tile
-        name_offset:       Vertical offset of the color name printed within the tile
-        hex_offset:        Vertical offset of the hex value printed below color name
-        hex_offset_noname: Vertical offset of the hex value printed if no name given
-        desc_offset_x:     Horizontal offset of the corner descriptions
-        desc_offset_y:     Vertical offset of the corner descriptions
-        name_size:         Text size of the color name
-        hex_size:          Text size of the hex value printed under the color name
-        hex_size_noname:   Text size of the hex value printed if no name given
-        desc_size:         Text size of the corner descriptions
-        bar_col_fn:        Function to determine bar color from background color
-        text_col_fn:       Function to determine text color from background color
+                           for png = local file name (no extension, true type)
+
+        fontOpts:          Google Fonts API options (for svg)
+
+        gridHeight:        Height of each individual color tile
+
+        gridWidth:         Width of each individual color tile
+
+        barHeight:         Height of the darkened bar at the bottom of each tile
+
+        nameOffset:        Vertical offset of the color name printed within the tile
+
+        hexOffset:         Vertical offset of the hex value printed below color name
+
+        hexOffsetNameless: Vertical offset of the hex value printed if no name given
+
+        descOffsetX:       Horizontal offset of the corner descriptions
+
+        descOffsetY:       Vertical offset of the corner descriptions
+
+        nameSize:          Text size of the color name
+
+        hexSize:           Text size of the hex value printed under the color name
+
+        hexSizeNameless:   Text size of the hex value printed if no name given
+
+        descSize:          Text size of the corner descriptions
+
+        barFn:             Function to determine bar color from background color
+
+        textFn:            Function to determine text color from background color
     """
-    file_name: str = 'result'
-    font_name: str = 'Nunito'
-    font_opts: dict | None = None
-    grid_height: int = 168
-    grid_width: int = 224
-    bar_height: int = 10
-    name_offset: int = -10
-    hex_offset: int = 35
-    hex_offset_noname: int = 0
-    desc_offset_x: int = 15
-    desc_offset_y: int = 20
-    name_size: int = 40
-    hex_size: int = 26
-    hex_size_noname: int = 34
-    desc_size: int = 26
-    bar_col_fn: tf = (
+    fileName: str = 'result'
+    fontName: str = 'Nunito'
+    fontOpts: dict | None = None
+    gridHeight: int = 168
+    gridWidth: int = 224
+    barHeight: int = 10
+    nameOffset: int = -10
+    hexOffset: int = 35
+    hexOffsetNameless: int = 0
+    descOffsetX: int = 15
+    descOffsetY: int = 20
+    nameSize: int = 40
+    hexSize: int = 26
+    hexSizeNameless: int = 34
+    descSize: int = 26
+    barFn: tf = (
         lambda x:
         Color(
             (
-                x.lch[0] * 0.91,
-                x.lch[1],
-                x.lch[2]
+                x.lcha[0] * 0.9,
+                x.lcha[1],
+                x.lcha[2],
+                x.lcha[3]
             ),
             mode='lch'
         )
     )
-    text_col_fn: tf = (
+    textFn: tf = (
         lambda x:
         Color(
             (
-                x.lch[0] * 1.1 + (1. - x.lch[0]) * 0.3
+                x.lcha[0] * 0.9 + 0.3
                 if x.dark
-                else x.lch[0] * 0.6 - (1. - x.lch[0]) * 0.2,
-                x.lch[1],
-                x.lch[2]
+                else x.lcha[0] * 0.75 - 0.15,
+                x.lcha[1],
+                x.lcha[2],
+                x.lcha[3]
             ),
             mode='lch'
         )
     )
+
+    def serialize(self) -> str:
+        from dill import dumps
+        from base64 import b64encode
+        # the "unresolved" warning is wrong
+        names = Settings.__slots__
+        defaultCls = Settings()
+        default = {i: getattr(defaultCls, i) for i in names}
+        actual = {i: getattr(self, i) for i in names}
+        changed = dict({k: v for k, v in actual.items() if default[k] != v})
+        # only serialize non-default values for space-saving
+        return str(b64encode(dumps(changed)), 'latin1')
+
+    @staticmethod
+    def deserialize(data: str):
+        from dill import loads
+        from base64 import b64decode
+        return Settings(**loads(b64decode(bytes(data, 'latin1'))))
 
 
 # used to typehint palettes
@@ -909,6 +1003,7 @@ class Distance(NamedTuple):
 
     Attributes:
         x: Horizontal offset
+
         y: Vertical offset
     """
     x: int
@@ -922,7 +1017,9 @@ class Field(NamedTuple):
 
     Attributes:
         pos:  Pixel offset from (0,0) to the top left corner
+
         size: Pixel offset from the top left corner to the bottom right corner
+
         col:  Color of this field
     """
     pos: Distance
@@ -937,9 +1034,13 @@ class Table:
 
     Attributes:
         colors:   List of colors, flattened
+
         settings: The settings available to the user
+
         height:   Height of the table in fields
+
         width:    Width of the table in fields
+
         size:     Size of table in pixels
     """
     colors: list[Color]
@@ -952,8 +1053,8 @@ class Table:
     def size(self) -> Distance:
         """Size of table in pixels"""
         return Distance(
-            self.width * self.settings.grid_width,
-            self.height * self.settings.grid_height
+            self.width * self.settings.gridWidth,
+            self.height * self.settings.gridHeight
         )
 
     def __init__(self,
@@ -979,7 +1080,7 @@ class Table:
             for i in colors:
                 while len(i) < self.width:
                     i.append(Color('0000'))
-            colors = [j or Color('0000') for i in colors for j in i]
+            colors = [j for i in colors for j in i]
         # calculate the correct size
         else:
             # try with a square first
@@ -1014,14 +1115,14 @@ class Table:
             raise StopIteration
         return Field(
             Distance(
-                i % self.width * self.settings.grid_width,
-                i // self.width * self.settings.grid_height
+                i % self.width * self.settings.gridWidth,
+                i // self.width * self.settings.gridHeight
             ),
             # the size is decreased by one because the tiles would overlap
             # which you can see if you have an empty tile somewhere
             Distance(
-                self.settings.grid_width - 1,
-                self.settings.grid_height - 1
+                self.settings.gridWidth - 1,
+                self.settings.gridHeight - 1
             ),
             self.colors[i]
         )
@@ -1029,94 +1130,96 @@ class Table:
 
 class Preview:
     """
-    A wrapper for the main function to allow simpler usage
+    Params:
+        palette: The palette of colors to generate an image for
+
+        show:    Whether to display the generated image
+
+        save:    Whether to save the generated palette
+
+        returns: (PIL.Image) the created image
     """
     def __new__(cls,
                 palette: u1 | u2,
                 show: bool = True,
                 save: bool = False
                 ) -> Image:
-        """
-        Parameters:
-            palette: The palette of colors to generate an image for
-            show:    Whether to display the generated image
-            save:    Whether to save the generated palette
 
-        Returns:
-            (PIL.Image) the created image
-        """
         t = Table(palette)
         s = t.settings
         img = Image.new('RGBA', t.size)
         draw = ImageDraw.Draw(img, 'RGBA')
-        if s.font_name == 'Nunito':
+        if s.fontName == 'Nunito':
             from inspect import currentframe, getabsfile
             font = dirname(getabsfile(currentframe())) + '/nunito.ttf'
         else:
-            font = s.font_name + '.ttf'
-        for i in t:
-            l, t = i.pos
-            w, h = i.size
-            col = i.col
-            bg_col = col.rgb_d
-            bar_col = s.bar_col_fn(col).rgb_d
-            text_col = s.text_col_fn(col).rgb_d
-            hex = col.hex + ('%02X' % col.alpha_d if col.alpha < 1 else '')
+            font = s.fontName + '.ttf'
+        meta = PngInfo()
+        meta.add_text('colorGen', s.serialize())
+        for i, v in enumerate(t):
+            l, t = v.pos
+            w, h = v.size
+            col = v.col
+            meta.add_text(f'color{i}', col.serializeText())
+            bgCol = col.rgbaD
+            barCol = s.barFn(col).rgbaD
+            textCol = s.textFn(col).rgbaD
+            hx = col.hexa if col.alpha < 1 else col.hex
             draw.rectangle(
                 (
                     (l, t),
-                    (l + w, t + h - s.bar_height - 1)
+                    (l + w, t + h - s.barHeight - 1)
                 ),
-                fill=(*bg_col, col.alpha_d)
+                fill=bgCol
             )
             draw.rectangle(
                 (
-                    (l, t + h - s.bar_height),
+                    (l, t + h - s.barHeight),
                     (l + w, t + h)
                 ),
-                fill=(*bar_col, col.alpha_d)
+                fill=barCol
             )
             if col.name is not None:
                 draw.text(
-                    (l + w / 2, t + h / 2 + s.name_offset),
+                    (l + w / 2, t + h / 2 + s.nameOffset),
                     col.name,
-                    font=ImageFont.truetype(font, size=s.name_size),
-                    fill=(*text_col, col.alpha_d),
+                    font=ImageFont.truetype(font, size=s.nameSize),
+                    fill=textCol,
                     anchor='mm'
                 )
                 draw.text(
-                    (l + w / 2, t + h / 2 + s.hex_offset),
-                    hex,
-                    font=ImageFont.truetype(font, size=s.hex_size),
-                    fill=(*text_col, col.alpha_d),
+                    (l + w / 2, t + h / 2 + s.hexOffset),
+                    hx,
+                    font=ImageFont.truetype(font, size=s.hexSize),
+                    fill=textCol,
                     anchor='mm'
                 )
             else:
                 draw.text(
-                    (l + w / 2, t + h / 2 + s.hex_offset_noname),
-                    hex,
-                    font=ImageFont.truetype(font, size=s.hex_size_noname),
-                    fill=(*text_col, col.alpha_d),
+                    (l + w / 2, t + h / 2 + s.hexOffsetNameless),
+                    hx,
+                    font=ImageFont.truetype(font, size=s.hexSizeNameless),
+                    fill=textCol,
                     anchor='mm'
                 )
-            if col.desc_left is not None:
+            if col.descLeft is not None:
                 draw.text(
-                    (l + s.desc_offset_x, t + s.desc_offset_y),
-                    col.desc_left,
-                    font=ImageFont.truetype(font, size=s.desc_size),
-                    fill=(*text_col, col.alpha_d),
+                    (l + s.descOffsetX, t + s.descOffsetY),
+                    col.descLeft,
+                    font=ImageFont.truetype(font, size=s.descSize),
+                    fill=textCol,
                     anchor='lt'
                 )
-            if col.desc_right is not None:
+            if col.descRight is not None:
                 draw.text(
-                    (l + w - 1 - s.desc_offset_x, t + s.desc_offset_y),
-                    col.desc_right,
-                    font=ImageFont.truetype(font, size=s.desc_size),
-                    fill=(*text_col, col.alpha_d),
+                    (l + w - 1 - s.descOffsetX, t + s.descOffsetY),
+                    col.descRight,
+                    font=ImageFont.truetype(font, size=s.descSize),
+                    fill=textCol,
                     anchor='rt'
                 )
         if save:
-            img.save(s.file_name + '.png')
+            img.save(s.fileName + '.png', pnginfo=meta)
         if show:
             if not save:
                 img.show()
@@ -1124,134 +1227,201 @@ class Preview:
                 # a hacky system-agnostic way to try to open the image
                 # unlike what the name suggests, it will try to use native apps as well
                 from webbrowser import open
-                open(s.file_name + '.png')
+                open(s.fileName + '.png')
         return img
+
+
+class Reverse:
+    """
+    Takes an image and returns the palette used to generate it
+
+    Params:
+        image: The png image generated with this tool (or compatible)
+
+        changes: The amount of color changes in the x/y-axis to ignore per tile (for the darker bar)
+
+        returns: the palette as a Python list
+    """
+    def __new__(cls,
+                image: Image | str,
+                changes: tuple[int, int] = (0, 1)
+                ) -> u2:
+        if isinstance(image, str):
+            image = Image.open(image)
+        settings = Settings.deserialize(image.text['colorGen'])
+        imageC = image.convert('RGBA')
+        imageSize = [imageC.width, imageC.height]
+        gridSize = [0, 0]
+        chLoc = list(changes)
+        # x then y, combined for brevity
+        for i in range(0, 2):
+            lastCol = imageC.getpixel((0, 0))
+            for j in range(0, imageSize[i]):
+                c = imageC.getpixel((0, j) if i else (j, 0))
+                if not lastCol == c:
+                    chLoc[i] -= 1
+                    if chLoc[i] < 0:
+                        break
+                gridSize[i] += 1
+                lastCol = c
+        ret = [settings]
+        index = 0
+        for j in range(0, imageSize[1], gridSize[1]):
+            row = []
+            for i in range(0, imageSize[0], gridSize[0]):
+                a = Color('%02X%02X%02X%02X' % imageC.getpixel((i, j)))
+                # if alpha is zero, the color does not get drawn
+                if not a.alpha == 0:
+                    a.deserializeText(image.text[f'color{index}'])
+                    index += 1
+                row.append(a)
+            ret.append(row)
+        return ret
+
+
+class SVGMeta(DrawingElement):
+    # for whatever reason custom elements get written twice
+    written = False
+
+    def __init__(self, s: Settings):
+        super().__init__()
+        self.genS = s
+
+    def write_svg_element(self, id_map, is_duplicate, output_file, lcontext, dry_run, force_dup=False):
+        if not self.written:
+            output_file.write(f'<text use="meta" display="none">{self.genS.serialize()}</text>')
+            self.written = True
 
 
 class PreviewSVG:
     """
-    A wrapper for the main function to allow simpler usage
-    """
+    Params:
+        palette: The palette of colors to generate an image for
 
+        show:    Whether to display the generated image
+
+        save:    Whether to save the generated palette
+
+        returns: (drawsvg.Drawing) the created image
+    """
     def __new__(cls,
                 palette: u1 | u2,
                 show: bool = True,
                 save: bool = False
                 ) -> Image:
-        """
-        Parameters:
-            palette: The palette of colors to generate an image for
-            show:    Whether to display the generated image
-            save:    Whether to save the generated palette
-
-        Returns:
-            (drawsvg.Drawing) the created image
-        """
         t = Table(palette)
         s = t.settings
         draw = Drawing(*t.size, origin=(0, 0), id_prefix='prevgen')
-        font_opts = s.font_opts or {'wght': 700}
-        if 'wght' in font_opts:
-            draw.append_css(f'text{{font-family:{s.font_name},Calibri,sans-serif;font-weight:{font_opts["wght"]};}}')
+        draw.append(SVGMeta(s))
+        fontOpts = s.fontOpts or {'wght': 700}
+        if 'wght' in fontOpts:
+            draw.append_css(f'text{{font-family:{s.fontName},Calibri,sans-serif;font-weight:{fontOpts["wght"]};}}')
         else:
-            draw.append_css(f'text{{font-family:{s.font_name},Calibri,sans-serif;}}')
+            draw.append_css(f'text{{font-family:{s.fontName},Calibri,sans-serif;}}')
         # embed google font in svg for correct previews
         try:
-            draw.embed_google_font(s.font_name, **font_opts)
+            draw.embed_google_font(s.fontName, **fontOpts)
         except HTTPError:
-            print(f'\033[31;1mError: \'{s.font_name}\' with opts \'{font_opts}\' is not available in Google Fonts')
+            print(f'\033[31;1mError: \'{s.fontName}\' with opts \'{fontOpts}\' is not available in Google Fonts')
             exit(1)
         for i in t:
             l, t = i.pos
             w, h = i.size
             col = i.col
-            b_col = s.bar_col_fn(col)
-            t_col = s.text_col_fn(col)
+            bCol = s.barFn(col)
+            tCol = s.textFn(col)
             # svg now supports oklch
-            bg_col = f'oklch({col.lch[0]} {col.lch[1]} {col.lch_d[2]})'
-            bar_col = f'oklch({b_col.lch[0]} {b_col.lch[1]} {b_col.lch_d[2]})'
-            text_col = f'oklch({t_col.lch[0]} {t_col.lch[1]} {t_col.lch_d[2]})'
-            hex = col.hex + ('%02X' % col.alpha_d if col.alpha < 1 else '')
+            bgCol = f'oklch({col.lch[0]} {col.lch[1]} {col.lchD[2]})'
+            barCol = f'oklch({bCol.lch[0]} {bCol.lch[1]} {bCol.lchD[2]})'
+            textCol = f'oklch({tCol.lch[0]} {tCol.lch[1]} {tCol.lchD[2]})'
+            hx = col.hexa if col.alpha < 1 else col.hex
             draw.append(Rectangle(
                 l,
                 t,
                 w + 1,
-                h - s.bar_height + 1,
-                fill=bg_col,
+                h - s.barHeight + 1,
+                use='bg',
+                fill=bgCol,
                 fill_opacity=col.alpha,
-                stroke=bg_col
+                stroke=bgCol
             ))
             draw.append(Rectangle(
                 l,
-                t + h - s.bar_height + 1,
+                t + h - s.barHeight + 1,
                 w + 1,
-                s.bar_height,
-                fill=bar_col,
+                s.barHeight,
+                use='bar',
+                fill=barCol,
                 fill_opacity=col.alpha,
-                stroke=bar_col
+                stroke=barCol
             ))
             if col.name is not None:
                 draw.append(Text(
                     col.name,
+                    use='name',
                     x=l + w / 2,
-                    y=t + h / 2 + s.name_offset,
-                    fill=text_col,
+                    y=t + h / 2 + s.nameOffset,
+                    fill=textCol,
                     fill_opacity=col.alpha,
                     center=True,
-                    font_size=s.name_size,
-                    font_family=s.font_name
+                    font_size=s.nameSize,
+                    font_family=s.fontName
                 ))
                 draw.append(Text(
-                    hex,
+                    hx,
+                    use='hex',
                     x=l + w / 2,
-                    y=t + h / 2 + s.hex_offset,
-                    fill=text_col,
+                    y=t + h / 2 + s.hexOffset,
+                    fill=textCol,
                     fill_opacity=col.alpha,
                     center=True,
-                    font_size=s.hex_size,
-                    font_family=s.font_name
+                    font_size=s.hexSize,
+                    font_family=s.fontName
                 ))
             else:
                 draw.append(Text(
-                    hex,
+                    hx,
+                    use='hex',
                     x=l + w / 2,
-                    y=t + h / 2 + s.hex_offset_noname,
-                    fill=text_col,
+                    y=t + h / 2 + s.hexOffsetNameless,
+                    fill=textCol,
                     fill_opacity=col.alpha,
                     center=True,
-                    font_size=s.hex_size_noname,
-                    font_family=s.font_name
+                    font_size=s.hexSizeNameless,
+                    font_family=s.fontName
                 ))
-            if col.desc_left is not None:
+            if col.descLeft is not None:
                 draw.append(Text(
-                    col.desc_left,
-                    x=l + s.desc_offset_x,
-                    y=t + s.desc_size / 2 + s.desc_offset_y,
+                    col.descLeft,
+                    use='descLeft',
+                    x=l + s.descOffsetX,
+                    y=t + s.descSize / 2 + s.descOffsetY,
                     center=True,
                     text_anchor='start',
-                    fill=text_col,
+                    fill=textCol,
                     fill_opacity=col.alpha,
-                    font_size=s.desc_size,
-                    font_family=s.font_name
+                    font_size=s.descSize,
+                    font_family=s.fontName
                 ))
-            if col.desc_right is not None:
+            if col.descRight is not None:
                 draw.append(Text(
-                    col.desc_right,
-                    x=l + w - 1 - s.desc_offset_x,
-                    y=t + s.desc_size / 2 + s.desc_offset_y,
+                    col.descRight,
+                    use='descRight',
+                    x=l + w - 1 - s.descOffsetX,
+                    y=t + s.descSize / 2 + s.descOffsetY,
                     center=True,
                     text_anchor='end',
-                    fill=text_col,
+                    fill=textCol,
                     fill_opacity=col.alpha,
-                    font_size=s.desc_size,
-                    font_family=s.font_name
+                    font_size=s.descSize,
+                    font_family=s.fontName
                 ))
-        draw.save_svg(s.file_name + '.svg' if save else 'randomFileNameThatShouldNotExistOnYourSystemYet.svg')
+        draw.save_svg(s.fileName + '.svg' if save else 'randomFileNameThatShouldNotExistOnYourSystemYet.svg')
         if show:
             # a hacky system-agnostic way to try to open the image
             # unlike what the name suggests, it will try to use native apps as well
             from webbrowser import open
-            open(s.file_name + '.svg' if save else 'randomFileNameThatShouldNotExistOnYourSystemYet.svg')
+            open(s.fileName + '.svg' if save else 'randomFileNameThatShouldNotExistOnYourSystemYet.svg')
         # had to save temporarily to display in browser, remove if user did not intend to keep the file
         if not save:
             from time import sleep
@@ -1260,53 +1430,61 @@ class PreviewSVG:
         return draw
 
 
-class Reverse:
+class ReverseSVG:
     """
-    Takes colors back from a PNG
+    This is probably not compatible with many other generators
+    As it uses the non-standard keyword "use" to determine element purpose
     """
-
-    def __new__(cls,
-                image: Image | str,
-                changes: tuple[int, int] = (0, 1)
-                ) -> u2:
-        """
-        Takes an image and returns the palette used to generate it
-
-        Supports one bit of transparency
-
-        Parameters:
-            image: The png image generated with this tool (or compatible)
-            changes: The amount of color changes in the x/y-axis to ignore per tile (for the darker bar)
-
-        Returns:
-            the palette as a Python list
-        """
-        if isinstance(image, str):
-            image = Image.open(image).convert('RGBA')
-        imagesize = [image.width, image.height]
-        gridsize = [0, 0]
-        ch_loc = list(changes)
-        # x then y, combined for brevity
-        for i in range(0, 2):
-            lastcol = image.getpixel((0, 0))
-            for j in range(0, imagesize[i]):
-                c = image.getpixel((0, j) if i else (j, 0))
-                if not lastcol == c:
-                    ch_loc[i] -= 1
-                    if ch_loc[i] < 0:
-                        break
-                gridsize[i] += 1
-                lastcol = c
+    def __new__(cls, image: str) -> u2:
+        from xml.etree import ElementTree as Et
+        tree = Et.parse(image)
+        root = tree.getroot()
+        ns = root.tag.removesuffix('svg')
+        # get the svg element <text use='meta'> which is set by the generator
+        settings = Settings.deserialize(list(
+            i for i in root.findall(f'./{ns}text') if 'use' in i.attrib and i.attrib['use'] == 'meta')[0].text)
         ret = []
-        for j in range(0, imagesize[1], gridsize[1]):
-            row = []
-            for i in range(0, imagesize[0], gridsize[0]):
-                row.append(Color('%02X%02X%02X%02X' % image.getpixel((i, j))))
-            ret.append(row)
-        return ret
+        vals = []
+        maxX = -1
+        # woohoo XML parsing
+        for i in root.findall(f'./{ns}*'):
+            # only care about marked values
+            if 'use' not in i.attrib.keys():
+                continue
+            # we don't care about the bars and we already parsed metadata
+            if i.attrib['use'] in ('meta', 'bar'):
+                continue
+            # we need the max width to calculate how many tiles horizontally
+            if (v := float(i.attrib['x'])) > maxX:
+                maxX = v
+            vals.append(i)
+        # as long as we have values
+        while vals:
+            # we get the values until another 'bg'
+            curVal = vals.pop(0)
+            while vals and vals[0].attrib['use'] != 'bg':
+                curVal.append(vals.pop(0))
+            # we get the text values we need
+            hx = list(x.text for x in curVal if x.attrib['use'] == 'hex')[0] if any(
+                x.attrib['use'] == 'hex' for x in curVal) else '0000'
+            name = list(x.text for x in curVal if x.attrib['use'] == 'name')[0] if any(
+                x.attrib['use'] == 'name' for x in curVal) else None
+            descLeft = list(x.text for x in curVal if x.attrib['use'] == 'descLeft')[0] if any(
+                x.attrib['use'] == 'descLeft' for x in curVal) else None
+            descRight = list(x.text for x in curVal if x.attrib['use'] == 'descRight')[0] if any(
+                x.attrib['use'] == 'descRight' for x in curVal) else None
+            # and remake the color
+            ret.append(Color(hx, name, descLeft, descRight))
+        # make the result a 2d list and include settings
+        n = int(maxX / settings.gridWidth) + 1
+        return [settings] + [ret[i:i + n] for i in range(0, len(ret), n)]
 
 
 class GUI:
+    """
+    Shows a graphical editor, I don't really expect anyone to use it
+    But if you only have the notepad or something, this at least has syntax highlighting
+    """
     def __new__(cls) -> Image:
         import tkinter as tk
         from inspect import currentframe, getabsfile
@@ -1314,7 +1492,7 @@ class GUI:
         import idlelib.colorizer as ic
         import idlelib.percolator as ip
 
-        def on_edit(_):
+        def onEdit(_):
             editor.unbind('<Key>')
             editor.edited = True
 
@@ -1334,7 +1512,7 @@ class GUI:
             s = p[0]
             if not isinstance(s, Settings):
                 s = Settings()
-            i.save(s.file_name + '.png')
+            i.save(s.fileName + '.png')
 
         def leave():
             _, p = preview()
@@ -1351,29 +1529,29 @@ class GUI:
         ui.columnconfigure(1, minsize=100)
         ui.config(bg='#282828')
         ui.attributes('-fullscreen', True)
-        f_edit = tk.Frame(ui, bg='#282828', border=10)
-        f_edit.grid(row=0, column=0, sticky='nsew')
+        fEdit = tk.Frame(ui, bg='#282828', border=10)
+        fEdit.grid(row=0, column=0, sticky='nsew')
         editor = tk.Text(
-            f_edit, bg='#282828', fg='#d4be98', insertbackground='#d4be98', borderwidth=0, font=('Verdana', 13)
+            fEdit, bg='#282828', fg='#d4be98', insertbackground='#d4be98', borderwidth=0, font=('Verdana', 13)
         )
         with open(dirname(getabsfile(currentframe())) + '/example.txt', 'r') as f:
             editor.insert(tk.END, f.read())
         editor.pack(fill='both', expand=True)
         editor.edited = False
-        editor.bind('<Key>', on_edit)
+        editor.bind('<Key>', onEdit)
         col = ic.ColorDelegator()
         for i, j in zip(['STRING', 'COMMENT', 'KEYWORD', 'BUILTIN', 'DEFINITION'],
                         ['#a9b665', '#5a524c', '#ea6962', '#d8a657', '#7daea3']):
             col.tagdefs[i] = {'background': '#282828', 'foreground': j}
         ip.Percolator(editor).insertfilter(col)
-        f_cmd = tk.Frame(ui, bg='#282828')
-        f_cmd.grid(row=0, column=1, sticky='nsew')
-        tk.Button(f_cmd, text='Preview', command=preview, borderwidth=0, bg='#7daea3').pack(fill='x')
-        tk.Button(f_cmd, text='Save', command=save, borderwidth=0, bg='#7daea3').pack(fill='x')
-        tk.Button(f_cmd, text='Exit', command=leave, borderwidth=0, bg='#7daea3').pack(fill='x')
-        f_prev = tk.Frame(ui, bg='#282828', border=10)
-        f_prev.grid(row=1, column=0, columnspan=2, sticky='nsew')
-        prev = tk.Label(f_prev, bg='#282828')
+        fCmd = tk.Frame(ui, bg='#282828')
+        fCmd.grid(row=0, column=1, sticky='nsew')
+        tk.Button(fCmd, text='Preview', command=preview, borderwidth=0, bg='#7daea3').pack(fill='x')
+        tk.Button(fCmd, text='Save', command=save, borderwidth=0, bg='#7daea3').pack(fill='x')
+        tk.Button(fCmd, text='Exit', command=leave, borderwidth=0, bg='#7daea3').pack(fill='x')
+        fPrev = tk.Frame(ui, bg='#282828', border=10)
+        fPrev.grid(row=1, column=0, columnspan=2, sticky='nsew')
+        prev = tk.Label(fPrev, bg='#282828')
         prev.pack(fill='both', expand=True)
         ui.wait_visibility(prev)
         preview()

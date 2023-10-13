@@ -1,7 +1,7 @@
 ## Create a palette preview image by using a simple config file
 
 ![size](https://img.shields.io/github/languages/code-size/aonodensetsu/prev_gen) ![files](https://img.shields.io/github/directory-file-count/aonodensetsu/prev_gen)   
-![py dep](https://img.shields.io/pypi/pyversions/prev-gen) [![version](https://img.shields.io/pypi/v/prev-gen)](https://pypi.org/project/prev-gen/3.0.0/)  
+![py dep](https://img.shields.io/pypi/pyversions/prev-gen) [![version](https://img.shields.io/pypi/v/prev-gen)](https://pypi.org/project/prev-gen/4.0.0/)  
 ![license](https://img.shields.io/pypi/l/prev-gen) [![downloads](https://img.shields.io/badge/releases-here-green?logo=pypi)](https://pypi.org/project/prev-gen/#history)  
 [![downloads](https://img.shields.io/badge/wiki-here-pink)](https://github.com/Aonodensetsu/prev_gen/blob/main/WIKI.md) [![downloads](https://img.shields.io/badge/changelog-here-pink)](https://github.com/Aonodensetsu/prev_gen/blob/main/CHANGELOG.md)  
 
