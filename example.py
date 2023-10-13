@@ -1,8 +1,6 @@
 # the instruction is now available in Markdown format in WIKI.md
 #
 # the example below is Gruvbox, a really nice color scheme which inspired this project
-import PIL.Image
-
 from prev_gen import Preview, Settings, Color
 palette = [
     Settings(fileName='gruvbox'),
