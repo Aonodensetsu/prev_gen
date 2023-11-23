@@ -1,6 +1,6 @@
-from prev_gen import Settings, Color
+from prev_gen import Preview, Settings, Color
 palette = [
-    Settings(file_name='gruvbox'),
+    Settings(fileName='gruvbox'),
     [
         Color('282828', 'bg', '235', '0'),
         Color('CC241D', 'red', '124', '1'),

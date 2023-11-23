@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools >= 61.0", "pytest >= 6.0", "pytest-cov", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prev_gen"
+version = "4.5.0"
+dependencies = [
+    "tqdm",
+    "dill",
+    "multimethod",
+    "pillow",
+    "drawsvg~=2.0",
+]
+requires-python = ">=3.10"
+authors = [
+    { name = "Remigiusz Dończyk", email = "donczyk.remigiusz@gmail.com" }
+]
+description = "Palette preview generator"
+readme = "README.md"
+license = { file = "LICENSE" }
+keywords = [
+    "palette",
+    "preview",
+    "generator",
+    "image",
+    "png",
+    "svg",
+    "color"
+]
+classifiers = [
+    "Development Status :: 6 - Mature",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Artistic Software",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "Topic :: Multimedia :: Graphics :: Presentation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+[project.urls]
+PyPi = "https://pypi.org/project/prev-gen/"
+Documentation = "https://github.com/Aonodensetsu/prev_gen/blob/main/WIKI.md"
+Repository = "https://github.com/Aonodensetsu/prev_gen"
+Changelog = "https://github.com/Aonodensetsu/prev_gen/blob/main/CHANGELOG.md"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov=prev_gen"
+python_files = [
+    "test.py",
+]

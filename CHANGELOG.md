@@ -1,3 +1,4 @@
+Version 4.5.0 - actual decent code style, colors may be slightly different  
 Version 4.0.0 - added full code reconstruction, breaking changes  
 Version 3.0.0 - added transparency and made OKLCH the suggested format, breaking changes  
 Version 2.1.0 - added OKLCH colors  

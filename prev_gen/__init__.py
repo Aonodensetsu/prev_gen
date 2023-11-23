@@ -1,7 +1,10 @@
-from prev_gen.main import (
-    GUI,
-    ReverseSVG, PreviewSVG,
-    Reverse, Preview,
-    Table, Field, Distance,
-    Settings, Color, Literals
-)
+from .literals import Literals
+from .color import Color
+from .settings import Settings
+from .table import Table
+from .preview import Preview
+from .reverse import Reverse
+from .previewSvg import PreviewSVG
+from .reverseSvg import ReverseSVG
+from .filters import Filters
+from .gui import GUI

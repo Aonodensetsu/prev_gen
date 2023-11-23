@@ -40,7 +40,7 @@ color: Literals | str | tuple[float, float, float] | tuple[float, float, float, 
 #                 well, any fully transparent color works the same
 #                 this is the way to leave a field empty in 3.0
 # Or a css literal
-# Of which a full list is available in the Literals class
+# A full list of which is available in the Literals class
 #   'aliceblue' = Literals.aliceblue = '#f0f8ff'
 name: str | None = None
 # The name to display, hex if empty
@@ -56,7 +56,7 @@ mode: Literal['rgb', 'hsv', 'hls', 'yiq', 'lch'] = 'rgb'
 
 ```python
 Color((0.4, 0.2, 0.7))             # RGB is the default
-Color((0.4, 0.2, 0.7), mode='lch') # OKLCH is the suggested mode due being based on human perception
+Color((0.4, 0.2, 0.7), mode='lch') # OKLCH is the suggested mode due to being based on human perception
 Color((0.4, 0.2, 0.7), mode='hsv') # other supported modes are HSV, HLS and YIQ
 Color((0.4, 0.2, 0.7, 0.5))        # all work with transparency
 ```
@@ -94,22 +94,39 @@ Color('darkred', mode='hls')         # CSS with no name (mode ignored)
 That's it, this is an enum of CSS colors, import and use in Color by name  
 Or simply write the name as a string
 
-Literals.aliceblue == 'aliceblue'  
-The class (enum) is just here for convenience if you don't remember them and your editor has hints
+```python
+Literals.aliceblue is 'aliceblue' is 'F0F8FF'  
+# The class (enum) is just here for convenience if you don't remember them and your editor has hints
+```
 
 ## Table:
 ### Not really meant for usage
 But not stopping you  
-This class actually converts the palette into a standard representation and contains meta information  
-This is also an iterator of the colors so you might find some use there
+This class actually converts the palette into a standard representation and generates meta information  
+This is also an iterator of the colors so you might find some use there  
 I don't expect this to actually be useful to anyone, but you can check the code out if you want
 
 <details><summary>Available parameters</summary>
 
 ```python
-colors: list[Settings | Color] | list[None | Settings | list[Color]]
-# ...The color palette used
-# The stupid type hint is because of the two Usage modes
+colors: list[Settings | Color] | list[Settings | list[Color]]
+# The color palette used
+# The long type hint is because of the two Usage modes
+```
+</details>
+
+<details><summary>Iterator usage</summary>
+
+```python
+palette = ...
+t = Table(palette)
+t.settings  # Settings()
+for i in t:
+    i.pos  # (x, y)
+    i.size  # (x, y)
+    i.col  # Color()
+    if i.col.alpha == 0:
+        # will never be the case, invisible colors are filtered
 ```
 </details>
 
@@ -152,10 +169,10 @@ hexSizeNameless: int = 34
 # Text size of the hex value printed if no name given
 descSize: int = 26
 # Text size of the corner descriptions
-barFn: Callable[[Color], Color] = (default omitted)
+barFn: Callable[[Color], Color] = (L * 0.9, C, H)
 # Function to determine bar color from background color
 # You probably shouldn't touch this
-textFn: Callable[[Color], Color] = (default omitted)
+textFn: Callable[[Color], Color] = (dark ? L * 0.9 + 0.3 : L * 0.75 - 0.15, C, H)
 # Function to determine text color from background color
 # You probably shouldn't touch this
 ```
@@ -163,14 +180,14 @@ textFn: Callable[[Color], Color] = (default omitted)
 
 ## Preview:
 ### The entrypoint that generates the image
-it always returns the generated image, even if you choose to also save it  
+It always returns the generated PIL.Image
   
 <details><summary>Available parameters</summary>
 
 ```python
-palette: list[Settings | Color] | list[None | Settings | list[Color]]
+palette: list[Settings | Color] | list[Settings | list[Color]]
 # The palette of colors to generate an image for
-# The stupid type hint is because of the two Usage modes
+# The long type hint is because of the two Usage modes
 show: bool = True
 # Whether to display the generated image to the user
 save: bool = False
@@ -180,8 +197,7 @@ save: bool = False
 
 ## Reverse:
 ### Regenerate the code
-Take an image and get back the code used to generate it  
-*Descriptions are not yet supported
+Take an image and get back the code used to generate it
 
 <details><summary>Available parameters</summary>
 
@@ -197,14 +213,14 @@ changes: tuple[int, int] = (0, 1)
 
 ## PreviewSVG:
 ### The entrypoint that generates the image but in SVG format
-it always returns the generated image, even if you choose to also save it  
+it always returns the generated image (xml.etree.ElementTree)
   
 <details><summary>Available parameters</summary>
 
 ```python
-palette: list[Settings | Color] | list[None | Settings | list[Color]]
+palette: list[Settings | Color] | list[Settings | list[Color]]
 # The palette of colors to generate an image for
-# The stupid type hint is because of the two Usage modes
+# The long type hint is because of the two Usage modes
 show: bool = True
 # Whether to display the generated image to the user
 save: bool = False
@@ -221,12 +237,36 @@ Take an image and get back the code used to generate it but in SVG
 <details><summary>Available parameters</summary>
 
 ```python
-image: str
+image: str | xml.etree.ElementTree
 # The image generated with this tool (or compatible) or a path to it
+```
+</details>
+
+## Filters:
+### Mangle your images (artfully)
+WIP
+<details><summary>Available parameters</summary>
+
+```python
+image: str | PIL.Image
+# the filename to open or PIL.Image to use
+```
+</details>
+
+<details><summary>Available methods</summary>
+
+```python
+iterate() -> Iterable[tuple[int, int]]
+# iterate through (x, y) pixel coordinates with a progress bar
+monochrome(chroma: float = 0., hue: float = 0., fileName: str | None = None) -> PIL.Image
+# make a picture perceptually monochroma, with optional chroma and hue
+# impossible colors get clipped to sRGB
 ```
 </details>
 
 ## GUI:
 ### An interactive editor
 If you change the example, it will be saved to gui.py  
-It also returns the image, just in case you wanted it
+It also returns the image, just in case you wanted it  
+I don't expect people to use it,  
+but if you only have a notepad - this at least has syntax highlighting
