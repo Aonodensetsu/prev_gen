@@ -3,7 +3,7 @@ the instruction is now available in Markdown format in WIKI.md
 
 the example below is Gruvbox, a really nice color scheme which inspired this project
 """
-from prev_gen import PreviewSVG, Settings, Color
+from prev_gen import Preview, Settings, Color
 palette = [
     Settings(fileName='gruvbox'),
     [
@@ -49,4 +49,4 @@ palette = [
 ]
 
 if __name__ == '__main__':
-    PreviewSVG(palette, save=False, show=True)
+    Preview(palette, save=True, show=True)
