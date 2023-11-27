@@ -201,12 +201,12 @@ class Color:
                 """
                 C /= 3
                 h = 2 * pi * H
-                r, g, b = -1, -1, -1
-                while not all(0 <= x <= 1 for x in (r, g, b)):
+                for _ in range(200):
                     """
                     the first iteration sets the initial RGB color
                     if it is outside the range, chroma is slightly decreased and another loop is performed
                     it will decrease chroma until a valid RGB color is produced
+                    try a maximum of 200 times for performance, which should be enough for any color anyway
                     """
                     a = C * cos(h)
                     b = C * sin(h)
@@ -228,7 +228,14 @@ class Color:
                         else 12.92 * x
                         for x in (rl, gl, bl)
                     )
+                    if all(0 <= x <= 1 for x in (r, g, b)):
+                        break
                     C -= 0.005
+                # clamp just in case
+                r, g, b = (
+                    max(0, min(x, 1))
+                    for x in (r, g, b)
+                )
                 self.rgb = (r, g, b)
 
     @__init__.register

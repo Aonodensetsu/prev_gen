@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prev_gen"
-version = "4.5.0"
+version = "4.5.2"
 dependencies = [
     "tqdm",
     "dill",
@@ -44,7 +44,6 @@ classifiers = [
 ]
 
 [project.urls]
-PyPi = "https://pypi.org/project/prev-gen/"
 Documentation = "https://github.com/Aonodensetsu/prev_gen/blob/main/WIKI.md"
 Repository = "https://github.com/Aonodensetsu/prev_gen"
 Changelog = "https://github.com/Aonodensetsu/prev_gen/blob/main/CHANGELOG.md"

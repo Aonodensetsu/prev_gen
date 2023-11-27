@@ -59,9 +59,9 @@ class PreviewSVG:
             col = i.col
             bCol = s.barFn(col)
             tCol = s.textFn(col)
-            bgCol = f'oklch({col.lch[0]} {col.lch[1]} {col.lchD[2]})'
-            barCol = f'oklch({bCol.lch[0]} {bCol.lch[1]} {bCol.lchD[2]})'
-            textCol = f'oklch({tCol.lch[0]} {tCol.lch[1]} {tCol.lchD[2]})'
+            bgCol = f'oklch({col.lch[0]} {col.lch[1] / 3} {col.lchD[2]})'
+            barCol = f'oklch({bCol.lch[0]} {bCol.lch[1] / 3} {bCol.lchD[2]})'
+            textCol = f'oklch({tCol.lch[0]} {tCol.lch[1] / 3} {tCol.lchD[2]})'
             hx = col.hexa if col.alpha < 1 else col.hex
             draw.append(Rectangle(
                 l,
