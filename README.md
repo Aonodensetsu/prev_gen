@@ -10,7 +10,8 @@
 2. Open up [the wiki](https://github.com/Aonodensetsu/prev_gen/blob/main/WIKI.md) to see how everything works
 3. Create a file based on instructions (or just edit [the example](https://github.com/Aonodensetsu/prev_gen/blob/main/example.py))
 4. ```python
-   # palette = [...]
+   # in a python file
+   palette = [...]
    from prev_gen import Preview
    Preview(palette)
    ```
