@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngInfo
 from webbrowser import open
 from os.path import dirname
+
 from .table import u1, u2, Table
 
 
@@ -101,7 +102,9 @@ class Preview:
             if not save:
                 img.show()
             else:
-                # a hacky system-agnostic way to try to open the image
-                # unlike what the name suggests, it will try to use native apps as well
+                """
+                a hacky system-agnostic way to try to open the image
+                unlike what the name suggests, it will try to use native apps as well
+                """
                 open(s.fileName + '.png')
         return img

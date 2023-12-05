@@ -1,3 +1,7 @@
+# CLI Tool
+This library installs the prev_gen command-line tool to expose commonly used functions in a simpler format.  
+It can be used for previews and conversions between all supported formats, run it with no arguments for more details.
+
 # Classes
 Each entry below is a class you can import from this library  
 (except the palette, that entry is needed to explain the usage modes)
@@ -208,6 +212,8 @@ changes: tuple[int, int] = (0, 1)
 # The amount of color changes in the x/y axis to ignore per tile (for the darker bar)
 # This is always the default in my program, but can be adjusted for other generators
 # Most commonly (0, 0) if the palette doesn't have any flair colors
+save: Literal['py', 'yml', 'json', 'toml'] | None = None
+# If set, will save the file to reverse.<ext>
 ```
 </details>
 
@@ -239,7 +245,26 @@ Take an image and get back the code used to generate it but in SVG
 ```python
 image: str | xml.etree.ElementTree
 # The image generated with this tool (or compatible) or a path to it
+save: Literal['py', 'yml', 'json', 'toml'] | None = None
+# If set, will save the file to reverseSvg.<ext>
 ```
+</details>
+
+## YAML, JSON, TOML:
+### Configuration file readers
+The internal configuration is a Python dictionary, but it can be saved in any of these formats with the use of the corresponding class
+
+<details><summary>Available parameters</summary>
+
+```python
+palette: list[Settings | list[Color]]
+# the Usage 2 representation of the palette
+```
+</details>
+<details><summary>Available methods</summary>
+
+`.read(file)` -> read a file into the Python representation  
+`.write()` -> save to a formatted file
 </details>
 
 ## Filters:

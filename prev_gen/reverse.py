@@ -1,16 +1,19 @@
 from __future__ import annotations
 
+from typing import Literal
 from PIL import Image
 
 from .color import Color
 from .settings import Settings
 from .table import u2
+from .formats import YAML, JSON, TOML, PYTHON
 
 
 class Reverse:
     def __new__(cls,
                 image: Image | str,
-                changes: tuple[int, int] = (0, 1)
+                changes: tuple[int, int] = (0, 1),
+                save: Literal['py', 'yml', 'json', 'toml'] | None = None
                 ) -> u2:
         """
         Takes an image and returns the palette used to generate it
@@ -49,4 +52,13 @@ class Reverse:
                     index += 1
                 row.append(a)
             ret.append(row)
+        match save:
+            case 'yml':
+                YAML(ret).write('reverse.yml')
+            case 'json':
+                JSON(ret).write('reverse.json')
+            case 'toml':
+                TOML(ret).write('reverse.toml')
+            case 'py':
+                PYTHON(ret).write('reverse.py')
         return ret

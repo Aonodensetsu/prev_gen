@@ -148,8 +148,10 @@ class PreviewSVG:
         draw.save_svg(fn)
         tree = ElementTree.parse(fn)
         if show:
-            # a hacky system-agnostic way to try to open the image
-            # unlike what the name suggests, it will try to use native apps as well
+            """
+            a hacky system-agnostic way to try to open the image
+            unlike what the name suggests, it will try to use native apps as well
+            """
             open(fn)
         # had to save temporarily to display in browser, remove if user did not intend to keep the file
         if not save:

@@ -1,3 +1,4 @@
+Version 5.0.0 - added other file formats and a CLI tool  
 Version 4.5.2 - fixed regression  
 Version 4.5.1 - loop fix  
 Version 4.5.0 - actual decent code style, colors may be slightly different  

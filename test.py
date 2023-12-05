@@ -1,4 +1,6 @@
-from prev_gen import Filters, ReverseSVG, PreviewSVG, Reverse, Preview, Table, Settings, Color, Literals
+from prev_gen import (
+    Filters, PYTHON, TOML, JSON, YAML, ReverseSVG, PreviewSVG, Reverse, Preview, Table, Settings, Color, Literals
+)
 from test_helper import Raises, closeEnough
 from os.path import exists
 from os import remove
@@ -15,9 +17,9 @@ def testHelperRaises():
     # a non-specified error should still be raised
     try:
         with r:
-            0[0]
+            _ = int.__dict__['wrong']
         assert False
-    except TypeError:
+    except KeyError:
         assert True
 
 
@@ -165,7 +167,7 @@ def testSettingsDeserialize():
 def testSettingsSerializeLambda():
     """
     function serials get long quick, I don't like this solution but haven't found a better one
-    serializing functions is positional for some reason, i think it keeps the source context when serializing
+    serializing functions is positional for some reason, I think it keeps the source context when serializing
     it's serialized and deserialized inline to not break when other tests are changed
     """
     assert Settings.deserialize(Settings(barFn=lambda x: x).serialize()).barFn(Color('f00')) == Color('f00')
@@ -226,7 +228,42 @@ def testReversePreviewSVG():
     ReverseSVG(a)
 
 
+def testYamlRead():
+    assert len(str(YAML.read('palette:\n- - - \'#0000\'\n'))) == 23
+    assert len(str(YAML.read('example.yml'))) == 1874
+
+
+def testYamlWrite():
+    assert str(YAML([[Color('0000')]])) == 'palette:\n- - [\'#0000\']\n'
+
+
+def testJsonRead():
+    assert len(str(JSON.read('{"palette": [[["#0000"]]]}'))) == 53
+    assert len(str(JSON.read('example.json'))) == 2236
+
+
+def testJsonWrite():
+    assert str(JSON([[Color('0000')]])) == '{\n  "palette": [\n    [\n      [ "#0000" ]\n    ]\n  ]\n}\n'
+
+
+def testTomlRead():
+    assert len(str(TOML.read('palette = [ [ [ "#0000",],],]'))) == 40
+    assert len(str(TOML.read('example.toml'))) == 2138
+
+
+def testTomlWrite():
+    assert str(TOML([[Color('0000')]])) == 'palette = [\n  [\n    [ "#0000" ],\n  ],\n]\n'
+
+
+def testPythonRead():
+    assert len(str(PYTHON([[Color('0000')]]))) == 168
+
+
+def testPythonWrite():
+    assert PYTHON.read('palette = [[Color(\'0000\')]]').palette[1][0] == '0000'
+
+
 def testFilterMonochrome():
     assert Filters(Preview([
         Settings(gridWidth=20, gridHeight=20), Color('f00')
-    ], show=False)).monochrome().getpixel((0, 0)) == (93, 93, 93, 255)
+    ], show=False)).monochrome().img.getpixel((0, 0)) == (93, 93, 93, 255)

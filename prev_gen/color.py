@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal, Any, TypeAlias, Sequence
 from math import pi, cos, sin, degrees, atan2
-from typing import Literal, Any, TypeAlias
 from base64 import b64decode, b64encode
 from multimethod import multidispatch
 from dataclasses import dataclass
@@ -109,6 +109,15 @@ class Color:
     methods that get ".register"-ed under the same name are treated like overloaded versions
     i keep the default version (annotated by @multidispatch itself) unimplemented to catch incorrect types
     """
+    def __new__(cls, *args, **kwargs):
+        """
+        Allow passing a Color to Color's init, and instead of returning a new object, simply keep the old one
+        This allows for some additional flexibility in complex call stacks
+        """
+        if len(args) >= 1 and isinstance(args[0], Color):
+            return args[0]
+        return object.__new__(cls)
+
     @multidispatch
     def __init__(self,
                  color,
@@ -120,6 +129,17 @@ class Color:
         # arguments are ignored for the unimplemented type
         _ = color, name, descLeft, descRight, mode
         raise NotImplementedError('Color cannot be specified as this type')
+
+    @__init__.register
+    def __init__(self,
+                 color: Color,
+                 name: str | None = None,
+                 descLeft: str | None = None,
+                 descRight: str | None = None,
+                 mode: Literal['rgb', 'hsv', 'hls', 'yiq', 'lch'] = 'rgb'
+                 ) -> None:
+        # ignore all elements since this case is handled by __new__
+        _ = color, name, descLeft, descRight, mode
 
     @__init__.register
     def __init__(self,
@@ -164,7 +184,7 @@ class Color:
 
     @__init__.register
     def __init__(self,
-                 color: tuple[float, ...],
+                 color: Sequence[float],
                  name: str | None = None,
                  descLeft: str | None = None,
                  descRight: str | None = None,
@@ -174,7 +194,7 @@ class Color:
         self.descLeft = descLeft
         self.descRight = descRight
         if len(color) < 3 or len(color) > 4:
-            raise ValueError('Color tuple is of wrong length')
+            raise ValueError('Color sequence is of wrong length')
         if len(color) == 4:
             self.alpha = color[3]
             color = color[:3]
@@ -201,6 +221,7 @@ class Color:
                 """
                 C /= 3
                 h = 2 * pi * H
+                r, g, b = 0, 0, 0
                 for _ in range(200):
                     """
                     the first iteration sets the initial RGB color
@@ -240,14 +261,14 @@ class Color:
 
     @__init__.register
     def __init__(self,
-                 color: tuple[int, ...],
+                 color: Sequence[int],
                  name: str | None = None,
                  descLeft: str | None = None,
                  descRight: str | None = None,
                  mode: Literal['rgb', 'hsv', 'hls', 'yiq', 'lch'] = 'rgb'
                  ) -> None:
         if len(color) < 3 or len(color) > 4:
-            raise ValueError('Color tuple is of wrong length')
+            raise ValueError('Color sequence is of wrong length')
         if len(color) == 3:
             color = (*color, None)
         v1, v2, v3, v4 = color
@@ -310,8 +331,10 @@ class Color:
         try:
             return object.__getattribute__(self, item)
         except AttributeError:
-            # not cached, calculate and store
-            # rgb and alpha don't get loaded lazily since we ensure they're always available
+            """
+            not cached, calculate and store
+            rgb and alpha don't get loaded lazily since we ensure they're always available
+            """
             match item:
                 case 'rgba' | 'hsva' | 'hlsa' | 'yiqa' | 'lcha' | 'rgbaD' | 'hsvaD' | 'hlsaD' | 'yiqaD' | 'lchaD':
                     """
@@ -372,6 +395,16 @@ class Color:
                 case _:
                     raise LazyloadError(item)
             return object.__getattribute__(self, item)
+
+    def dict(self) -> list:
+        """
+        :return:  A lossless list of parameters
+        """
+        if self.alpha == 0:
+            return ['#0000']
+        else:
+            col = '(' + ', '.join(f'{round(y, 4)}' for y in self.lcha) + ')'
+            return [x for x in [col, self.name, self.descLeft, self.descRight, 'lch'] if x]
 
     def serializeText(self) -> str:
         """

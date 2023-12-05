@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 from xml.etree import ElementTree
+from typing import Literal
 
 from .color import Color
 from .settings import Settings
 from .table import u2
+from .formats import YAML, JSON, TOML, PYTHON
 
 
 class ReverseSVG:
-    def __new__(cls, tree: ElementTree | str) -> u2:
+    def __new__(cls,
+                tree: ElementTree | str,
+                save: Literal['py', 'yml', 'json', 'toml'] | None = None
+                ) -> u2:
         """
         This is probably not compatible ith many other generators
         As it uses the non-standard keyword "use" to determine element purpose
@@ -55,4 +60,14 @@ class ReverseSVG:
             ret.append(Color(hx, name, descLeft, descRight))
         # make the result a 2d list and include settings
         n = int(maxX / settings.gridWidth) + 1
-        return [settings] + [ret[i:i + n] for i in range(0, len(ret), n)]
+        ret = [settings] + [ret[i:i + n] for i in range(0, len(ret), n)]
+        match save:
+            case 'yml':
+                YAML(ret).write('reverseSvg.yml')
+            case 'json':
+                JSON(ret).write('reverseSvg.json')
+            case 'toml':
+                TOML(ret).write('reverseSvg.toml')
+            case 'py':
+                PYTHON(ret).write('reverseSvg.py')
+        return ret

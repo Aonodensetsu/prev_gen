@@ -13,12 +13,12 @@
 <defs>
 </defs>
 <text use="meta" display="none">gASVGQAAAAAAAAB9lIwIZmlsZU5hbWWUjAdncnV2Ym94lHMu</text>
-<rect x="0" y="0" width="224" height="158" use="bg" fill="oklch(0.2768482008772679 1.0319238653616773e-08 90)" fill-opacity="1" stroke="oklch(0.2768482008772679 1.0319238653616773e-08 90)" />
-<rect x="0" y="158" width="224" height="10" use="bar" fill="oklch(0.24916338078954112 1.0319238653616773e-08 90)" fill-opacity="1" stroke="oklch(0.24916338078954112 1.0319238653616773e-08 90)" />
-<text x="111.5" y="73.5" font-size="40" use="name" fill="oklch(0.5491633807895411 1.0319238653616773e-08 90)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg</text>
-<text x="111.5" y="118.5" font-size="26" use="hex" fill="oklch(0.5491633807895411 1.0319238653616773e-08 90)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">282828</text>
-<text x="15" y="33.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.5491633807895411 1.0319238653616773e-08 90)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">235</text>
-<text x="207" y="33.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.5491633807895411 1.0319238653616773e-08 90)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">0</text>
+<rect x="0" y="0" width="224" height="158" use="bg" fill="oklch(0.2768482008772679 1.0319238653616772e-08 90)" fill-opacity="1" stroke="oklch(0.2768482008772679 1.0319238653616772e-08 90)" />
+<rect x="0" y="158" width="224" height="10" use="bar" fill="oklch(0.24916338078954112 1.0319238653616772e-08 90)" fill-opacity="1" stroke="oklch(0.24916338078954112 1.0319238653616772e-08 90)" />
+<text x="111.5" y="73.5" font-size="40" use="name" fill="oklch(0.5491633807895411 1.0319238653616772e-08 90)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg</text>
+<text x="111.5" y="118.5" font-size="26" use="hex" fill="oklch(0.5491633807895411 1.0319238653616772e-08 90)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">282828</text>
+<text x="15" y="33.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.5491633807895411 1.0319238653616772e-08 90)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">235</text>
+<text x="207" y="33.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.5491633807895411 1.0319238653616772e-08 90)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">0</text>
 <rect x="224" y="0" width="224" height="158" use="bg" fill="oklch(0.5458441590733687 0.20295735379226731 29)" fill-opacity="1" stroke="oklch(0.5458441590733687 0.20295735379226731 29)" />
 <rect x="224" y="158" width="224" height="10" use="bar" fill="oklch(0.4912597431660318 0.20295735379226731 29)" fill-opacity="1" stroke="oklch(0.4912597431660318 0.20295735379226731 29)" />
 <text x="335.5" y="73.5" font-size="40" use="name" fill="oklch(0.25938311930502655 0.20295735379226731 29)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">red</text>
@@ -67,12 +67,12 @@
 <text x="111.5" y="286.5" font-size="26" use="hex" fill="oklch(0.31441293142145754 0.028597806624861003 67)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">928374</text>
 <text x="15" y="201.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.31441293142145754 0.028597806624861003 67)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">245</text>
 <text x="207" y="201.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.31441293142145754 0.028597806624861003 67)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">8</text>
-<rect x="224" y="168" width="224" height="158" use="bg" fill="oklch(0.6596859422541848 0.2175092283755911 30)" fill-opacity="1" stroke="oklch(0.6596859422541848 0.2175092283755911 30)" />
-<rect x="224" y="326" width="224" height="10" use="bar" fill="oklch(0.5937173480287663 0.2175092283755911 30)" fill-opacity="1" stroke="oklch(0.5937173480287663 0.2175092283755911 30)" />
-<text x="335.5" y="241.5" font-size="40" use="name" fill="oklch(0.3447644566906386 0.2175092283755911 30)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">red</text>
-<text x="335.5" y="286.5" font-size="26" use="hex" fill="oklch(0.3447644566906386 0.2175092283755911 30)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">FB4934</text>
-<text x="239" y="201.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.3447644566906386 0.2175092283755911 30)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">167</text>
-<text x="431" y="201.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.3447644566906386 0.2175092283755911 30)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">9</text>
+<rect x="224" y="168" width="224" height="158" use="bg" fill="oklch(0.6596859422541848 0.21750922837559114 30)" fill-opacity="1" stroke="oklch(0.6596859422541848 0.21750922837559114 30)" />
+<rect x="224" y="326" width="224" height="10" use="bar" fill="oklch(0.5937173480287663 0.21750922837559114 30)" fill-opacity="1" stroke="oklch(0.5937173480287663 0.21750922837559114 30)" />
+<text x="335.5" y="241.5" font-size="40" use="name" fill="oklch(0.3447644566906386 0.21750922837559114 30)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">red</text>
+<text x="335.5" y="286.5" font-size="26" use="hex" fill="oklch(0.3447644566906386 0.21750922837559114 30)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">FB4934</text>
+<text x="239" y="201.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.3447644566906386 0.21750922837559114 30)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">167</text>
+<text x="431" y="201.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.3447644566906386 0.21750922837559114 30)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">9</text>
 <rect x="448" y="168" width="224" height="158" use="bg" fill="oklch(0.7651900325055587 0.15807077565971758 111)" fill-opacity="1" stroke="oklch(0.7651900325055587 0.15807077565971758 111)" />
 <rect x="448" y="326" width="224" height="10" use="bar" fill="oklch(0.6886710292550029 0.15807077565971758 111)" fill-opacity="1" stroke="oklch(0.6886710292550029 0.15807077565971758 111)" />
 <text x="559.5" y="241.5" font-size="40" use="name" fill="oklch(0.423892524379169 0.15807077565971758 111)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">green</text>
@@ -115,12 +115,12 @@
 <text x="111.5" y="454.5" font-size="26" use="hex" fill="oklch(0.5167334413718466 0.0048644495259193045 220)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">1D2021</text>
 <text x="15" y="369.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.5167334413718466 0.0048644495259193045 220)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">234</text>
 <text x="207" y="369.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.5167334413718466 0.0048644495259193045 220)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">0</text>
-<rect x="224" y="336" width="224" height="158" use="bg" fill="oklch(0.2768482008772679 1.0319238653616773e-08 90)" fill-opacity="1" stroke="oklch(0.2768482008772679 1.0319238653616773e-08 90)" />
-<rect x="224" y="494" width="224" height="10" use="bar" fill="oklch(0.24916338078954112 1.0319238653616773e-08 90)" fill-opacity="1" stroke="oklch(0.24916338078954112 1.0319238653616773e-08 90)" />
-<text x="335.5" y="409.5" font-size="40" use="name" fill="oklch(0.5491633807895411 1.0319238653616773e-08 90)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg0</text>
-<text x="335.5" y="454.5" font-size="26" use="hex" fill="oklch(0.5491633807895411 1.0319238653616773e-08 90)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">282828</text>
-<text x="239" y="369.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.5491633807895411 1.0319238653616773e-08 90)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">235</text>
-<text x="431" y="369.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.5491633807895411 1.0319238653616773e-08 90)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">0</text>
+<rect x="224" y="336" width="224" height="158" use="bg" fill="oklch(0.2768482008772679 1.0319238653616772e-08 90)" fill-opacity="1" stroke="oklch(0.2768482008772679 1.0319238653616772e-08 90)" />
+<rect x="224" y="494" width="224" height="10" use="bar" fill="oklch(0.24916338078954112 1.0319238653616772e-08 90)" fill-opacity="1" stroke="oklch(0.24916338078954112 1.0319238653616772e-08 90)" />
+<text x="335.5" y="409.5" font-size="40" use="name" fill="oklch(0.5491633807895411 1.0319238653616772e-08 90)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg0</text>
+<text x="335.5" y="454.5" font-size="26" use="hex" fill="oklch(0.5491633807895411 1.0319238653616772e-08 90)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">282828</text>
+<text x="239" y="369.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.5491633807895411 1.0319238653616772e-08 90)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">235</text>
+<text x="431" y="369.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.5491633807895411 1.0319238653616772e-08 90)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">0</text>
 <rect x="448" y="336" width="224" height="158" use="bg" fill="oklch(0.344067539658124 0.006603326019716796 49)" fill-opacity="1" stroke="oklch(0.344067539658124 0.006603326019716796 49)" />
 <rect x="448" y="494" width="224" height="10" use="bar" fill="oklch(0.3096607856923116 0.006603326019716796 49)" fill-opacity="1" stroke="oklch(0.3096607856923116 0.006603326019716796 49)" />
 <text x="559.5" y="409.5" font-size="40" use="name" fill="oklch(0.6096607856923115 0.006603326019716796 49)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">bg1</text>
@@ -187,12 +187,12 @@
 <text x="1231.5" y="622.5" font-size="26" use="hex" fill="oklch(0.5206094303911392 0.05658951619119601 89)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">EBDBB2</text>
 <text x="1135" y="537.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.5206094303911392 0.05658951619119601 89)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">223</text>
 <text x="1327" y="537.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.5206094303911392 0.05658951619119601 89)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">15</text>
-<rect x="1344" y="504" width="224" height="158" use="bg" fill="oklch(0.9555234021233208 0.055459197455512935 96)" fill-opacity="1" stroke="oklch(0.9555234021233208 0.055459197455512935 96)" />
-<rect x="1344" y="662" width="224" height="10" use="bar" fill="oklch(0.8599710619109887 0.055459197455512935 96)" fill-opacity="1" stroke="oklch(0.8599710619109887 0.055459197455512935 96)" />
-<text x="1455.5" y="577.5" font-size="40" use="name" fill="oklch(0.5666425515924906 0.055459197455512935 96)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">fg0</text>
-<text x="1455.5" y="622.5" font-size="26" use="hex" fill="oklch(0.5666425515924906 0.055459197455512935 96)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">FBF1C7</text>
-<text x="1359" y="537.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.5666425515924906 0.055459197455512935 96)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">229</text>
-<text x="1551" y="537.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.5666425515924906 0.055459197455512935 96)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">-</text>
+<rect x="1344" y="504" width="224" height="158" use="bg" fill="oklch(0.9555234021233208 0.05545919745551294 96)" fill-opacity="1" stroke="oklch(0.9555234021233208 0.05545919745551294 96)" />
+<rect x="1344" y="662" width="224" height="10" use="bar" fill="oklch(0.8599710619109887 0.05545919745551294 96)" fill-opacity="1" stroke="oklch(0.8599710619109887 0.05545919745551294 96)" />
+<text x="1455.5" y="577.5" font-size="40" use="name" fill="oklch(0.5666425515924906 0.05545919745551294 96)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">fg0</text>
+<text x="1455.5" y="622.5" font-size="26" use="hex" fill="oklch(0.5666425515924906 0.05545919745551294 96)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">FBF1C7</text>
+<text x="1359" y="537.0" font-size="26" use="descLeft" text-anchor="start" fill="oklch(0.5666425515924906 0.05545919745551294 96)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">229</text>
+<text x="1551" y="537.0" font-size="26" use="descRight" text-anchor="end" fill="oklch(0.5666425515924906 0.05545919745551294 96)" fill-opacity="1" font-family="Nunito" dominant-baseline="central">-</text>
 <rect x="1568" y="504" width="224" height="158" use="bg" fill="oklch(0.7310873504163731 0.18201078324806072 52)" fill-opacity="1" stroke="oklch(0.7310873504163731 0.18201078324806072 52)" />
 <rect x="1568" y="662" width="224" height="10" use="bar" fill="oklch(0.6579786153747358 0.18201078324806072 52)" fill-opacity="1" stroke="oklch(0.6579786153747358 0.18201078324806072 52)" />
 <text x="1679.5" y="577.5" font-size="40" use="name" fill="oklch(0.39831551281227984 0.18201078324806072 52)" fill-opacity="1" font-family="Nunito" text-anchor="middle" dominant-baseline="central">orange</text>

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, TypeAlias, Callable
 from base64 import b64decode, b64encode
+from typing import TypeAlias, Callable
 from dataclasses import dataclass
 from dill import loads, dumps
 
@@ -100,17 +100,21 @@ class Settings:
         )
     )
 
-    def serialize(self) -> str:
+    def dict(self) -> dict:
         """
-        :return: A base64-encoded representation of the class
+        :return: The dictionary of non-default values
         """
         names = Settings.__slots__
         defaultCls = Settings()
         default = {i: getattr(defaultCls, i) for i in names}
         actual = {i: getattr(self, i) for i in names}
-        # only serialize non-default values for space-saving
-        changed: dict[str, Any] = dict({k: v for k, v in actual.items() if default[k] != v})
-        return str(b64encode(dumps(changed, byref=True, recurse=True)), 'latin1')
+        return dict({k: v for k, v in actual.items() if default[k] != v})
+
+    def serialize(self) -> str:
+        """
+        :return: A base64-encoded representation of the class
+        """
+        return str(b64encode(dumps(self.dict(), byref=True, recurse=True)), 'latin1')
 
     @staticmethod
     def deserialize(data: str) -> Settings:
