@@ -63,6 +63,8 @@ class PreviewSVG:
             barCol = f'oklch({bCol.lch[0]} {bCol.lch[1] / 3} {bCol.lchD[2]})'
             textCol = f'oklch({tCol.lch[0]} {tCol.lch[1] / 3} {tCol.lchD[2]})'
             hx = col.hexa if col.alpha < 1 else col.hex
+            if s.showHash:
+                hx = '#' + hx
             draw.append(Rectangle(
                 l,
                 t,

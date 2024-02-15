@@ -32,7 +32,7 @@ Use `Color('0000')` to leave a spot empty - it's simply a fully transparent colo
 <details><summary>Available parameters</summary>
 
 ```python
-color: Literals | str | tuple[float, float, float] | tuple[float, float, float, float] | tuple[int, int, int] | tuple[int, int, int, int]
+color: Color | Literals | str | tuple[float, float, float] | tuple[float, float, float, float] | tuple[int, int, int] | tuple[int, int, int, int]
 # The color value to assign, you need to include this value
 # Four values if using transparency, three otherwise (modes below)
 # Or a hex string
@@ -126,10 +126,10 @@ palette = ...
 t = Table(palette)
 t.settings  # Settings()
 for i in t:
-    i.pos  # (x, y)
+    i.pos  # top-left (x, y) 
     i.size  # (x, y)
     i.col  # Color()
-    if i.col.alpha == 0:
+    if i.col.alpha == 0: ...
         # will never be the case, invisible colors are filtered
 ```
 </details>
@@ -173,6 +173,8 @@ hexSizeNameless: int = 34
 # Text size of the hex value printed if no name given
 descSize: int = 26
 # Text size of the corner descriptions
+showHash: bool = False
+# Display the hash symbol before hex colors
 barFn: Callable[[Color], Color] = (L * 0.9, C, H)
 # Function to determine bar color from background color
 # You probably shouldn't touch this
@@ -269,7 +271,7 @@ palette: list[Settings | list[Color]]
 
 ## Filters:
 ### Mangle your images (artfully)
-WIP
+
 <details><summary>Available parameters</summary>
 
 ```python

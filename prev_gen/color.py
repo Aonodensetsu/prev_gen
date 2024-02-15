@@ -151,9 +151,9 @@ class Color:
                  ) -> None:
         # mode is ignored for hex values
         _ = mode
-        self.name = name
-        self.descLeft = descLeft
-        self.descRight = descRight
+        self.name = None if name == 'None' else name
+        self.descLeft = None if descLeft == 'None' else descLeft
+        self.descRight = None if descRight == 'None' else descRight
         color = Literals.getOrKeep(color).lstrip('#').upper()
         if len(color) < 6:
             color = ''.join(i * 2 for i in color)
@@ -190,9 +190,9 @@ class Color:
                  descRight: str | None = None,
                  mode: Literal['rgb', 'hsv', 'hls', 'yiq', 'lch'] = 'rgb'
                  ) -> None:
-        self.name = name
-        self.descLeft = descLeft
-        self.descRight = descRight
+        self.name = None if name == 'None' else name
+        self.descLeft = None if descLeft == 'None' else descLeft
+        self.descRight = None if descRight == 'None' else descRight
         if len(color) < 3 or len(color) > 4:
             raise ValueError('Color sequence is of wrong length')
         if len(color) == 4:
@@ -404,7 +404,7 @@ class Color:
             return ['#0000']
         else:
             col = '(' + ', '.join(f'{round(y, 4)}' for y in self.lcha) + ')'
-            return [x for x in [col, self.name, self.descLeft, self.descRight, 'lch'] if x]
+            return [col, self.name, self.descLeft, self.descRight, 'lch']
 
     def serializeText(self) -> str:
         """
@@ -418,4 +418,10 @@ class Color:
         :return: self for chaining
         """
         self.name, self.descLeft, self.descRight = str(b64decode(bytes(text, 'latin1')), 'utf-8').split('\0')
+        if self.name == 'None':
+            self.name = None
+        if self.descLeft == 'None':
+            self.descLeft = None
+        if self.descRight == 'None':
+            self.descRight = None
         return self

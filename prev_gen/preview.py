@@ -39,6 +39,8 @@ class Preview:
             barCol = s.barFn(col).rgbaD
             textCol = s.textFn(col).rgbaD
             hx = col.hexa if col.alpha < 1 else col.hex
+            if s.showHash:
+                hx = '#' + hx
             draw.rectangle(
                 (
                     (l, t),

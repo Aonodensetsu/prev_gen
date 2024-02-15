@@ -54,6 +54,8 @@ class Settings:
 
         descSize:          Text size of the corner descriptions
 
+        showHash:          Display the hash symbol before hex colors
+
         barFn:             Function to determine bar color from background color
 
         textFn:            Function to determine text color from background color
@@ -73,6 +75,7 @@ class Settings:
     hexSize: int = 26
     hexSizeNameless: int = 34
     descSize: int = 26
+    showHash: bool = False
     barFn: tf = (
         lambda x:
         Color(

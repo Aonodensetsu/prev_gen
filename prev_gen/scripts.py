@@ -38,7 +38,6 @@ def prev_gen() -> None:
                 p = Reverse(args.file)
             case 'svg':
                 p = ReverseSVG(args.file)
-        o = 'Error :('
         match args.out:
             case 'py':
                 o = PYTHON(p).write(fn + '.py')
@@ -48,6 +47,8 @@ def prev_gen() -> None:
                 o = JSON(p).write(fn + '.json')
             case 'toml':
                 o = TOML(p).write(fn + '.toml')
+            case _:
+                o = 'Error :('
         if args.show:
             print(o)
         return

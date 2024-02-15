@@ -246,7 +246,7 @@ class PYTHON(Format):
                         else:
                             v[k] = ('\'' + v[k] + '\',').ljust(mx[k])
                     v[3] = v[3].replace(',', '')
-                    if v[3] == 'None':
+                    if 'None' in v[3]:
                         v[3] = ''
                         if 'None' in v[2]:
                             v[2] = ''
@@ -254,6 +254,7 @@ class PYTHON(Format):
                                 v[1] = ''
                     t += '        Color({}{}{}{}'.format(*v).rstrip(', ')
                     t = t.replace('#0000', '0000')
+                    t = t.replace('\'None\'', 'None')
                     t += '),\n'
                 t += '    ],\n'
             t += ']\n\nif __name__ == \'__main__\':\n    Preview(palette, save=True, show=True)\n'
