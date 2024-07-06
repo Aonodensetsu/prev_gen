@@ -9,13 +9,12 @@ Each entry below is a class you can import from this library
 ## Palette:
 ### The colors you want to convert to an image
 
-The class that corresponds to this is Table, however it is used internally for brevity
-- the user writes Preview(palette) instead of Preview(Table(palette))
+- the user writes Preview(palette) instead of Preview(Palette(palette))
 
 <details><summary>Usage 1 - "It just works"</summary>
 
 (1d list) place colors in the order you want them to appear in the generated image  
-the program will make a rectangle big enough to fit them all  
+the program will figure out a rectangle big enough to fit them all  
 </details>
 <details><summary>Usage 2 - "Do what I say"</summary>
 
@@ -32,11 +31,9 @@ Use `Color('0000')` to leave a spot empty - it's simply a fully transparent colo
 <details><summary>Available parameters</summary>
 
 ```python
-color: Color | Literals | str | tuple[float, float, float] | tuple[float, float, float, float] | tuple[int, int, int] | tuple[int, int, int, int]
+color: Color | str | Sequence[float] | NDArray
 # The color value to assign, you need to include this value
-# Four values if using transparency, three otherwise (modes below)
 # Or a hex string
-#   '#fb0000fe' - off-red with almost full opacity
 #   '#00f8'     - blue with half opacity
 #   '#FFF'      - white, letters can be capital too
 #   '00fa00'    - off-green with full opacity
@@ -44,66 +41,41 @@ color: Color | Literals | str | tuple[float, float, float] | tuple[float, float,
 #                 well, any fully transparent color works the same
 #                 this is the way to leave a field empty in 3.0
 # Or a css literal
-# A full list of which is available in the Literals class
-#   'aliceblue' = Literals.aliceblue = '#f0f8ff'
 name: str | None = None
 # The name to display, hex if empty
-descLeft: str | None = None
+desc_left: str | None = None
 # Left corner description
-descRight: str | None = None
+desc_right: str | None = None
 # Right corner description
-mode: Literal['rgb', 'hsv', 'hls', 'yiq', 'lch'] = 'rgb'
-# Specifies type of color to convert from
+model = 'srgb'
 ```
+Full list of models on [github](https://github.com/colour-science/colour?tab=readme-ov-file#31automatic-colour-conversion-graph---colourgraph).
 </details>
 <details><summary>You can change the mode by specifying the type of color you want</summary>
 
 ```python
-Color((0.4, 0.2, 0.7))             # RGB is the default
-Color((0.4, 0.2, 0.7), mode='lch') # OKLCH is the suggested mode due to being based on human perception
-Color((0.4, 0.2, 0.7), mode='hsv') # other supported modes are HSV, HLS and YIQ
-Color((0.4, 0.2, 0.7, 0.5))        # all work with transparency
-```
-</details>
-<details><summary>All the modes support normalized and denormalized values</summary>
-
-but make sure to look at the ranges of values if you want to use denormalized ones  
-```python
-(R: 0-255,  G: 0-255,  B: 0-255)
-(H: 0-179,  S: 0-255,  V: 0-255)
-(H: 0-360,  L: 0-100,  S: 0-100)
-(Y: 0-255,  I: 0-255,  Q: 0-255)
-(L: 0-100,  C: 0-100,  H: 0-360)
-* alpha has a range of 0-255
+Color((0.4, 0.2, 0.7))                # sRGB is the default
+Color((0.4, 0.2, 0.7), model='oklch') # oklch is the suggested mode due to being based on human perception
+Color((0.4, 0.2, 0.7), alpha=.5)      # all work with transparency
 ```
 </details>
 <details><summary>you can also specify a name for a color or not</summary>
 
 ```python
-Color((200, 100, 235), 'purple')    # denormalized RGB with name
-Color((0.2, 0.4, 0.7), mode='hsv')  # normalized HSV without name
+Color((200, 100, 235), 'purple')     # denormalized RGB with name
+Color((0.2, 0.4, 0.7), model='hsv')  # normalized HSV without name
 ```
 </details>
 <details><summary>HEX and CSS works regardless of mode specified</summary>
     
 ```python
-Color('#52C7A7', 'mint', mode='hls') # HEX with name (mode ignored)
-Color('darkred', mode='hls')         # CSS with no name (mode ignored)
+Color('#52C7A7', 'mint', model='hsv') # HEX with name (mode ignored)
+Color('darkred', model='hsv')         # CSS with no name (mode ignored)
 # for css, name not added by default to allow for palettes without any names
 ```
 </details>
 
-## Literals:
-### Just CSS Literals
-That's it, this is an enum of CSS colors, import and use in Color by name  
-Or simply write the name as a string
-
-```python
-Literals.aliceblue is 'aliceblue' is 'F0F8FF'  
-# The class (enum) is just here for convenience if you don't remember them and your editor has hints
-```
-
-## Table:
+## Palette:
 ### Not really meant for usage
 But not stopping you  
 This class actually converts the palette into a standard representation and generates meta information  
@@ -129,8 +101,6 @@ for i in t:
     i.pos  # top-left (x, y) 
     i.size  # (x, y)
     i.col  # Color()
-    if i.col.alpha == 0: ...
-        # will never be the case, invisible colors are filtered
 ```
 </details>
 
@@ -175,18 +145,12 @@ descSize: int = 26
 # Text size of the corner descriptions
 showHash: bool = False
 # Display the hash symbol before hex colors
-barFn: Callable[[Color], Color] = (L * 0.9, C, H)
-# Function to determine bar color from background color
-# You probably shouldn't touch this
-textFn: Callable[[Color], Color] = (dark ? L * 0.9 + 0.3 : L * 0.75 - 0.15, C, H)
-# Function to determine text color from background color
-# You probably shouldn't touch this
 ```
 </details>
 
-## Preview:
+## Previewer:
 ### The entrypoint that generates the image
-It always returns the generated PIL.Image
+It always returns the generated image, either as PIL.Image (png) or XML.etree.ElementTree (svg)
   
 <details><summary>Available parameters</summary>
 
@@ -198,61 +162,25 @@ show: bool = True
 # Whether to display the generated image to the user
 save: bool = False
 # Whether to save the image to disk
+output: Literal['png', 'svg'] = 'png'
+# Output file type
 ```
 </details>
 
-## Reverse:
+## Reverser:
 ### Regenerate the code
 Take an image and get back the code used to generate it
 
 <details><summary>Available parameters</summary>
 
 ```python
-image: Image | str
-# The image generated with this tool (or compatible) or a path to it
-changes: tuple[int, int] = (0, 1)
-# The amount of color changes in the x/y axis to ignore per tile (for the darker bar)
-# This is always the default in my program, but can be adjusted for other generators
-# Most commonly (0, 0) if the palette doesn't have any flair colors
+image: Image | ElementTree | str
 save: Literal['py', 'yml', 'json', 'toml'] | None = None
 # If set, will save the file to reverse.<ext>
 ```
 </details>
 
-## PreviewSVG:
-### The entrypoint that generates the image but in SVG format
-it always returns the generated image (xml.etree.ElementTree)
-  
-<details><summary>Available parameters</summary>
-
-```python
-palette: list[Settings | Color] | list[Settings | list[Color]]
-# The palette of colors to generate an image for
-# The long type hint is because of the two Usage modes
-show: bool = True
-# Whether to display the generated image to the user
-save: bool = False
-# Whether to save the image to disk
-# Saved temporarily regardless, just deleted if you don't want to keep it
-# This is to allow opening with a browser, since everyone has one of those
-```
-</details>
-
-## ReverseSVG:
-### Regenerate the code
-Take an image and get back the code used to generate it but in SVG
-
-<details><summary>Available parameters</summary>
-
-```python
-image: str | xml.etree.ElementTree
-# The image generated with this tool (or compatible) or a path to it
-save: Literal['py', 'yml', 'json', 'toml'] | None = None
-# If set, will save the file to reverseSvg.<ext>
-```
-</details>
-
-## YAML, JSON, TOML:
+## Config:
 ### Configuration file readers
 The internal configuration is a Python dictionary, but it can be saved in any of these formats with the use of the corresponding class
 
@@ -261,12 +189,21 @@ The internal configuration is a Python dictionary, but it can be saved in any of
 ```python
 palette: list[Settings | list[Color]]
 # the Usage 2 representation of the palette
+output: Literal['py', 'yml', 'toml', 'json'] = 'yml'
+# File 
 ```
 </details>
+
+<details><summary>Available attributes</summary>
+
+`palette` -> internal usage2 representation  
+`data` -> formatted string
+</details>
+
 <details><summary>Available methods</summary>
 
-`.read(file)` -> read a file into the Python representation  
-`.write()` -> save to a formatted file
+`.read(file)` -> read a file into the internal representation  
+`.write(filename)` -> save to a formatted file
 </details>
 
 ## Filters:
@@ -293,7 +230,6 @@ monochrome(chroma: float = 0., hue: float = 0., fileName: str | None = None) -> 
 
 ## GUI:
 ### An interactive editor
-If you change the example, it will be saved to gui.py  
-It also returns the image, just in case you wanted it  
-I don't expect people to use it,  
-but if you only have a notepad - this at least has syntax highlighting
+If you change the example, it will be saved to gui.py.  
+It also returns the image, just in case you wanted it.  
+I don't expect people to use it, but if you only have a notepad - this at least has syntax highlighting.

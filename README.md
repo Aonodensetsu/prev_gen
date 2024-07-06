@@ -6,6 +6,11 @@
 [![downloads](https://img.shields.io/badge/wiki-here-pink)](https://github.com/Aonodensetsu/prev_gen/blob/main/WIKI.md) [![downloads](https://img.shields.io/badge/changelog-here-pink)](https://github.com/Aonodensetsu/prev_gen/blob/main/CHANGELOG.md)  
 [![ko-fi](https://img.shields.io/badge/show-support-555599?style=for-the-badge&logo=kofi)](https://ko-fi.com/aonodensetsu)
 
+## Big changes from v5 to v6!
+This repository contains the v6 release candidate version of the code.  
+Check out the [migration](MIGRATION6.md) guide before upgrading.  
+v6 will be released to PyPi after more testing and after an upstream update.
+
 # Usage:
 1. `pip install prev_gen`
 2. Open up [the wiki](https://github.com/Aonodensetsu/prev_gen/blob/main/WIKI.md) to see how everything works
@@ -13,8 +18,8 @@
 4. ```python
    # in a python file
    palette = [...]
-   from prev_gen import Preview
-   Preview(palette)
+   from prev_gen import Previewer
+   Previewer(palette)
    ```
    or use the cli tool `prev_gen` for conversions with no code
 

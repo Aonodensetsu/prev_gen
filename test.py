@@ -1,12 +1,13 @@
 from prev_gen import (
-    Filters, PYTHON, TOML, JSON, YAML, ReverseSVG, PreviewSVG, Reverse, Preview, Table, Settings, Color, Literals
+    Config, Reverser, Previewer, Palette, Settings, Color
 )
-from test_helper import Raises, closeEnough
+from prev_gen.util import Raises, Filters
 from os.path import exists
+from math import isclose
 from os import remove
 
 
-def testHelperRaises():
+def test_helper_raises():
     r = Raises(ValueError)
     with r:
         int('1')
@@ -23,28 +24,15 @@ def testHelperRaises():
         assert True
 
 
-def testHelperCloseEnough():
-    assert closeEnough((0.,), (0.000001,))
-    assert closeEnough((0.,), (0.0001,), digits=3)
-    assert not closeEnough((0.,), (0.0001,))
-
-
-def testLiteralConversion():
-    assert Literals.getOrKeep('aliceBlue') == 'F0F8FF'
-    assert Literals.getOrKeep('doesNotExist') == 'doesNotExist'
-
-
-def testInputModes():
+def test_input_modes():
     """simply should not raise an error"""
     Color('f00')
     Color('crimson')
-    Color(Literals.crimson)
-    Color(Literals.crimson.value)
-    Color((255, 0, 0))
     Color((1., 0., 0.))
+    Color((1., 0., 0.), model='hsl')
 
 
-def testInvalidInput():
+def test_invalid_input():
     r = Raises(ValueError, NotImplementedError)
     # tuple value not long enough
     with r:
@@ -56,214 +44,171 @@ def testInvalidInput():
     assert r.raised
 
 
-def testColorCanBeCompared():
-    assert Color('crimson') == Color('crimson') == 'dc143c'
-    assert Color('crimson') != Color('beige') != 'invalidColor'
+def test_color_can_be_compared():
+    assert Color('crimson') == 'crimson'
+    assert Color('crimson') == 'dc143c'
+    assert Color('crimson') != Color('beige')
+    assert Color('beige') != 'invalidColor'
 
 
-def testColorModesWork():
+def test_color_modes_work():
     c = (0.2, 0.5, 0.3)
     assert (
-        Color(c, mode='rgb')
-        != Color(c, mode='hsv')
-        != Color(c, mode='hls')
-        != Color(c, mode='yiq')
-        != Color(c, mode='lch')
+        Color(c, model='rgb')
+        != Color(c, model='hsl')
+        != Color(c, model='hsv')
+        != Color(c, model='cmy')
     )
 
 
-def testHexInputTypes():
+def test_hex_input_types():
     assert (
-        Color('00F')
-        == Color('00Ff')
-        == Color('0000ff')
-        == Color('0000FFFF')
-        == Color('#00f')
-        == Color('#00ff')
+        Color('0000ff')
         == Color('#0000fF')
-        == Color('#0000fFFf')
     )
 
 
-def testHexIgnoresMode():
+def test_hex_ignores_mode():
     c = 'f00'
     assert (
-        Color(c, mode='rgb').rgb
-        == Color(c, mode='hsv').rgb
-        == Color(c, mode='hls').rgb
-        == Color(c, mode='yiq').rgb
-        == Color(c, mode='lch').rgb
+        Color(c, model='rgb').rgb
+        == Color(c, model='hsv').rgb
+        == Color(c, model='hsl').rgb
+        == Color(c, model='cmyk').rgb
     )
 
 
-def testColorsInferProperties():
-    c = Color('f00e')
-    assert c.hex == 'FF0000'
-    assert c.hexa == 'FF0000EE'
-    assert c.alphaD == 238
-    assert c.rgb == (1., 0., 0.)
-    assert c.hsv == (0., 1., 1.)
-    assert c.hls == (0., 0.5, 1.)
-    assert c.rgbD == (255, 0, 0)
-    assert c.hsvD == (0, 255, 255)
-    assert c.hlsD == (0, 50, 100)
-    assert c.yiqD == (76, 153, 54)
-    assert c.lchD == (63, 77, 29)
-    assert c.rgbaD == (255, 0, 0, 238)
-    assert c.hsvaD == (0, 255, 255, 238)
-    assert c.hlsaD == (0, 50, 100, 238)
-    assert c.yiqaD == (76, 153, 54, 238)
-    assert c.lchaD == (63, 77, 29, 238)
+def test_colors_infer_properties():
+    c = Color('ff0000', alpha=0.93)
+    assert c.hexadecimal == '#ff0000'
+    assert c.rgb == [1., 0., 0.]
+    assert c.hsv == [0., 1., 1.]
+    assert c.hsl == [0., 1., 0.5]
     assert c.dark is False
-    assert closeEnough((c.alpha,), (0.9333,))
-    assert closeEnough(c.yiq, (0.3, 0.599, 0.213))
-    assert closeEnough(c.lch, (0.628, 0.773, 0.0812))
-    assert closeEnough(c.rgba, (1., 0., 0., 0.9333))
-    assert closeEnough(c.hsva, (0., 1., 1., 0.9333))
-    assert closeEnough(c.hlsa, (0., 0.5, 1., 0.9333))
-    assert closeEnough(c.yiqa, (0.3, 0.599, 0.213, 0.9333))
-    assert closeEnough(c.lcha, (0.628, 0.773, 0.0812, 0.9333))
+    assert all(isclose(x, y, rel_tol=0.001) for x, y in zip(c.oklch, (0.6279, 0.2577, 0.0812)))
 
 
-def testLchIsClipped():
-    """this color does not exist in RGB but gets clipped into the range"""
-    assert closeEnough(Color((0.725, 0.477, 0.558), mode='lch').rgb, (0.114, 0.737, 0.7707))
+def test_color_serializable():
+    c = Color('000000', 'name', 'descLeft', 'descRight')
+    des = Color('000000').deserialize_text(c.serialize_text())
+    assert c.name == des.name
+    assert c.desc_left == des.desc_left
+    assert c.desc_right == des.desc_right
 
 
-def testConversionsAreReversible():
-    """colors at extremes may be less accurate (ex. #ff0) but test the general case"""
-    c = Color('ed6')
-    assert closeEnough(
-        c.rgb,
-        Color(c.hsv, mode='hsv').rgb,
-        Color(c.hls, mode='hls').rgb,
-        Color(c.yiq, mode='yiq').rgb,
-        Color(c.lch, mode='lch').rgb
+def test_settings_serialize():
+    assert Settings().serialize() == 'gAR9lC4='
+    s = Settings(file_name='nonDefault')
+    assert Settings.deserialize(s.serialize()) == s
+
+
+def test_table_init():
+    c = [Color('f00') for _ in range(5)]
+    p = Palette(c)
+    assert p.colors == c
+    assert p.settings == Settings()
+    # the size is calculated as the rectangle closest to a square whose width >= height
+    assert p.width == 3
+    assert p.height == 2
+
+
+def test_table_iterable():
+    c = [Color('ff0000') for _ in range(3)]
+    c.insert(2, Color('000000', alpha=0.))
+    p = Palette(c)
+    it = 0
+    for _ in p:
+        it += 1
+    assert it == 4
+
+
+def test_generate_png():
+    assert str(type(Previewer([Color('f00')], show=False))) == '<class \'PIL.Image.Image\'>'
+
+
+def test_save_png():
+    Previewer([Settings(file_name='testSavePNG'), Color('f00')], show=False, save=True)
+    assert exists('testSavePNG.png')
+    remove('testSavePNG.png')
+
+
+def test_reverse_png():
+    a = Previewer([Settings(file_name='testReversePNG'), Color('f00')], show=False, save=True)
+    Reverser('testReversePNG.png')
+    remove('testReversePNG.png')
+    Reverser(a)
+
+
+def test_generate_svg():
+    assert str(type(Previewer([Color('f00')], show=False, output='svg'))) == (
+        '<class \'xml.etree.ElementTree.ElementTree\'>'
     )
 
 
-def testColorSerializable():
-    c = Color('000', 'name', 'descLeft', 'descRight')
-    assert c.serializeText() == 'bmFtZQBkZXNjTGVmdABkZXNjUmlnaHQ='
+def test_save_svg():
+    Previewer([Settings(file_name='testSaveSVG'), Color('f00')], show=False, save=True, output='svg')
+    assert exists('testSaveSVG.svg')
+    remove('testSaveSVG.svg')
 
 
-def testColorDeserializable():
-    c = Color('f00').deserializeText('bmFtZQBkZXNjTGVmdABkZXNjUmlnaHQ=')
-    assert c.name == 'name'
-    assert c.descLeft == 'descLeft'
-    assert c.descRight == 'descRight'
+def test_reverse_svg():
+    a = Previewer([Settings(file_name='testReverseSVG'), Color('f00')], show=False, save=True, output='svg')
+    Reverser('testReverseSVG.svg')
+    remove('testReverseSVG.svg')
+    Reverser(a)
 
 
-def testSettingsSerialize():
-    assert Settings().serialize() == 'gAR9lC4='
-    assert Settings(fileName='nonDefault').serialize() == 'gASVHAAAAAAAAAB9lIwIZmlsZU5hbWWUjApub25EZWZhdWx0lHMu'
+def test_yaml():
+    c = """
+palette:
+- - color: '#000000'
+""".removeprefix('\n')
+    assert str(Config.read(c, output='yml')) == str(Config([[Color('000000')]], output='yml')) == c
 
 
-def testSettingsDeserialize():
-    assert Settings.deserialize('gAR9lC4=') == Settings()
-    assert Settings.deserialize('gASVHAAAAAAAAAB9lIwIZmlsZU5hbWWUjApub25EZWZhdWx0lHMu').fileName == 'nonDefault'
+def test_json():
+    c = """
+{
+  "palette": [
+    [
+      {
+        "color": "#000000"
+      }
+    ]
+  ]
+}
+""".removeprefix('\n')
+    assert str(Config.read(c, output='json')) == str(Config([[Color('000000')]], output='json')) == c
 
 
-def testSettingsSerializeLambda():
-    """
-    function serials get long quick, I don't like this solution but haven't found a better one
-    serializing functions is positional for some reason, I think it keeps the source context when serializing
-    it's serialized and deserialized inline to not break when other tests are changed
-    """
-    assert Settings.deserialize(Settings(barFn=lambda x: x).serialize()).barFn(Color('f00')) == Color('f00')
+def test_toml():
+    c = """
+palette = [
+  [
+    { color = "#000000" },
+  ],
+]
+""".removeprefix('\n')
+    assert str(Config.read(c, output='toml')) == str(Config([[Color('000000')]], output='toml')) == c
 
 
-def testTableInit():
-    c = [Color('f00') for _ in range(5)]
-    t = Table(c)
-    assert t.colors == c
-    assert t.settings == Settings()
-    # the size is calculated as the rectangle closest to a square whose width >= height
-    assert t.width == 3
-    assert t.height == 2
+def test_python():
+    c = """
+palette = [
+  [
+    {'color': '#000000'},
+  ],
+]
+
+if __name__ == '__main__':
+    from prev_gen import Previewer
+    Previewer(palette)
+""".removeprefix('\n')
+    assert str(Config.read(c, output='py')) == str(Config([[Color('000000')]], output='py')) == c
 
 
-def testTableIterable():
-    c = [Color('f00') for _ in range(3)]
-    c.insert(2, Color('0000'))
-    t = Table(c)
-    # the color with zero alpha should not get iterated
-    it = 0
-    for _ in t:
-        it += 1
-    assert it == 3
-
-
-def testGeneratePreview():
-    assert str(type(Preview([Color('f00')], show=False))) == '<class \'PIL.Image.Image\'>'
-
-
-def testSavePreview():
-    Preview([Settings(fileName='testSavePreview'), Color('f00')], show=False, save=True)
-    assert exists('testSavePreview.png')
-    remove('testSavePreview.png')
-
-
-def testReversePreview():
-    a = Preview([Settings(fileName='testReversePreview'), Color('f00')], show=False, save=True)
-    Reverse('testReversePreview.png')
-    remove('testReversePreview.png')
-    Reverse(a)
-
-
-def testGeneratePreviewSVG():
-    assert str(type(PreviewSVG([Color('f00')], show=False))) == '<class \'xml.etree.ElementTree.ElementTree\'>'
-
-
-def testSavePreviewSVG():
-    PreviewSVG([Settings(fileName='testSavePreviewSVG'), Color('f00')], show=False, save=True)
-    assert exists('testSavePreviewSVG.svg')
-    remove('testSavePreviewSVG.svg')
-
-
-def testReversePreviewSVG():
-    a = PreviewSVG([Settings(fileName='testReversePreviewSVG'), Color('f00')], show=False, save=True)
-    ReverseSVG('testReversePreviewSVG.svg')
-    remove('testReversePreviewSVG.svg')
-    ReverseSVG(a)
-
-
-def testYamlRead():
-    assert len(str(YAML.read('palette:\n- - - \'#0000\'\n'))) == 23
-    assert len(str(YAML.read('example.yml'))) == 1874
-
-
-def testYamlWrite():
-    assert str(YAML([[Color('0000')]])) == 'palette:\n- - [\'#0000\']\n'
-
-
-def testJsonRead():
-    assert len(str(JSON.read('{"palette": [[["#0000"]]]}'))) == 53
-    assert len(str(JSON.read('example.json'))) == 2236
-
-
-def testJsonWrite():
-    assert str(JSON([[Color('0000')]])) == '{\n  "palette": [\n    [\n      [ "#0000" ]\n    ]\n  ]\n}\n'
-
-
-def testTomlRead():
-    assert len(str(TOML.read('palette = [ [ [ "#0000",],],]'))) == 40
-    assert len(str(TOML.read('example.toml'))) == 2138
-
-
-def testTomlWrite():
-    assert str(TOML([[Color('0000')]])) == 'palette = [\n  [\n    [ "#0000" ],\n  ],\n]\n'
-
-
-def testPythonRead():
-    assert len(str(PYTHON([[Color('0000')]]))) == 168
-
-
-def testPythonWrite():
-    assert PYTHON.read('palette = [[Color(\'0000\')]]').palette[1][0] == '0000'
-
-
-def testFilterMonochrome():
-    assert Filters(Preview([
-        Settings(gridWidth=20, gridHeight=20), Color('f00')
-    ], show=False)).monochrome().img.getpixel((0, 0)) == (93, 93, 93, 255)
+def test_filter_monochrome():
+    assert Filters(Previewer([
+        Settings(grid_width=3, grid_height=3, bar_height=1),
+        Color('ff0000')
+    ], show=False)).monochrome().img.getpixel((0, 0)) == (62, 62, 62, 255)

@@ -1,19 +1,8 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from base64 import b64decode, b64encode
-from typing import TypeAlias, Callable
-from dataclasses import dataclass
-from dill import loads, dumps
-
-from .color import Color
-
-
-"""
-used for Color transformations
-  bar - calculates dark bar color from background color
-  text - calculates text color from background color
-"""
-tf: TypeAlias = Callable[[Color], Color]
+from pickle import loads, dumps
 
 
 @dataclass(kw_only=True, slots=True)
@@ -22,102 +11,76 @@ class Settings:
     Image generation settings
 
     Attributes:
-        fileName:          File name to save into (no extension, png)
+        file_name:           File name to save into (no extension, png)
 
-        fontName:          for png = local file name (no extension, true type)
+        font_name:           for png = local file name (no extension, true type)
 
-                           for svg = Google Font name
+                             for svg = Google Font name
 
-        fontOpts:          Google Fonts API options (for svg)
+        font_opts:           Google Fonts API options (for svg)
 
-        gridHeight:        Height of each individual color tile
+        grid_height:         Height of each individual color tile
 
-        gridWidth:         Width of each individual color tile
+        grid_width:          Width of each individual color tile
 
-        barHeight:         Height of the darkened bar at the bottom of each tile
+        bar_height:          Height of the darkened bar at the bottom of each tile
 
-        nameOffset:        Vertical offset of the color name printed within the tile
+        name_offset:         Vertical offset of the color name printed within the tile
 
-        hexOffset:         Vertical offset of the hex value printed below color name
+        hex_offset:          Vertical offset of the hex value printed below color name
 
-        hexOffsetNameless: Vertical offset of the hex value printed if no name given
+        hex_offset_nameless: Vertical offset of the hex value printed if no name given
 
-        descOffsetX:       Horizontal offset of the corner descriptions
+        desc_offset_x:       Horizontal offset of the corner descriptions
 
-        descOffsetY:       Vertical offset of the corner descriptions
+        desc_offset_y:       Vertical offset of the corner descriptions
 
-        nameSize:          Text size of the color name
+        name_size:           Text size of the color name
 
-        hexSize:           Text size of the hex value printed under the color name
+        hex_size:            Text size of the hex value printed under the color name
 
-        hexSizeNameless:   Text size of the hex value printed if no name given
+        hex_size_nameless:   Text size of the hex value printed if no name given
 
-        descSize:          Text size of the corner descriptions
+        desc_size:           Text size of the corner descriptions
 
-        showHash:          Display the hash symbol before hex colors
+        show_hash:           Display the hash symbol before hex colors
 
-        barFn:             Function to determine bar color from background color
-
-        textFn:            Function to determine text color from background color
+        hex_upper:           Should the hex color be uppercase
     """
-    fileName: str = 'result'
-    fontName: str = 'Nunito'
-    fontOpts: dict | None = None
-    gridHeight: int = 168
-    gridWidth: int = 224
-    barHeight: int = 10
-    nameOffset: int = -10
-    hexOffset: int = 35
-    hexOffsetNameless: int = 0
-    descOffsetX: int = 15
-    descOffsetY: int = 20
-    nameSize: int = 40
-    hexSize: int = 26
-    hexSizeNameless: int = 34
-    descSize: int = 26
-    showHash: bool = False
-    barFn: tf = (
-        lambda x:
-        Color(
-            (
-                x.lcha[0] * 0.9,
-                x.lcha[1],
-                x.lcha[2],
-                x.lcha[3]
-            ),
-            mode='lch'
-        )
-    )
-    textFn: tf = (
-        lambda x:
-        Color(
-            (
-                x.lcha[0] * 0.9 + 0.3
-                if x.dark
-                else x.lcha[0] * 0.75 - 0.15,
-                x.lcha[1],
-                x.lcha[2],
-                x.lcha[3]
-            ),
-            mode='lch'
-        )
-    )
+    file_name: str = 'result'
+    font_name: str = 'Nunito'
+    font_opts: to_dict = field(default_factory=dict)
+    grid_height: int = 168
+    grid_width: int = 224
+    bar_height: int = 10
+    name_offset: int = -10
+    hex_offset: int = 35
+    hex_offset_nameless: int = 0
+    desc_offset_x: int = 15
+    desc_offset_y: int = 20
+    name_size: int = 40
+    hex_size: int = 26
+    hex_size_nameless: int = 34
+    desc_size: int = 26
+    show_hash: bool = False
+    hex_upper: bool = True
 
-    def dict(self) -> dict:
+    def to_dict(self) -> dict:
         """
         :return: The dictionary of non-default values
         """
+        # noinspection PyUnresolvedReferences
         names = Settings.__slots__
-        defaultCls = Settings()
-        default = {i: getattr(defaultCls, i) for i in names}
+        default_cls = Settings()
+        default = {i: getattr(default_cls, i) for i in names}
         actual = {i: getattr(self, i) for i in names}
-        return dict({k: v for k, v in actual.items() if default[k] != v})
+        return {k: v for k, v in actual.items() if default[k] != v}
 
     def serialize(self) -> str:
         """
         :return: A base64-encoded representation of the class
         """
-        return str(b64encode(dumps(self.dict(), byref=True, recurse=True)), 'latin1')
+        return str(b64encode(dumps(self.to_dict())), 'latin1')
 
     @staticmethod
     def deserialize(data: str) -> Settings:

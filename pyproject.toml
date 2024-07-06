@@ -13,12 +13,14 @@ version = '5.1.0'
 requires-python = '>= 3.10'
 dependencies = [
   'tqdm',
-  'dill',
+  'matplotlib',
+  'networkx',
+  'git+https://github.com/colour-science/colour',
   'multimethod',
   'pillow',
-  'drawsvg~=2.0',
+  'drawsvg<3',
   'pyyaml',
-  'toml'
+  'tomlkit'
 ]
 authors = [
   { name = 'Remigiusz Dończyk', email = 'donczyk.remigiusz@gmail.com' }
@@ -31,8 +33,6 @@ keywords = [
   'preview',
   'generator',
   'image',
-  'png',
-  'svg',
   'color'
 ]
 classifiers = [

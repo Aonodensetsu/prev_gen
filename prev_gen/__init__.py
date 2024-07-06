@@ -1,11 +1,8 @@
-from .literals import Literals
-from .color import Color
+from .previewer import Previewer
 from .settings import Settings
-from .table import Table
-from .preview import Preview
-from .reverse import Reverse
-from .previewSvg import PreviewSVG
-from .reverseSvg import ReverseSVG
-from .formats import YAML, JSON, TOML, PYTHON
-from .filters import Filters
+from .reverser import Reverser
+from .palette import Palette
+from .config import Config
+from .util import Filters
+from .color import Color
 from .gui import GUI

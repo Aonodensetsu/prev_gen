@@ -1,33 +1,32 @@
 from __future__ import annotations
 
+from typing import TypeAlias, Sequence
 from dataclasses import dataclass
-from typing import TypeAlias
 
-from .color import Color
+from .util import Distance, Tile
 from .settings import Settings
-from .distance import Distance
-from .tile import Tile
+from .color import Color
 
 
 """
 usage 1
   list of
-    Settings (as the first element)
-    Color
+    Settings (as the first element) (or dict)
+    Color (or dict or list)
 """
-u1: TypeAlias = list[Settings | Color]
+u1: TypeAlias = list[Settings | Color | dict | list]
 """
 usage 2
   list of
-    None to mark an empty row
-    Settings (as the first element)
-    list of Color
+    Settings (as the first element) (or dict) 
+    list of Color (or dict or list)
 """
-u2: TypeAlias = list[Settings | list[Color]]
+u2: TypeAlias = list[Settings | dict | list[Color | dict | list]]
 
 
 @dataclass(slots=True)
-class Table:
+class Palette:
+    # noinspection PyUnresolvedReferences
     """
     A table of colors, which you can iterate over
 
@@ -52,19 +51,20 @@ class Table:
     def size(self) -> Distance:
         """Size of table in pixels"""
         return Distance(
-            self.width * self.settings.gridWidth,
-            self.height * self.settings.gridHeight
+            self.width * self.settings.grid_width,
+            self.height * self.settings.grid_height
         )
 
-    def __init__(self,
-                 colors: u1 | u2
-                 ) -> None:
+    def __init__(self, colors: u1 | u2) -> None:
         """
         :param colors: The list of colors to parse
         """
         if isinstance(colors[0], Settings):
             self.settings = colors[0]
-            colors = colors[1:]
+            colors: u2 = colors[1:]
+        elif isinstance(colors[0], dict):
+            self.settings = Settings(**colors[0])
+            colors: u2 = colors[1:]
         else:
             self.settings = Settings()
         # get the explicitly given size and flatten list
@@ -73,8 +73,14 @@ class Table:
             self.width = max(len(i) for i in colors)
             for i in colors:
                 while len(i) < self.width:
-                    i.append(Color('0000'))
-            colors = [j for i in colors for j in i]
+                    i.append(Color('000000', alpha=0.))
+            colors: u1 = [
+                Color(**j) if isinstance(j, dict)
+                else Color(*j) if isinstance(j, Sequence)
+                else j
+                for i in colors
+                for j in i
+            ]
         # calculate the correct size
         else:
             self.height = int(len(colors) ** (1 / 2))
@@ -85,29 +91,26 @@ class Table:
         self.colors = colors
         self._iter = 0
 
-    def __iter__(self) -> Table:
+    def __iter__(self) -> Palette:
         self._iter = 0
         return self
 
     def __next__(self) -> Tile:
         i = self._iter
         self._iter += 1
-        while i < len(self.colors) - 1 and self.colors[i].alpha == 0:
-            i += 1
-            self._iter += 1
-        if i >= len(self.colors) or self.colors[i].alpha == 0:
+        if i >= len(self.colors):
             self._iter = 0
             raise StopIteration
         return Tile(
             Distance(
-                i % self.width * self.settings.gridWidth,
-                i // self.width * self.settings.gridHeight
+                i % self.width * self.settings.grid_width,
+                i // self.width * self.settings.grid_height
             ),
             # the size is decreased by one because the tiles would overlap
             # which you can see if you have an empty tile somewhere
             Distance(
-                self.settings.gridWidth - 1,
-                self.settings.gridHeight - 1
+                self.settings.grid_width - 1,
+                self.settings.grid_height - 1
             ),
             self.colors[i]
         )

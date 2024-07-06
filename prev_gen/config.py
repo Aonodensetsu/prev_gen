@@ -1,21 +1,40 @@
 from __future__ import annotations
 
-import copy
+from typing import Callable, Sequence
 from abc import ABC, abstractmethod
-from typing import Callable
 from os.path import exists
+from copy import deepcopy
 
-from .color import Color
+from .types import config_format
 from .settings import Settings
-from .table import u2
+from .color import Color
+from .palette import u2
 
 
-class Format(ABC):
+class Config:
+    def __new__(cls, palette: u2, output: config_format = 'yml'):
+        try:
+            return {'yml': YamlConfig, 'json': JsonConfig, 'toml': TomlConfig, 'py': PythonConfig}[output](palette)
+        except KeyError:
+            raise ValueError(f'Invalid config mode: <{output}>')
+
+    @staticmethod
+    def read(file: str, output: config_format = ''):
+        if not output and exists(file):
+            output = file.split('.')[-1]
+        try:
+            return {'yml': YamlConfig, 'json': JsonConfig, 'toml': TomlConfig, 'py': PythonConfig}[output].read(file)
+        except KeyError:
+            raise ValueError(f'Invalid config mode: <{output}>')
+
+
+class BaseConfig(ABC):
     """
     A class to allow loading configuration from arbitrary (supported) formats
 
     Attributes:
-        data: The multiline string of data
+        palette: The common palette representation
+        data:    The multiline string of data
     """
     palette: u2
     data: str
@@ -57,30 +76,33 @@ class Format(ABC):
         """
         :param palette: The palette to transform to a formatted string
         """
-        self.palette = copy.deepcopy(palette)
+        self.palette = deepcopy(palette)
         if isinstance(palette[0], Settings):
-            s = palette[0].dict()
-            c = palette[1:]
+            s = palette[0].to_dict()
+            c: list[list] = palette[1:]
+        elif isinstance(palette[0], dict):
+            s = Settings(**palette[0]).to_dict()
+            c: list[list] = palette[1:]
         else:
             s = {}
-            c = palette
+            c: list[list] = palette
         for i, x in enumerate(c):
             for j, y in enumerate(x):
-                c[i][j] = y.dict()
+                c[i][j] = y.to_dict()
         data = self._prefix()
         if s:
             data = self._serialize(data)({'settings': s})
         data = self._serialize2(data)({'palette': c})
         self.data = data
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         :return: The format string
         """
         return self.data
 
     @classmethod
-    def read(cls, file: str) -> Format:
+    def read(cls, file: str) -> BaseConfig:
         """
         :param file: The filename or loaded Format-data to use
         :return: The loaded Format instance
@@ -94,17 +116,18 @@ class Format(ABC):
         colors, settings = data['palette'], data['settings']
         for i, a in enumerate(colors):
             for j, b in enumerate(a):
-                try:
-                    # parse '(0.2, 0.2, 0.2)' as a  tuple first
+                if isinstance(b, str):
+                    # parse '(0.2, 0.2, 0.2)' as a sequence first
                     colors[i][j] = Color([float(x) for x in b[0].strip('()').split(', ')], *b[1:])
-                except (ValueError, TypeError):
-                    try:
-                        colors[i][j] = Color(*b)
-                    except TypeError:
-                        colors[i][j] = Color(b)
+                elif isinstance(b, dict):
+                    colors[i][j] = Color(**b)
+                elif isinstance(b, Sequence):
+                    colors[i][j] = Color(*b)
+                elif isinstance(b, Color):
+                    colors[i][j] = b
         return cls([Settings(**settings), *colors])
 
-    def write(self, file: str) -> Format:
+    def write(self, file: str) -> BaseConfig:
         """
         :param file: The filename to write to
         :return: Self, for method chaining
@@ -114,7 +137,7 @@ class Format(ABC):
         return self
 
 
-class YAML(Format):
+class YamlConfig(BaseConfig):
     @staticmethod
     def _serialize(prev: str) -> Callable[[dict], str]:
         from yaml import safe_dump
@@ -123,7 +146,7 @@ class YAML(Format):
     @classmethod
     def _serialize2(cls, prev: str) -> Callable[[dict], str]:
         from yaml import safe_dump
-        return lambda val: prev + safe_dump(val, sort_keys=False, default_flow_style=None)
+        return lambda val: prev + safe_dump(val, sort_keys=False)
 
     @staticmethod
     def _deserialize() -> Callable[[str], dict]:
@@ -131,7 +154,7 @@ class YAML(Format):
         return safe_load
 
 
-class JSON(Format):
+class JsonConfig(BaseConfig):
     @staticmethod
     def _prefix() -> str:
         return '{\n'
@@ -144,13 +167,7 @@ class JSON(Format):
     @classmethod
     def _serialize2(cls, prev: str) -> Callable[[dict], str]:
         from json import dumps
-
-        def f(val):
-            a = prev + dumps(val, indent=2).removeprefix('{\n') + '\n'
-            a = a.replace('\n        ', ' ')
-            a = a.replace('\n      ]', ' ]')
-            return a
-        return f
+        return lambda val: prev + dumps(val, indent=2).removeprefix('{\n') + '\n'
 
     @staticmethod
     def _deserialize() -> Callable[[str], dict]:
@@ -158,107 +175,81 @@ class JSON(Format):
         return loads
 
 
-class TOML(Format):
+class TomlConfig(BaseConfig):
     @staticmethod
     def _serialize(prev: str) -> Callable[[dict], str]:
-        from toml import dumps
-        return lambda val: prev + dumps(val)
+        def f(val):
+            s = val['settings']
+            a = '\n[settings]\n'
+            for k, v in s.items():
+                a += f'{k} = {v}\n'
+            return prev + a
+        return f
 
     @classmethod
     def _serialize2(cls, prev: str) -> Callable[[dict], str]:
-        from toml import dumps
-
         def f(val):
-            a = dumps(val)
-            a = a.replace('palette = [ [ [', 'palette = [\n  [\n    [')
-            a = a.replace('], ', '],\n    ')
-            a = a.replace('],],', '],\n  ],')
-            a = a.replace('  [ [ ', '[\n    [ ')
-            a = a.replace('],]', '],\n]')
-            a = a.replace(',],', ' ],')
-            if prev:
-                a += '\n' + prev
-            return a
-
+            p = val['palette']
+            a = 'palette = [\n'
+            for ln in p:
+                a += '  [\n'
+                for c in ln:
+                    a += f'    {{ color = "{c["color"]}"'
+                    for x in ('name', 'desc_left', 'desc_right'):
+                        if x in c:
+                            a += f', {x} = "{c[x]}"'
+                    if 'alpha' in c:
+                        a += f', alpha = {c["alpha"]}'
+                    a += ' },\n'
+                a += '  ],\n'
+            a += ']\n'
+            return a + prev
         return f
 
     @staticmethod
     def _deserialize() -> Callable[[str], dict]:
-        from toml import loads
-        return loads
+        from tomlkit import parse
+        return lambda x: parse(x).unwrap()
 
 
-class PYTHON(Format):
+class PythonConfig(BaseConfig):
     @staticmethod
     def _prefix() -> str:
-        return 'from prev_gen import Preview, Color, Settings\n\npalette = [\n'
+        return 'palette = [\n'
 
     @staticmethod
     def _serialize(prev: str) -> Callable[[dict], str]:
         def f(val):
             val = val['settings']
-            t = prev + '    Settings(\n'
+            t = prev + '  {\n'
             for k, v in val.items():
-                t += f'        {k}='
+                t += f'    \'{k}\': '
                 if isinstance(v, str):
                     t += f'\'{v}\',\n'
                 else:
                     t += f'{v},\n'
-            t += '    ),\n'
+            t += '  },\n'
             return t
         return f
 
     @classmethod
     def _serialize2(cls, prev: str) -> Callable[[dict], str]:
         def f(val):
-            val = val['palette']
-            height = len(val)
-            width = len(val[0])
-            val = [y for x in val for y in x]
-            t = prev
-            tbl = [[], [], [], []]
-            for i in range(len(val)):
-                c = val[i]
-                try:
-                    # parse '(0.2, 0.2, 0.2)' as a  tuple first
-                    v = Color([float(x) for x in c[0].strip('()').split(', ')], *c[1:])
-                    c[0] = '0000' if v.alpha == 0 else v.hexa if v.alpha < 1 else v.hex
-                except ValueError:
-                    pass
-                for j in range(4):
-                    try:
-                        tbl[j].append(c[j])
-                    except IndexError:
-                        tbl[j].append(None)
-            mx = [max(len(x) if x else 4 for x in tbl[i]) for i in range(4)]
-            mx[0] += 4
-            mx[1] += 4
-            mx[2] += 3
-            for i in range(height):
-                t += '    [\n'
-                for j in range(width):
-                    inx = width * i + j
-                    v = [tbl[x][inx] for x in range(4)]
-                    v[0] = ('\'' + v[0] + '\',').ljust(mx[0])
-                    for k in range(1, 4):
-                        if not v[k]:
-                            v[k] = 'None,'.ljust(mx[k])
-                        else:
-                            v[k] = ('\'' + v[k] + '\',').ljust(mx[k])
-                    v[3] = v[3].replace(',', '')
-                    if 'None' in v[3]:
-                        v[3] = ''
-                        if 'None' in v[2]:
-                            v[2] = ''
-                            if 'None' in v[1]:
-                                v[1] = ''
-                    t += '        Color({}{}{}{}'.format(*v).rstrip(', ')
-                    t = t.replace('#0000', '0000')
-                    t = t.replace('\'None\'', 'None')
-                    t += '),\n'
-                t += '    ],\n'
-            t += ']\n\nif __name__ == \'__main__\':\n    Preview(palette, save=True, show=True)\n'
-            return t
+            s = ''
+            a = val['palette']
+            for ln in a:
+                s += '  ['
+                for c in map(lambda x: Color(**x), ln):
+                    s += f'\n    {{\'color\': \'{c.Hexadecimal}\''
+                    for i in ('name', 'desc_left', 'desc_right'):
+                        if v := getattr(c, i):
+                            s += f', \'{i}\': \'{v}\''
+                    if (v := c.alpha) < 1.:
+                        s += f', \'alpha\': {v}'
+                    s += '},'
+                s += '\n  ],\n'
+            s += ']\n\nif __name__ == \'__main__\':\n    from prev_gen import Previewer\n    Previewer(palette)\n'
+            return prev + s
         return f
 
     @staticmethod
@@ -269,7 +260,10 @@ class PYTHON(Format):
             exec(val, None, loc)
             if 'palette' in loc:
                 if isinstance(loc['palette'][0], Settings):
-                    ret['settings'] = loc['palette'][0]
+                    ret['settings'] = loc['palette'][0].to_dict()
+                    ret['palette'] = loc['palette'][1:]
+                if isinstance(loc['palette'][0], dict):
+                    ret['settings'] = Settings(**loc['palette'][0]).to_dict()
                     ret['palette'] = loc['palette'][1:]
                 else:
                     ret['palette'] = loc['palette']
