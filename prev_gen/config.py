@@ -40,20 +40,13 @@ class BaseConfig(ABC):
     data: str
 
     @staticmethod
-    def _prefix() -> str:
-        """
-        Added to the beginning of the output
-        """
-        return ''
-
-    @staticmethod
     @abstractmethod
-    def _serialize(prev: str) -> Callable[[dict], str]:
+    def _serialize() -> Callable[[dict], str]:
         """
         :param prev: The previous output, make sure to include it in the processing
         :return: A function to change the settings DICT! into a format string
         """
-        ...
+        return lambda x: str(x) if x is not None else ''
 
     @classmethod
     def _serialize2(cls, prev: str) -> Callable[[dict], str]:
@@ -62,7 +55,7 @@ class BaseConfig(ABC):
         :param prev: The previous output, make sure to include it in the processing
         :return: A function to change the u2 color DICTs! into a format string
         """
-        return cls._serialize(prev)
+        return lambda x: prev + cls._serialize()(x)
 
     @staticmethod
     @abstractmethod
@@ -89,9 +82,7 @@ class BaseConfig(ABC):
         for i, x in enumerate(c):
             for j, y in enumerate(x):
                 c[i][j] = y.to_dict()
-        data = self._prefix()
-        if s:
-            data = self._serialize(data)({'settings': s})
+        data = self._serialize()({'settings': s})
         data = self._serialize2(data)({'palette': c})
         self.data = data
 
@@ -139,14 +130,14 @@ class BaseConfig(ABC):
 
 class YamlConfig(BaseConfig):
     @staticmethod
-    def _serialize(prev: str) -> Callable[[dict], str]:
+    def _serialize() -> Callable[[dict], str]:
         from yaml import safe_dump
-        return lambda val: prev + safe_dump(val, sort_keys=False)
-
-    @classmethod
-    def _serialize2(cls, prev: str) -> Callable[[dict], str]:
-        from yaml import safe_dump
-        return lambda val: prev + safe_dump(val, sort_keys=False)
+        return lambda val: (
+            safe_dump(val, sort_keys=False)
+            if val.get('settings', None)
+            or val.get('palette')
+            else ''
+        )
 
     @staticmethod
     def _deserialize() -> Callable[[str], dict]:
@@ -156,18 +147,22 @@ class YamlConfig(BaseConfig):
 
 class JsonConfig(BaseConfig):
     @staticmethod
-    def _prefix() -> str:
-        return '{\n'
-
-    @staticmethod
-    def _serialize(prev: str) -> Callable[[dict], str]:
+    def _serialize() -> Callable[[dict], str]:
         from json import dumps
-        return lambda val: prev + dumps(val, indent=2).removeprefix('{\n').removesuffix('\n}') + ',\n'
+        return lambda val: '{\n' + (
+            dumps(val, indent=2).removeprefix('{\n').removesuffix('\n}') + ',\n'
+            if val.get('settings')
+            else ''
+        )
 
     @classmethod
     def _serialize2(cls, prev: str) -> Callable[[dict], str]:
         from json import dumps
-        return lambda val: prev + dumps(val, indent=2).removeprefix('{\n') + '\n'
+        return lambda val: prev + (
+            dumps(val, indent=2).removeprefix('{\n') + '\n'
+            if val.get('palette')
+            else ''
+        )
 
     @staticmethod
     def _deserialize() -> Callable[[str], dict]:
@@ -177,18 +172,22 @@ class JsonConfig(BaseConfig):
 
 class TomlConfig(BaseConfig):
     @staticmethod
-    def _serialize(prev: str) -> Callable[[dict], str]:
+    def _serialize() -> Callable[[dict], str]:
         def f(val):
+            if not val.get('settings'):
+                return ''
             s = val['settings']
             a = '\n[settings]\n'
             for k, v in s.items():
                 a += f'{k} = {v}\n'
-            return prev + a
+            return a
         return f
 
     @classmethod
     def _serialize2(cls, prev: str) -> Callable[[dict], str]:
         def f(val):
+            if not val.get('palette'):
+                return prev
             p = val['palette']
             a = 'palette = [\n'
             for ln in p:
@@ -214,14 +213,12 @@ class TomlConfig(BaseConfig):
 
 class PythonConfig(BaseConfig):
     @staticmethod
-    def _prefix() -> str:
-        return 'palette = [\n'
-
-    @staticmethod
-    def _serialize(prev: str) -> Callable[[dict], str]:
+    def _serialize() -> Callable[[dict], str]:
         def f(val):
+            if not val.get('settings'):
+                return 'palette = [\n'
             val = val['settings']
-            t = prev + '  {\n'
+            t = 'palette = [\n  {\n'
             for k, v in val.items():
                 t += f'    \'{k}\': '
                 if isinstance(v, str):
@@ -235,6 +232,8 @@ class PythonConfig(BaseConfig):
     @classmethod
     def _serialize2(cls, prev: str) -> Callable[[dict], str]:
         def f(val):
+            if not val.get('palette'):
+                return prev
             s = ''
             a = val['palette']
             for ln in a:

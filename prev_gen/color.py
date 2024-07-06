@@ -108,9 +108,10 @@ class Color:
                  ) -> None:
         _ = model
         try:
-            color = convert(color, 'css color 3', 'hexadecimal')
-            setattr(self, 'css color 3', color)
-            self.original = 'css color 3'
+            css = 'css color 3'
+            color = convert(color, css, 'hexadecimal')
+            setattr(self, css, color)
+            self.original = css
         except AssertionError:
             self.original = 'hexadecimal'
         if len(color) == 3:

@@ -1,4 +1,5 @@
-Version 6.0.0 (release candidate)  
+Version 6.0.0 rc2 - code complexity  
+Version 6.0.0 (release candidate 1)  
 Major API changes following a backend library change and refactor  
 Check out [the migration guide](MIGRATION6.md)
 
