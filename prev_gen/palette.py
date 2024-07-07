@@ -55,10 +55,7 @@ class Palette:
             self.height * self.settings.grid_height
         )
 
-    def __init__(self, colors: u1 | u2) -> None:
-        """
-        :param colors: The list of colors to parse
-        """
+    def _get_settings(self, colors):
         if isinstance(colors[0], Settings):
             self.settings = colors[0]
             colors: u2 = colors[1:]
@@ -67,6 +64,9 @@ class Palette:
             colors: u2 = colors[1:]
         else:
             self.settings = Settings()
+        return colors
+
+    def _calc_size(self, colors):
         # get the explicitly given size and flatten list
         if isinstance(colors[0], list):
             self.height = len(colors)
@@ -88,6 +88,14 @@ class Palette:
             # extend the square until everything fits
             while self.width * self.height < len(colors):
                 self.width += 1
+        return colors
+
+    def __init__(self, colors: u1 | u2) -> None:
+        """
+        :param colors: The list of colors to parse
+        """
+        colors = self._get_settings(colors)
+        colors = self._calc_size(colors)
         self.colors = colors
         self._iter = 0
 

@@ -101,7 +101,7 @@ class PNGPreviewer:
     @classmethod
     def _draw_text_desc(cls, draw, pos, size, col, s):
         l, p = pos
-        w, h = size
+        w, _ = size
         font = cls._get_font(s)
         text_col = tuple([int(x * 255) for x in text_color(col).srgb] + [int(col.alpha * 255)])
         if col.desc_left:
@@ -132,10 +132,6 @@ class PNGPreviewer:
         s = p.settings
         img = Image.new('RGBA', tuple[int, int](p.size))
         draw = ImageDraw.Draw(img, 'RGBA')
-        if s.font_name == 'Nunito':
-            font = dirname(getabsfile(currentframe())) + '/nunito.ttf'
-        else:
-            font = s.font_name + '.ttf'
         img.text = {'colorGen': s.serialize()}
         for i, v in enumerate(p):
             if v.col.alpha < 0.005:
@@ -259,7 +255,7 @@ class SVGPreviewer:
     @staticmethod
     def _draw_text_desc(draw, pos, size, col, s):
         l, p = pos
-        w, h = size
+        w, _ = size
         t_col = text_color(col)
         if col.desc_left is not None:
             draw.append(Text(
