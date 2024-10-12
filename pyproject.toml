@@ -9,7 +9,7 @@ requires = [
 
 [project]
 name = 'prev_gen'
-version = '5.1.0'
+version = '5.1.1'
 requires-python = '>= 3.10'
 dependencies = [
   'tqdm',
