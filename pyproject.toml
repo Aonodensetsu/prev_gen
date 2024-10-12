@@ -15,7 +15,7 @@ dependencies = [
   'tqdm',
   'matplotlib',
   'networkx',
-  'git+https://github.com/colour-science/colour',
+  'colour-science>=0.4.5',
   'multimethod',
   'pillow',
   'drawsvg<3',

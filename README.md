@@ -9,7 +9,7 @@
 ## Big changes from v5 to v6!
 This repository contains the v6 release candidate version of the code.  
 Check out the [migration](MIGRATION6.md) guide before upgrading.  
-v6 will be released to PyPi after more testing and after an upstream update.
+v6 will be released to PyPi after final testing.
 
 # Usage:
 1. `pip install prev_gen`
