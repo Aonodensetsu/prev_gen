@@ -3,9 +3,8 @@ email: donczyk.remigiusz@gmail.com
 description: >-
   Create a palette preview image by using simple declarations
 url: https://aonodensetsu.github.io
-baseurl: ""
-twitter_username: jekyllrb
-github_username:  jekyll
+baseurl: prev_gen
+github_username:  aonodensetsu
 
 remote_theme: pages-themes/cayman@v0.2.0
 plugins:
