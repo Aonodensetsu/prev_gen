@@ -22,7 +22,7 @@ Changes:
 - "original" attribute marks the first used model, it has no conversion error
 - despite sRGB being the default model, the *always* available format is RGB due to less conversion error
 - anything can be checked for equality with a Color, it will return true if it matches the color's sRGB
-- color equality checks have a tolerance of 1%
+- color equality checks have a tolerance of 0.5%
 - *color model* attributes are automatically lowercased
 
 ---
