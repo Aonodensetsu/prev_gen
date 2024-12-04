@@ -12,18 +12,18 @@ from .palette import u2
 
 
 class Config:
-    def __new__(cls, palette: u2, output: config_format = 'yml'):
+    def __new__(cls, palette: u2, output: config_format = 'yaml'):
         try:
-            return {'yml': YamlConfig, 'json': JsonConfig, 'toml': TomlConfig, 'py': PythonConfig}[output](palette)
+            return {'yaml': YamlConfig, 'json': JsonConfig, 'toml': TomlConfig, 'py': PythonConfig}[output](palette)
         except KeyError:
             raise ValueError(f'Invalid config mode: <{output}>')
 
-    @staticmethod
-    def read(file: str, output: config_format = ''):
+    @classmethod
+    def read(cls, file: str, output: config_format = ''):
         if not output and exists(file):
             output = file.split('.')[-1]
         try:
-            return {'yml': YamlConfig, 'json': JsonConfig, 'toml': TomlConfig, 'py': PythonConfig}[output].read(file)
+            return {'yaml': YamlConfig, 'json': JsonConfig, 'toml': TomlConfig, 'py': PythonConfig}[output].read(file)
         except KeyError:
             raise ValueError(f'Invalid config mode: <{output}>')
 
@@ -39,9 +39,9 @@ class BaseConfig(ABC):
     palette: u2
     data: str
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def _serialize() -> Callable[[dict], str]:
+    def _serialize(cls) -> Callable[[dict], str]:
         """
         :param prev: The previous output, make sure to include it in the processing
         :return: A function to change the settings DICT! into a format string
@@ -57,9 +57,9 @@ class BaseConfig(ABC):
         """
         return lambda x: prev + cls._serialize()(x)
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def _deserialize() -> Callable[[str], dict]:
+    def _deserialize(cls) -> Callable[[str], dict]:
         """
         :return: A function to change the format string into a python dictionary
         """
@@ -129,8 +129,8 @@ class BaseConfig(ABC):
 
 
 class YamlConfig(BaseConfig):
-    @staticmethod
-    def _serialize() -> Callable[[dict], str]:
+    @classmethod
+    def _serialize(cls) -> Callable[[dict], str]:
         from yaml import safe_dump
         return lambda val: (
             safe_dump(val, sort_keys=False)
@@ -139,15 +139,15 @@ class YamlConfig(BaseConfig):
             else ''
         )
 
-    @staticmethod
-    def _deserialize() -> Callable[[str], dict]:
+    @classmethod
+    def _deserialize(cls) -> Callable[[str], dict]:
         from yaml import safe_load
         return safe_load
 
 
 class JsonConfig(BaseConfig):
-    @staticmethod
-    def _serialize() -> Callable[[dict], str]:
+    @classmethod
+    def _serialize(cls) -> Callable[[dict], str]:
         from json import dumps
         return lambda val: '{\n' + (
             dumps(val, indent=2).removeprefix('{\n').removesuffix('\n}') + ',\n'
@@ -164,15 +164,15 @@ class JsonConfig(BaseConfig):
             else ''
         )
 
-    @staticmethod
-    def _deserialize() -> Callable[[str], dict]:
+    @classmethod
+    def _deserialize(cls) -> Callable[[str], dict]:
         from json import loads
         return loads
 
 
 class TomlConfig(BaseConfig):
-    @staticmethod
-    def _serialize() -> Callable[[dict], str]:
+    @classmethod
+    def _serialize(cls) -> Callable[[dict], str]:
         def f(val):
             if not val.get('settings'):
                 return ''
@@ -205,15 +205,15 @@ class TomlConfig(BaseConfig):
             return a + prev
         return f
 
-    @staticmethod
-    def _deserialize() -> Callable[[str], dict]:
+    @classmethod
+    def _deserialize(cls) -> Callable[[str], dict]:
         from tomlkit import parse
         return lambda x: parse(x).unwrap()
 
 
 class PythonConfig(BaseConfig):
-    @staticmethod
-    def _serialize() -> Callable[[dict], str]:
+    @classmethod
+    def _serialize(cls) -> Callable[[dict], str]:
         def f(val):
             if not val.get('settings'):
                 return 'palette = [\n'
@@ -251,8 +251,8 @@ class PythonConfig(BaseConfig):
             return prev + s
         return f
 
-    @staticmethod
-    def _deserialize() -> Callable[[str], dict]:
+    @classmethod
+    def _deserialize(cls) -> Callable[[str], dict]:
         def f(val):
             ret = {}
             loc = {}

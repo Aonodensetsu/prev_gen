@@ -1,6 +1,7 @@
+Version 6.0.0 - new backend library with more and more precise conversions  
 Version 6.0.0 rc2 - code complexity  
-Version 6.0.0 (release candidate 1)  
-Major API changes following a backend library change and refactor  
+Version 6.0.0 rc1 - api changes  
+**Major API changes following a backend library change and refactor**  
 Check out [the migration guide](MIGRATION6.md)
 
 Version 5.1.0 - 'None' bugfix and hash symbol flag  

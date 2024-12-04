@@ -76,16 +76,28 @@ class Settings:
         actual = {i: getattr(self, i) for i in names}
         return {k: v for k, v in actual.items() if default[k] != v}
 
+    @classmethod
+    def data_serialize(cls, data: dict) -> str:
+        return str(b64encode(dumps(data)), 'latin1')
+
     def serialize(self) -> str:
         """
         :return: A base64-encoded representation of the class
         """
-        return str(b64encode(dumps(self.to_dict())), 'latin1')
+        return self.data_serialize(self.to_dict())
 
-    @staticmethod
-    def deserialize(data: str) -> Settings:
+    @classmethod
+    def data_deserialize(cls, data: str) -> dict:
+        """
+        :param data: The serialized representation to decode into a dictionary
+        :return: The decoded value
+        """
+        return loads(b64decode(bytes(data, 'latin1')))
+
+    @classmethod
+    def deserialize(cls, data: str) -> Settings:
         """
         :param data: The serialized representation to decode into Settings
         :return: The decoded Settings
         """
-        return Settings(**loads(b64decode(bytes(data, 'latin1'))))
+        return Settings(**cls.data_deserialize(data))

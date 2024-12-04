@@ -27,16 +27,16 @@ class Previewer:
 
 
 class PNGPreviewer:
-    @staticmethod
-    def _get_font(s):
+    @classmethod
+    def _get_font(cls, s):
         if s.font_name == 'Nunito':
             font = dirname(getabsfile(currentframe())) + '/nunito.ttf'
         else:
             font = s.font_name + '.ttf'
         return font
 
-    @staticmethod
-    def _get_hex_word(col, s):
+    @classmethod
+    def _get_hex_word(cls, col, s):
         hx = col.hexadecimal
         if col.alpha < 1:
             hx += f'{col.alpha:2X}'
@@ -46,8 +46,8 @@ class PNGPreviewer:
             hx = hx.upper()
         return hx
 
-    @staticmethod
-    def _draw_bg(draw, pos, size, col, s):
+    @classmethod
+    def _draw_bg(cls, draw, pos, size, col, s):
         l, p = pos
         w, h = size
         bg_col = tuple([int(x * 255) for x in col.srgb] + [int(col.alpha * 255)])
@@ -173,8 +173,8 @@ class SVGMeta(DrawingElement):
 
 
 class SVGPreviewer:
-    @staticmethod
-    def _get_hex_word(col, s):
+    @classmethod
+    def _get_hex_word(cls, col, s):
         hx = col.hexadecimal
         if col.alpha < 1:
             hx += f'{col.alpha:2X}'
@@ -184,8 +184,8 @@ class SVGPreviewer:
             hx = hx.upper()
         return hx
 
-    @staticmethod
-    def _draw_bg(draw, pos, size, col, s):
+    @classmethod
+    def _draw_bg(cls, draw, pos, size, col, s):
         l, p = pos
         w, h = size
         b_col = bar_color(col)
@@ -252,8 +252,8 @@ class SVGPreviewer:
                 font_family=s.font_name
             ))
 
-    @staticmethod
-    def _draw_text_desc(draw, pos, size, col, s):
+    @classmethod
+    def _draw_text_desc(cls, draw, pos, size, col, s):
         l, p = pos
         w, _ = size
         t_col = text_color(col)

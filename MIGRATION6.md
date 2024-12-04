@@ -45,7 +45,8 @@ Renamed to `Reverser`
 Combined into `Reverser` based on parameter type or file extension
 
 ## TOML, PYTHON, JSON, YAML
-Combined into `Config(output='<file ext>')`, default yml.  
+Combined into `Config(output='<file ext>')`, default yaml.
+- yml -> yaml
 - `tomlkit` instead of `toml` used for parsing TOML, this allows the use of inline dicts.
 
 ## Settings
@@ -59,4 +60,3 @@ Removed, still supported via the upstream library as simply a string
 
 ## Additions
 - Better type hints for literals (config & image formats and supported colors models)
-

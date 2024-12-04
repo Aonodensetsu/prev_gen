@@ -49,7 +49,9 @@ class Palette:
 
     @property
     def size(self) -> Distance:
-        """Size of table in pixels"""
+        """
+        Size of table in pixels
+        """
         return Distance(
             self.width * self.settings.grid_width,
             self.height * self.settings.grid_height

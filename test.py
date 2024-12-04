@@ -163,7 +163,7 @@ def test_yaml():
 palette:
 - - color: '#000000'
 """.removeprefix('\n')
-    assert str(Config.read(c, output='yml')) == str(Config([[Color('000000')]], output='yml')) == c
+    assert str(Config.read(c, output='yaml')) == str(Config([[Color('000000')]], output='yaml')) == c
 
 
 def test_json():

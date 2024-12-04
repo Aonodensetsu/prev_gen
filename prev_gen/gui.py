@@ -16,6 +16,8 @@ class GUI:
     Shows a graphical editor, I don't really expect anyone to use it,
     but if you only have a notepad or something,
     this at least has syntax highlighting and a semi-live preview
+
+    Use the v6 web GUI on https://prevgen.aonodensetsu.me instead
     """
     def __new__(cls) -> Image:
         def on_edit(_):

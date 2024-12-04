@@ -1,26 +1,27 @@
 [build-system]
 build-backend = 'setuptools.build_meta'
 requires = [
-  'setuptools >= 61.0',
+  'build',
   'pytest >= 6.0',
   'pytest-cov',
+  'setuptools >= 61.0',
   'wheel'
 ]
 
 [project]
 name = 'prev_gen'
-version = '5.1.1'
+version = '6.0.0'
 requires-python = '>= 3.10'
 dependencies = [
-  'tqdm',
-  'matplotlib',
-  'networkx',
   'colour-science>=0.4.5',
-  'multimethod',
-  'pillow',
   'drawsvg<3',
+  'matplotlib',
+  'multimethod',
+  'networkx',
+  'pillow',
   'pyyaml',
-  'tomlkit'
+  'tomlkit',
+  'tqdm'
 ]
 authors = [
   { name = 'Remigiusz Dończyk', email = 'donczyk.remigiusz@gmail.com' }
@@ -33,7 +34,8 @@ keywords = [
   'preview',
   'generator',
   'image',
-  'color'
+  'color',
+  'graphics'
 ]
 classifiers = [
   'Development Status :: 6 - Mature',
@@ -60,8 +62,8 @@ prev_gen = 'prev_gen.scripts:prev_gen'
 
 [tool.setuptools.package-data]
 prev_gen = [
-  'nunito.ttf',
-  'example.txt'
+  'example.txt',
+  'nunito.ttf'
 ]
 
 [tool.pytest.ini_options]

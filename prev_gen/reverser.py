@@ -40,8 +40,8 @@ class Reverser:
 
 
 class PNGReverser:
-    @staticmethod
-    def _calc_grid(image_c, image_size, ch_loc):
+    @classmethod
+    def _calc_grid(cls, image_c, image_size, ch_loc):
         grid_size = [0, 0]
         # x then y, combined for brevity
         for i in range(2):
@@ -56,8 +56,8 @@ class PNGReverser:
                 previous = c
         return grid_size
 
-    @staticmethod
-    def _calc_colors(image, image_c, image_size, grid_size):
+    @classmethod
+    def _calc_colors(cls, image, image_c, image_size, grid_size):
         ret = []
         index = 0
         for j in range(0, image_size[1], grid_size[1]):
@@ -96,8 +96,8 @@ class PNGReverser:
 
 
 class SVGReverser:
-    @staticmethod
-    def _svg_sift(root, ns, max_x):
+    @classmethod
+    def _svg_sift(cls, root, ns, max_x):
         vals = []
         # woo-hoo XML parsing
         for i in root.findall(f'./{ns}*'):
@@ -113,8 +113,8 @@ class SVGReverser:
             vals.append(i)
         return vals
 
-    @staticmethod
-    def _val_extract(vals):
+    @classmethod
+    def _val_extract(cls, vals):
         ret = []
         # as long as we have values
         while vals:

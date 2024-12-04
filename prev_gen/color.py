@@ -4,6 +4,7 @@ from typing import ClassVar
 
 # noinspection PyProtectedMember
 from colour.graph.conversion import _build_graph
+from networkx.exception import NodeNotFound
 from base64 import b64decode, b64encode
 from multimethod import multidispatch
 from collections.abc import Sequence
@@ -35,12 +36,14 @@ class Color:
 
         original:   The mode this color was created in, conversions can cause imprecision
 
+        rgb:        Always available, has low conversion error
+
         srgb:       The most popular color model
 
         oklch:      The recommended color model, based on human perception
 
         <model>:    Normalized color in a specific model
-                    github.com/colour-science/colour?tab=readme-ov-file#31automatic-colour-conversion-graph---colourgraph
+                    github.com/colour-science/colour#31automatic-colour-conversion-graph---colourgraph
 
     :param color:      The color value to assign
     :param name:       The name to display
@@ -56,17 +59,18 @@ class Color:
     alpha: float
     dark: bool
     original: str
+    rgb: NDArray
     srgb: NDArray
     oklch: NDArray
 
     @multidispatch
     def __init__(self,
                  color,
-                 name: str = '',
-                 desc_left: str = '',
-                 desc_right: str = '',
-                 model: color_format = 'srgb',
-                 alpha: float | None = 1.
+                 name = '',
+                 desc_left = '',
+                 desc_right = '',
+                 model = 'srgb',
+                 alpha = 1.
                  ) -> None:
         """
         multidispatch changes type annotations into type checks
@@ -93,7 +97,7 @@ class Color:
         self.desc_left = desc_left or color.desc_left
         self.desc_right = desc_right or color.desc_right
         if alpha is not None:
-            self.alpha = sorted((0., alpha, 1.))[1]
+            self.alpha = max(0., min(alpha, 1.))
         else:
             self.alpha = color.alpha
 
@@ -107,6 +111,7 @@ class Color:
                  alpha: float | None = None,
                  ) -> None:
         _ = model
+        colorOrig = color
         try:
             css = 'css color 3'
             color = convert(color, css, 'hexadecimal')
@@ -123,8 +128,11 @@ class Color:
             color = color[:6]
             alpha = int(color[6:8], 16)
         self.hexadecimal = '#' + color.removeprefix('#').lower()
-        self.rgb = convert(color, 'hexadecimal', 'rgb')
-        self.alpha = sorted((0., alpha if alpha is not None else 1., 1.))[1]
+        try:
+            self.rgb = convert(color, 'hexadecimal', 'rgb')
+        except ValueError:
+            raise ValueError(f'The color <{colorOrig}> does not have a valid hexadecimal value')
+        self.alpha = max(0., min(alpha if alpha is not None else 1., 1.))
         self.name = name
         self.desc_left = desc_left
         self.desc_right = desc_right
@@ -144,17 +152,18 @@ class Color:
         # catch conversion errors early by doing one conversion greedily
         # also always have RGB set because it converts well
         if model != 'rgb':
-            self.rgb = convert(color, model, 'rgb')
-        else:
-            self.oklch = convert(color, model, 'oklch')
-        self.alpha = sorted((0., alpha if alpha is not None else 1., 1.))[1]
+            try:
+                self.rgb = convert(color, model, 'rgb')
+            except NodeNotFound:
+                raise ValueError(f'Target model <{model}> is not available')
+        self.alpha = max(0., min(alpha if alpha is not None else 1., 1.))
         self.name = name
         self.desc_left = desc_left
         self.desc_right = desc_right
 
     def __eq__(self, other) -> bool:
         try:
-            return all(isclose(x, y, rel_tol=0.01) for x, y in zip(self.srgb, Color(other).srgb))
+            return all(isclose(x, y, rel_tol=5e-3) for x, y in zip(self.srgb, Color(other).srgb))
         except ValueError:
             return False
 
@@ -170,7 +179,7 @@ class Color:
                     v = self.oklab[0] <= 0.483
                     self.dark = v
                 case _ if item.lower() == 'rgb':
-                    # this should always be calculated greedily, but might as well make sure it exists
+                    # this should always be calculated greedily, but might as well make sure it can be inferred
                     v = convert(getattr(self, self.original), self.original, item)
                     setattr(self, 'rgb', v)
                 case _ if item.lower() in Color._conversions:
@@ -184,29 +193,47 @@ class Color:
 
     def to_dict(self) -> dict:
         """
-        Converts the Color into a list of non-default parameters
+        Converts the Color into a dictionary of non-default parameters
         """
-        if self.alpha < 0.005:
+        if self.alpha < 5e-3:
             return {'color': '0000'}
         names = ['alpha', 'name', 'desc_left', 'desc_right']
         default_cls = Color('000000')
         default = {i: getattr(default_cls, i) for i in names}
         actual = {i: getattr(self, i) for i in names}
         changed = {k: v for k, v in actual.items() if default[k] != v}
-        # always store color
+        # always store color, in a json-friendly format
         changed['color'] = self.hexadecimal
         return changed
 
+    @classmethod
+    def data_serialize_text(cls, name: str = '', desc_left: str = '', desc_right: str = '') -> str:
+        """
+        :param name: the name text field
+        :param desc_left: the desc_left text field
+        :param desc_right: the desc_right text field
+        :return: A base64-encoded representation of text values
+        """
+        return str(b64encode(bytes(f'{name}\0{desc_left}\0{desc_right}', 'utf-8')), 'latin1')
+
     def serialize_text(self) -> str:
         """
-        :return: A base64-encoded representation of the text values
+        :return: A base64-encoded representation of this instance's text fields
         """
-        return str(b64encode(bytes(f'{self.name}\0{self.desc_left}\0{self.desc_right}', 'utf-8')), 'latin1')
+        return self.data_serialize_text(self.name, self.desc_left, self.desc_right)
+
+    @classmethod
+    def data_deserialize_text(cls, text: str) -> list[str]:
+        """
+        :param text: The serialized text to decode into text fields
+        :return: list containing the name, desc_left and desc_right
+        """
+        return str(b64decode(bytes(text, 'latin1')), 'utf-8').split('\0')
 
     def deserialize_text(self, text: str) -> Color:
         """
-        :param text: The serialized text to decode into name, desc_left and desc_right
+        :param text: The serialized text to decode into this instance's text fields
         :return: self for chaining
         """
-        self.name, self.desc_left, self.desc_right = str(b64decode(bytes(text, 'latin1')), 'utf-8').split('\0')
+        self.name, self.desc_left, self.desc_right = self.data_deserialize_text(text)
         return self

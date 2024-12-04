@@ -1,44 +1,45 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from os.path import splitext
 
+from .types import config_format, image_format
 from .previewer import Previewer
 from .reverser import Reverser
 from .config import Config
 from .gui import GUI
 
 
-def parse_args():
+def parse_args() -> (ArgumentParser, Namespace):
     """
     Parse command line arguments.
     """
     p = ArgumentParser(description='The CLI interface of the prev_gen library')
     p.add_argument('--show', action='store_true', help='preview the result')
     p.add_argument('--unsafe', action='store_true', help='allow loading python files')
-    p.add_argument('-o', '--out', help='output filetype', choices=('py', 'yml', 'json', 'toml', 'png', 'svg'))
-    p.add_argument('file', help='the filename to convert (can also be \'gui\')')
+    p.add_argument('-o', '--out', help='output filetype', choices=('py', 'yaml', 'json', 'toml', 'png', 'svg'))
+    p.add_argument('file', help="the filename to convert (can also be 'gui')")
     return p, p.parse_args()
 
 
-def convert_img(p, args, ext, fn) -> None:
+def convert_img(p: ArgumentParser, args: Namespace, ext: image_format, fn: str) -> None:
     """
-    :param p: arg parser for errors
+    :param p: arg parser to print errors
     :param args: parsed args
     :param ext: file extension
     :param fn: file name
     """
     if args.out is None:
-        args.out = 'yml'
-    if args.out not in ('yml', 'json', 'toml', 'py'):
-        p.error('The out format for this file needs to be yml, json, toml or py')
+        args.out = 'yaml'
+    if args.out not in ('yaml', 'json', 'toml', 'py'):
+        p.error('The out format for this file needs to be yaml, json, toml or py')
     # noinspection PyTypeChecker
     o = Config(Reverser(args.file, output=ext), output=args.out).write(f'{fn}.{args.out}')
     if args.show:
         print(o)
 
 
-def convert_config(p, args, ext) -> None:
+def convert_config(p: ArgumentParser, args: Namespace, ext: config_format) -> None:
     """
-    :param p: arg parser for errors
+    :param p: arg parser to print errors
     :param args: parsed args
     :param ext: file extension
     """
@@ -48,8 +49,8 @@ def convert_config(p, args, ext) -> None:
         p.error('The out format for this file needs to be png or svg')
     with open(args.file, 'r') as f:
         fc = f.read()
-    if ext == 'yaml':
-        ext = 'yml'
+    if ext == 'yml':
+        ext = 'yaml'
     match ext:
         case 'py':
             if not args.unsafe:
@@ -80,7 +81,7 @@ def prev_gen() -> None:
         GUI()
         return
     ext = ext[1:]
-    if ext not in ('yml', 'yaml', 'json', 'toml', 'py', 'png', 'svg'):
+    if ext not in ('yaml', 'yml', 'json', 'toml', 'py', 'png', 'svg'):
         p.error('File format not recognized')
     if ext in ('png', 'svg'):
         convert_img(p, args, ext, fn)
