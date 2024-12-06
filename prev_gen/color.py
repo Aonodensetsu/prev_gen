@@ -119,6 +119,7 @@ class Color:
             self.original = css
         except AssertionError:
             self.original = 'hexadecimal'
+            color = color.removeprefix('#')
         if len(color) == 3:
             color = ''.join(x * 2 for x in color)
         elif len(color) == 4:
@@ -127,7 +128,7 @@ class Color:
         elif len(color) == 8:
             color = color[:6]
             alpha = int(color[6:8], 16)
-        self.hexadecimal = '#' + color.removeprefix('#').lower()
+        self.hexadecimal = '#' + color.lower()
         try:
             self.rgb = convert(color, 'hexadecimal', 'rgb')
         except ValueError:

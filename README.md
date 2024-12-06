@@ -1,7 +1,7 @@
 ## Create a palette preview image by using simple declarations
 
 ![size](https://img.shields.io/github/languages/code-size/aonodensetsu/prev_gen) ![files](https://img.shields.io/github/directory-file-count/aonodensetsu/prev_gen)  
-![python](https://img.shields.io/pypi/pyversions/prev-gen) [![version](https://img.shields.io/pypi/v/prev-gen)](https://pypi.org/project/prev-gen/6.0.0/)  
+![python](https://img.shields.io/pypi/pyversions/prev-gen) [![version](https://img.shields.io/pypi/v/prev-gen)](https://pypi.org/project/prev-gen/6.0.1/)  
 ![license](https://img.shields.io/pypi/l/prev-gen) [![releases](https://img.shields.io/badge/releases-here-green?logo=pypi)](https://pypi.org/project/prev-gen/#history)  
 [![wiki](https://img.shields.io/badge/wiki-here-pink)](https://github.com/Aonodensetsu/prev_gen/blob/main/WIKI.md) [![changelog](https://img.shields.io/badge/changelog-here-pink)](https://github.com/Aonodensetsu/prev_gen/blob/main/CHANGELOG.md)  
 [![ko-fi](https://img.shields.io/badge/show-support-555599?style=for-the-badge&logo=kofi)](https://ko-fi.com/aonodensetsu)

@@ -1,3 +1,4 @@
+Version 6.0.1 - hexadecimal bugfix  
 Version 6.0.0 - new backend library with more and more precise conversions  
 Version 6.0.0 rc2 - code complexity  
 Version 6.0.0 rc1 - api changes  
