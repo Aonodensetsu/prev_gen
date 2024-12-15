@@ -7,6 +7,8 @@
 [![ko-fi](https://img.shields.io/badge/show-support-555599?style=for-the-badge&logo=kofi)](https://ko-fi.com/aonodensetsu)
 
 # Usage:
+Consider using the [new GUI](https://prevgen.aonodensetsu.me) ([repo](https://github.com/Aonodensetsu/prev_gen_gui)) instead.
+
 1. `pip install prev_gen`
 2. Open up [the wiki](https://github.com/Aonodensetsu/prev_gen/blob/main/WIKI.md) to see how everything works
 3. Create a file based on instructions (or just edit the [python](https://github.com/Aonodensetsu/prev_gen/blob/main/example.py), [yaml](https://github.com/Aonodensetsu/prev_gen/blob/main/example.yml), [json](https://github.com/Aonodensetsu/prev_gen/blob/main/example.json), or [toml](https://github.com/Aonodensetsu/prev_gen/blob/main/example.toml) examples)

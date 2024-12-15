@@ -6,26 +6,6 @@ It can be used for previews and conversions between all supported formats, run i
 Each entry below is a class you can import from this library  
 (except the palette, that entry is needed to explain the usage modes)
 
-## Palette:
-### The colors you want to convert to an image
-
-- the user writes Preview(palette) instead of Preview(Palette(palette))
-
-<details><summary>Usage 1 - "It just works"</summary>
-
-(1d list) place colors in the order you want them to appear in the generated image  
-the program will figure out a rectangle big enough to fit them all  
-</details>
-<details><summary>Usage 2 - "Do what I say"</summary>
-
-(2d list) each inner list will be treated as a single row of colors, left-to-right  
-use this for full control over the placement of colors in the final image  
-- you can leave entire rows transparent if you pass an empty list  
-</details>
-
-Check the [example](example.py) for a more direct explanation, it uses mode two.  
-Use `Color('0000')` to leave a spot empty - it's simply a fully transparent color
-
 ## Color:
 ### An object that represents a single color  
 <details><summary>Available parameters</summary>
@@ -76,7 +56,26 @@ Color('darkred', model='hsv')         # CSS with no name (mode ignored)
 </details>
 
 ## Palette:
-### Not really meant for usage
+### The colors you want to convert to an image
+
+- the user writes Preview(palette) instead of Preview(Palette(palette))
+
+<details><summary>Usage 1 - "It just works"</summary>
+
+(1d list) place colors in the order you want them to appear in the generated image  
+the program will figure out a rectangle big enough to fit them all  
+</details>
+<details><summary>Usage 2 - "Do what I say"</summary>
+
+(2d list) each inner list will be treated as a single row of colors, left-to-right  
+use this for full control over the placement of colors in the final image  
+- you can leave entire rows transparent if you pass an empty list  
+</details>
+
+Check the [example](example.py) for a more direct explanation, it uses mode two.  
+Use `Color('0000')` to leave a spot empty - it's simply a fully transparent color
+
+#### Not really meant for direct usage
 But not stopping you  
 This class actually converts the palette into a standard representation and generates meta information  
 This is also an iterator of the colors so you might find some use there  
@@ -95,12 +94,12 @@ colors: list[Settings | Color] | list[Settings | list[Color]]
 
 ```python
 palette = ...
-t = Table(palette)
-t.settings  # Settings()
-for i in t:
+p = Palette(palette)
+p.settings  # Settings
+for i in p:
     i.pos  # top-left (x, y) 
     i.size  # (x, y)
-    i.col  # Color()
+    i.col  # Color
 ```
 </details>
 
