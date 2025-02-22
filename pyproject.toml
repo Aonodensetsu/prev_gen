@@ -10,7 +10,7 @@ requires = [
 
 [project]
 name = 'prev_gen'
-version = '6.0.1'
+version = '6.0.2'
 requires-python = '>= 3.10'
 dependencies = [
   'colour-science>=0.4.5',
@@ -58,7 +58,7 @@ Repository = 'https://github.com/Aonodensetsu/prev_gen'
 Changelog = 'https://github.com/Aonodensetsu/prev_gen/blob/main/CHANGELOG.md'
 
 [project.scripts]
-prev_gen = 'prev_gen.scripts:prev_gen'
+prev_gen = 'prev_gen.script:prev_gen'
 
 [tool.setuptools.package-data]
 prev_gen = [
