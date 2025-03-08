@@ -1,7 +1,4 @@
-from drawsvg import Drawing, DrawingElement, Rectangle, Text
 from inspect import currentframe, getabsfile
-from PIL import Image, ImageDraw, ImageFont
-from PIL.PngImagePlugin import PngInfo
 from urllib.error import HTTPError
 from xml.etree import ElementTree
 from webbrowser import open
@@ -9,10 +6,41 @@ from os.path import dirname
 from time import sleep
 from os import remove
 
-from .util import bar_color, text_color
-from .palette import u1, u2, Palette
+from drawsvg import Drawing, DrawingElement, Rectangle, Text
+from PIL import Image, ImageDraw, ImageFont
+from PIL.PngImagePlugin import PngInfo
+
+from .palette import Palette, u1, u2
 from .types import image_format
+from .distance import Distance
 from .settings import Settings
+from .color import Color
+
+
+def bar_color(c: Color) -> Color:
+    return Color(
+        (
+            c.Oklab[0] * 0.9,
+            c.Oklab[1],
+            c.Oklab[2]
+        ),
+        model='oklab',
+        alpha=c.alpha
+    )
+
+
+def text_color(c: Color) -> Color:
+    return Color(
+        (
+            c.Oklab[0] * 0.9 + 0.3
+            if c.dark
+            else c.Oklab[0] * 0.75 - 0.15,
+            c.Oklab[1],
+            c.Oklab[2]
+        ),
+        model='oklab',
+        alpha=c.alpha
+    )
 
 
 class Previewer:
@@ -28,7 +56,7 @@ class Previewer:
 
 class PNGPreviewer:
     @classmethod
-    def _get_font(cls, s):
+    def _get_font(cls, s: Settings) -> str:
         if s.font_name == 'Nunito':
             font = dirname(getabsfile(currentframe())) + '/nunito.ttf'
         else:
@@ -36,7 +64,7 @@ class PNGPreviewer:
         return font
 
     @classmethod
-    def _get_hex_word(cls, col, s):
+    def _get_hex_word(cls, col: Color, s: Settings) -> str:
         hx = col.hexadecimal
         if col.alpha < 1:
             hx += f'{col.alpha:2X}'
@@ -47,7 +75,7 @@ class PNGPreviewer:
         return hx
 
     @classmethod
-    def _draw_bg(cls, draw, pos, size, col, s):
+    def _draw_bg(cls, draw: ImageDraw.Draw, pos: Distance, size: Distance, col: Color, s: Settings):
         l, p = pos
         w, h = size
         bg_col = tuple([int(x * 255) for x in col.srgb] + [int(col.alpha * 255)])
@@ -68,7 +96,7 @@ class PNGPreviewer:
         )
 
     @classmethod
-    def _draw_text_name(cls, draw, pos, size, col, s):
+    def _draw_text_name(cls, draw: ImageDraw.Draw, pos: Distance, size: Distance, col: Color, s: Settings):
         l, p = pos
         w, h = size
         font = cls._get_font(s)
@@ -99,7 +127,7 @@ class PNGPreviewer:
             )
 
     @classmethod
-    def _draw_text_desc(cls, draw, pos, size, col, s):
+    def _draw_text_desc(cls, draw: ImageDraw.Draw, pos: Distance, size: Distance, col: Color, s: Settings):
         l, p = pos
         w, _ = size
         font = cls._get_font(s)
@@ -121,7 +149,7 @@ class PNGPreviewer:
                 anchor='rt'
             )
 
-    def __new__(cls, palette: u1 | u2, show: bool = True, save: bool = False) -> Image:
+    def __new__(cls, palette: u1 | u2, show: bool = True, save: bool = False) -> Image.Image:
         """
         :param palette: The palette of colors to generate an image for
         :param show:    Whether to display the generated image
@@ -164,17 +192,17 @@ class SVGMeta(DrawingElement):
 
     def __init__(self, s: Settings):
         super().__init__()
-        self.genS = s
+        self.gen_s = s
 
-    def write_svg_element(self, id_map, is_duplicate, output_file, lcontext, dry_run, force_dup=False):
+    def write_svg_element(self, id_map, is_duplicate, output_file, lcontext, dry_run, force_dup: bool = False):
         if not self.written:
-            output_file.write(f'<text use="meta" display="none">{self.genS.serialize()}</text>')
+            output_file.write(f'<text use="meta" display="none">{self.gen_s.serialize()}</text>')
             self.written = True
 
 
 class SVGPreviewer:
     @classmethod
-    def _get_hex_word(cls, col, s):
+    def _get_hex_word(cls, col: Color, s: Settings) -> str:
         hx = col.hexadecimal
         if col.alpha < 1:
             hx += f'{col.alpha:2X}'
@@ -185,7 +213,7 @@ class SVGPreviewer:
         return hx
 
     @classmethod
-    def _draw_bg(cls, draw, pos, size, col, s):
+    def _draw_bg(cls, draw: Drawing, pos: Distance, size: Distance, col: Color, s: Settings):
         l, p = pos
         w, h = size
         b_col = bar_color(col)
@@ -195,9 +223,9 @@ class SVGPreviewer:
             w + 1,
             h - s.bar_height + 1,
             use='bg',
-            fill=col.Hexadecimal,
+            fill=col.hexadecimal,
             fill_opacity=col.alpha,
-            stroke=col.Hexadecimal
+            stroke=col.hexadecimal
         ))
         draw.append(Rectangle(
             l,
@@ -205,13 +233,13 @@ class SVGPreviewer:
             w + 1,
             s.bar_height,
             use='bar',
-            fill=b_col.Hexadecimal,
+            fill=b_col.hexadecimal,
             fill_opacity=col.alpha,
-            stroke=b_col.Hexadecimal
+            stroke=b_col.hexadecimal
         ))
 
     @classmethod
-    def _draw_text_name(cls, draw, pos, size, col, s):
+    def _draw_text_name(cls, draw: Drawing, pos: Distance, size: Distance, col: Color, s: Settings):
         l, p = pos
         w, h = size
         t_col = text_color(col)
@@ -222,7 +250,7 @@ class SVGPreviewer:
                 use='name',
                 x=l + w / 2,
                 y=p + h / 2 + s.name_offset,
-                fill=t_col.Hexadecimal,
+                fill=t_col.hexadecimal,
                 fill_opacity=col.alpha,
                 center=True,
                 font_size=s.name_size,
@@ -233,7 +261,7 @@ class SVGPreviewer:
                 use='hex',
                 x=l + w / 2,
                 y=p + h / 2 + s.hex_offset,
-                fill=t_col.Hexadecimal,
+                fill=t_col.hexadecimal,
                 fill_opacity=col.alpha,
                 center=True,
                 font_size=s.hex_size,
@@ -245,7 +273,7 @@ class SVGPreviewer:
                 use='col',
                 x=l + w / 2,
                 y=p + h / 2 + s.hex_offset_nameless,
-                fill=t_col.Hexadecimal,
+                fill=t_col.hexadecimal,
                 fill_opacity=col.alpha,
                 center=True,
                 font_size=s.hex_size_nameless,
@@ -253,7 +281,7 @@ class SVGPreviewer:
             ))
 
     @classmethod
-    def _draw_text_desc(cls, draw, pos, size, col, s):
+    def _draw_text_desc(cls, draw: Drawing, pos: Distance, size: Distance, col: Color, s: Settings):
         l, p = pos
         w, _ = size
         t_col = text_color(col)
@@ -265,7 +293,7 @@ class SVGPreviewer:
                 y=p + s.desc_size / 2 + s.desc_offset_y,
                 center=True,
                 text_anchor='start',
-                fill=t_col.Hexadecimal,
+                fill=t_col.hexadecimal,
                 fill_opacity=col.alpha,
                 font_size=s.desc_size,
                 font_family=s.font_name
@@ -278,13 +306,13 @@ class SVGPreviewer:
                 y=p + s.desc_size / 2 + s.desc_offset_y,
                 center=True,
                 text_anchor='end',
-                fill=t_col.Hexadecimal,
+                fill=t_col.hexadecimal,
                 fill_opacity=col.alpha,
                 font_size=s.desc_size,
                 font_family=s.font_name
             ))
 
-    def __new__(cls, palette: u1 | u2, show: bool = True, save: bool = False) -> ElementTree:
+    def __new__(cls, palette: u1 | u2, show: bool = True, save: bool = False) -> ElementTree.ElementTree:
         """
         :param palette: The palette of colors to generate an image for
         :param show:    Whether to display the generated image
@@ -304,8 +332,9 @@ class SVGPreviewer:
         try:
             draw.embed_google_font(s.font_name, **font_opts)
         except HTTPError:
-            print(f'\033[31;1mError: \'{s.font_name}\' with opts \'{font_opts}\' is not available in Google Fonts')
-            exit(1)
+            raise ValueError(
+                f'\033[31;1mError: \'{s.font_name}\' with opts \'{font_opts}\' is not available in Google Fonts'
+            )
         for i in p:
             w, h = i.size
             if i.col.alpha < 0.005:
@@ -326,7 +355,7 @@ class SVGPreviewer:
         if show:
             """
             a hacky system-agnostic way to try to open the image
-            unlike what the name suggests, it will try to use native apps as well
+            unlike what the library name suggests, it will try to use native apps as well
             """
             open(fn)
         # had to save temporarily to display in browser, remove if user did not intend to keep the file

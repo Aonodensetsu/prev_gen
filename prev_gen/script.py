@@ -5,22 +5,26 @@ from .types import config_format, image_format
 from .previewer import Previewer
 from .reverser import Reverser
 from .config import Config
-from .gui import GUI
 
 
-def parse_args() -> (ArgumentParser, Namespace):
+def parse_args() -> tuple[ArgumentParser, Namespace]:
     """
     Parse command line arguments.
     """
     p = ArgumentParser(description='The CLI interface of the prev_gen library')
     p.add_argument('--show', action='store_true', help='preview the result')
     p.add_argument('--unsafe', action='store_true', help='allow loading python files')
-    p.add_argument('-o', '--out', help='output filetype', choices=('py', 'yaml', 'json', 'toml', 'png', 'svg'))
-    p.add_argument('file', help="the filename to convert (can also be 'gui')")
+    p.add_argument(
+        '-o',
+        '--out',
+        help='output filetype',
+        choices=('json', 'png', 'py', 'svg', 'toml', 'yaml')
+    )
+    p.add_argument('file', help='the filename to convert')
     return p, p.parse_args()
 
 
-def convert_img(p: ArgumentParser, args: Namespace, ext: image_format, fn: str) -> None:
+def convert_img(p: ArgumentParser, args: Namespace, ext: image_format, fn: str):
     """
     :param p: arg parser to print errors
     :param args: parsed args
@@ -29,7 +33,7 @@ def convert_img(p: ArgumentParser, args: Namespace, ext: image_format, fn: str) 
     """
     if args.out is None:
         args.out = 'yaml'
-    if args.out not in ('yaml', 'json', 'toml', 'py'):
+    if args.out not in ('json', 'py', 'toml', 'yaml'):
         p.error('The out format for this file needs to be yaml, json, toml or py')
     # noinspection PyTypeChecker
     o = Config(Reverser(args.file, output=ext), output=args.out).write(f'{fn}.{args.out}')
@@ -37,7 +41,7 @@ def convert_img(p: ArgumentParser, args: Namespace, ext: image_format, fn: str) 
         print(o)
 
 
-def convert_config(p: ArgumentParser, args: Namespace, ext: config_format) -> None:
+def convert_config(p: ArgumentParser, args: Namespace, ext: config_format):
     """
     :param p: arg parser to print errors
     :param args: parsed args
@@ -50,7 +54,7 @@ def convert_config(p: ArgumentParser, args: Namespace, ext: config_format) -> No
     with open(args.file, 'r') as f:
         fc = f.read()
     if ext == 'yml':
-        ext = 'yaml'
+        ext: config_format = 'yaml'
     match ext:
         case 'py':
             if not args.unsafe:
@@ -67,21 +71,18 @@ def convert_config(p: ArgumentParser, args: Namespace, ext: config_format) -> No
                 )
         case _:
             o = Config.read(fc, output=ext).palette
-    # noinspection PyUnboundLocalVariable, PyTypeChecker
+    # noinspection PyTypeChecker
     Previewer(o, output=args.out, show=args.show, save=True)
 
 
-def prev_gen() -> None:
+def prev_gen():
     """
     The command line tool for conversions
     """
     p, args = parse_args()
     fn, ext = splitext(args.file)
-    if not ext and fn == 'gui':
-        GUI()
-        return
     ext = ext[1:]
-    if ext not in ('yaml', 'yml', 'json', 'toml', 'py', 'png', 'svg'):
+    if ext not in ('json', 'png', 'py', 'svg', 'toml', 'yaml', 'yml'):
         p.error('File format not recognized')
     if ext in ('png', 'svg'):
         convert_img(p, args, ext, fn)

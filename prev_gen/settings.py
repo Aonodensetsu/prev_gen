@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from base64 import b64decode, b64encode
-from pickle import loads, dumps
+from pickle import dumps, loads
 
 
 @dataclass(kw_only=True, slots=True)
@@ -11,6 +11,14 @@ class Settings:
     Image generation settings
 
     Attributes:
+        bar_height:          Height of the darkened bar at the bottom of each tile
+
+        desc_offset_x:       Horizontal offset of the corner descriptions
+
+        desc_offset_y:       Vertical offset of the corner descriptions
+
+        desc_size:           Text size of the corner descriptions
+
         file_name:           File name to save into (no extension, png)
 
         font_name:           for png = local file name (no extension, true type)
@@ -23,47 +31,39 @@ class Settings:
 
         grid_width:          Width of each individual color tile
 
-        bar_height:          Height of the darkened bar at the bottom of each tile
-
-        name_offset:         Vertical offset of the color name printed within the tile
-
         hex_offset:          Vertical offset of the hex value printed below color name
 
         hex_offset_nameless: Vertical offset of the hex value printed if no name given
-
-        desc_offset_x:       Horizontal offset of the corner descriptions
-
-        desc_offset_y:       Vertical offset of the corner descriptions
-
-        name_size:           Text size of the color name
 
         hex_size:            Text size of the hex value printed under the color name
 
         hex_size_nameless:   Text size of the hex value printed if no name given
 
-        desc_size:           Text size of the corner descriptions
+        hex_upper:           Should the hex color be uppercase
+
+        name_offset:         Vertical offset of the color name printed within the tile
+
+        name_size:           Text size of the color name
 
         show_hash:           Display the hash symbol before hex colors
-
-        hex_upper:           Should the hex color be uppercase
     """
-    file_name: str = 'result'
-    font_name: str = 'Nunito'
-    font_opts: to_dict = field(default_factory=dict)
-    grid_height: int = 168
-    grid_width: int = 224
     bar_height: int = 10
-    name_offset: int = -10
-    hex_offset: int = 35
-    hex_offset_nameless: int = 0
     desc_offset_x: int = 15
     desc_offset_y: int = 20
-    name_size: int = 40
+    desc_size: int = 26
+    file_name: str = 'result'
+    font_name: str = 'Nunito'
+    font_opts: dict = field(default_factory=dict)
+    grid_height: int = 168
+    grid_width: int = 224
+    hex_offset: int = 35
+    hex_offset_nameless: int = 0
     hex_size: int = 26
     hex_size_nameless: int = 34
-    desc_size: int = 26
-    show_hash: bool = False
     hex_upper: bool = True
+    name_offset: int = -10
+    name_size: int = 40
+    show_hash: bool = False
 
     def to_dict(self) -> dict:
         """

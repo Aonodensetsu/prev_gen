@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import MutableSequence, Sequence
+
 from xml.etree import ElementTree
 from PIL import Image
 
@@ -10,24 +12,20 @@ from .color import Color
 from .palette import u2
 
 
-def _save(ret, save):
-    if save is not None:
-        Config(ret, output=save).write(f'reverse.{save}')
-
-
 class Reverser:
     """
     Wrapper for formats, simply returns the appropriate reverser based on chosen mode
     """
-    def __new__(cls,
-                val: type(ElementTree) | Image | str,
-                output: config_format | None = None
-                ) -> u2:
-        if 'xml.etree.ElementTree.ElementTree' in str(type(val)):
+    def __new__(
+        cls,
+        val: ElementTree.ElementTree | Image.Image | str,
+        output: config_format | None = None
+    ) -> u2:
+        if isinstance(val, ElementTree.ElementTree):
             r = SVGReverser
-        elif 'PIL.Image.Image' in str(type(val)):
+        elif isinstance(val, Image.Image):
             r = PNGReverser
-        elif 'str' in str(type(val)):
+        elif isinstance(val, str):
             if '.png' in val:
                 r = PNGReverser
             elif '.svg' in val:
@@ -41,7 +39,12 @@ class Reverser:
 
 class PNGReverser:
     @classmethod
-    def _calc_grid(cls, image_c, image_size, ch_loc):
+    def _calc_grid(
+        cls,
+        image_c: Image.Image,
+        image_size: Sequence[int],
+        ch_loc: MutableSequence[int]
+    ) -> tuple[int, int]:
         grid_size = [0, 0]
         # x then y, combined for brevity
         for i in range(2):
@@ -54,10 +57,16 @@ class PNGReverser:
                         break
                 grid_size[i] += 1
                 previous = c
-        return grid_size
+        return grid_size[0], grid_size[1]
 
     @classmethod
-    def _calc_colors(cls, image, image_c, image_size, grid_size):
+    def _calc_colors(
+        cls,
+        image: Image.Image,
+        image_c: Image.Image,
+        image_size: Sequence[int],
+        grid_size: Sequence[int]
+    ) -> list[list[Color]]:
         ret = []
         index = 0
         for j in range(0, image_size[1], grid_size[1]):
@@ -74,10 +83,11 @@ class PNGReverser:
             ret.append(row)
         return ret
 
-    def __new__(cls,
-                image: Image | str,
-                output: config_format | None = None
-                ) -> u2:
+    def __new__(
+        cls,
+        image: Image.Image | str,
+        output: config_format | None = None
+    ) -> u2:
         """
         Takes an image and returns the palette used to generate it
         :param image: The png image generated with this tool (or compatible)
@@ -87,17 +97,18 @@ class PNGReverser:
             image = Image.open(image)
         settings = Settings.deserialize(image.text['colorGen'])
         image_c = image.convert('RGBA')
-        image_size = [image_c.width, image_c.height]
+        image_size = (image_c.width, image_c.height)
         ch_loc = [0, 1]
         grid_size = cls._calc_grid(image_c, image_size, ch_loc)
         ret = [settings, *cls._calc_colors(image, image_c, image_size, grid_size)]
-        _save(ret, output)
+        if output is not None:
+            Config(ret, output=output).write(f'reverse.{output}')
         return ret
 
 
 class SVGReverser:
     @classmethod
-    def _svg_sift(cls, root, ns, max_x):
+    def _svg_sift(cls, root: ElementTree.Element, ns: str, max_x: int) -> tuple[list[ElementTree.Element], int]:
         vals = []
         # woo-hoo XML parsing
         for i in root.findall(f'./{ns}*'):
@@ -111,10 +122,10 @@ class SVGReverser:
             if (v := float(i.attrib['x'])) > max_x:
                 max_x = v
             vals.append(i)
-        return vals
+        return vals, max_x
 
     @classmethod
-    def _val_extract(cls, vals):
+    def _val_extract(cls, vals: list[ElementTree.Element]) -> list[Color]:
         ret = []
         # as long as we have values
         while vals:
@@ -147,10 +158,11 @@ class SVGReverser:
             ret.append(Color(col, name, desc_left, desc_right))
         return ret
 
-    def __new__(cls,
-                tree: ElementTree | str,
-                output: config_format | None = None
-                ) -> u2:
+    def __new__(
+        cls,
+        tree: ElementTree.ElementTree | str,
+        output: config_format | None = None
+    ) -> u2:
         """
         This is probably not compatible ith many other generators
         As it uses the non-standard keyword "use" to determine element purpose
@@ -165,10 +177,11 @@ class SVGReverser:
             i for i in root.findall(f'./{ns}text') if 'use' in i.attrib and i.attrib['use'] == 'meta')[0].text)
         max_x = -1
         # woo-hoo XML parsing
-        vals = cls._svg_sift(root, ns, max_x)
+        vals, max_x = cls._svg_sift(root, ns, max_x)
         ret = cls._val_extract(vals)
         # make the result a 2d list and include settings
         n = int(max_x / settings.grid_width) + 1
         ret = [settings] + [ret[i:i + n] for i in range(0, len(ret), n)]
-        _save(ret, output)
+        if output is not None:
+            Config(ret, output=output).write(f'reverse.{output}')
         return ret

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import TypeAlias, Sequence
+from typing import Any, Sequence, TypeAlias
 from dataclasses import dataclass
 
-from .util import Distance, Tile
+from .distance import Distance
 from .settings import Settings
 from .color import Color
+from .tile import Tile
 
 
 """
@@ -14,14 +15,14 @@ usage 1
     Settings (as the first element) (or dict)
     Color (or dict or list)
 """
-u1: TypeAlias = list[Settings | Color | dict | list]
+u1: TypeAlias = list[Color | dict[str, Any] | list | Settings]
 """
 usage 2
   list of
     Settings (as the first element) (or dict) 
     list of Color (or dict or list)
 """
-u2: TypeAlias = list[Settings | dict | list[Color | dict | list]]
+u2: TypeAlias = list[dict[str, Any] | list[Color | dict[str, Any] | list[Color]] | Settings]
 
 
 @dataclass(slots=True)
@@ -57,18 +58,18 @@ class Palette:
             self.height * self.settings.grid_height
         )
 
-    def _get_settings(self, colors):
+    def _get_settings(self, colors: u1 | u2) -> u1 | u2:
         if isinstance(colors[0], Settings):
             self.settings = colors[0]
-            colors: u2 = colors[1:]
+            colors = colors[1:]
         elif isinstance(colors[0], dict):
             self.settings = Settings(**colors[0])
-            colors: u2 = colors[1:]
+            colors = colors[1:]
         else:
             self.settings = Settings()
         return colors
 
-    def _calc_size(self, colors):
+    def _calc_size(self, colors: u1 | u2) -> list[Color]:
         # get the explicitly given size and flatten list
         if isinstance(colors[0], list):
             self.height = len(colors)
@@ -76,7 +77,7 @@ class Palette:
             for i in colors:
                 while len(i) < self.width:
                     i.append(Color('000000', alpha=0.))
-            colors: u1 = [
+            colors = [
                 Color(**j) if isinstance(j, dict)
                 else Color(*j) if isinstance(j, Sequence)
                 else j
@@ -85,14 +86,14 @@ class Palette:
             ]
         # calculate the correct size
         else:
-            self.height = int(len(colors) ** (1 / 2))
+            self.height = int(len(colors) ** 0.5)
             self.width = self.height
             # extend the square until everything fits
             while self.width * self.height < len(colors):
                 self.width += 1
         return colors
 
-    def __init__(self, colors: u1 | u2) -> None:
+    def __init__(self, colors: u1 | u2):
         """
         :param colors: The list of colors to parse
         """

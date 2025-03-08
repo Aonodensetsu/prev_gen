@@ -10,7 +10,7 @@ requires = [
 
 [project]
 name = 'prev_gen'
-version = '6.0.2'
+version = '7.0.0'
 requires-python = '>= 3.10'
 dependencies = [
   'colour-science>=0.4.5',

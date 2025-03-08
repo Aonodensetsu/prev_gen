@@ -1,27 +1,9 @@
-from prev_gen import (
-    Config, Reverser, Previewer, Palette, Settings, Color
-)
-from prev_gen.util import Raises, Filters
 from os.path import exists
 from math import isclose
 from os import remove
 
-
-def test_helper_raises():
-    r = Raises(ValueError)
-    with r:
-        int('1')
-    assert not r.raised
-    with r:
-        int('raise')
-    assert r.raised
-    # a non-specified error should still be raised
-    try:
-        with r:
-            _ = int.__dict__['wrong']
-        assert False
-    except KeyError:
-        assert True
+from prev_gen import Color, Config, Palette, Previewer, Reverser, Settings
+from pytest import raises
 
 
 def test_input_modes():
@@ -33,15 +15,12 @@ def test_input_modes():
 
 
 def test_invalid_input():
-    r = Raises(ValueError, NotImplementedError)
     # tuple value not long enough
-    with r:
+    with raises(ValueError):
         Color((0, 0))
-    assert r.raised
     # not implemented for dict
-    with r:
+    with raises(NotImplementedError):
         Color({})
-    assert r.raised
 
 
 def test_color_can_be_compared():
@@ -205,10 +184,3 @@ if __name__ == '__main__':
     Previewer(palette)
 """.removeprefix('\n')
     assert str(Config.read(c, output='py')) == str(Config([[Color('000000')]], output='py')) == c
-
-
-def test_filter_monochrome():
-    assert Filters(Previewer([
-        Settings(grid_width=3, grid_height=3, bar_height=1),
-        Color('ff0000')
-    ], show=False)).monochrome().img.getpixel((0, 0)) == (62, 62, 62, 255)

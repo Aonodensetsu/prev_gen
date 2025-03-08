@@ -1,4 +1,4 @@
-from typing import TypeAlias, Literal
+from typing import Literal, TypeAlias
 
 image_format: TypeAlias = Literal[
     'png',

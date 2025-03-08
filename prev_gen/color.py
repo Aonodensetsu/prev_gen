@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from typing import ClassVar
+from base64 import b64decode, b64encode
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Any, ClassVar
+from math import isclose
 
 # noinspection PyProtectedMember
 from colour.graph.conversion import _build_graph
 from networkx.exception import NodeNotFound
-from base64 import b64decode, b64encode
 from multimethod import multidispatch
-from collections.abc import Sequence
-from dataclasses import dataclass
 from numpy.typing import NDArray
 from colour import convert
 from numpy import ndarray
-from math import isclose
 
 from .types import color_format
 
@@ -38,12 +38,12 @@ class Color:
 
         rgb:        Always available, has low conversion error
 
-        srgb:       The most popular color model
-
-        oklch:      The recommended color model, based on human perception
-
         <model>:    Normalized color in a specific model
-                    github.com/colour-science/colour#31automatic-colour-conversion-graph---colourgraph
+                    https://github.com/colour-science/colour#31automatic-colour-conversion-graph---colourgraph
+
+                    srgb  - The most popular color model
+
+                    oklch - The recommended color model, based on human perception
 
     :param color:      The color value to assign
     :param name:       The name to display
@@ -59,19 +59,18 @@ class Color:
     alpha: float
     dark: bool
     original: str
-    rgb: NDArray
-    srgb: NDArray
-    oklch: NDArray
+    rgb: list[float]
 
     @multidispatch
-    def __init__(self,
-                 color,
-                 name = '',
-                 desc_left = '',
-                 desc_right = '',
-                 model = 'srgb',
-                 alpha = 1.
-                 ) -> None:
+    def __init__(
+        self,
+        color,
+        name = '',
+        desc_left = '',
+        desc_right = '',
+        model = 'srgb',
+        alpha = 1.
+    ):
         """
         multidispatch changes type annotations into type checks
         methods that get registered under the same name are treated like overloaded versions
@@ -81,14 +80,15 @@ class Color:
         raise NotImplementedError('Color cannot be specified as this type')
 
     @__init__.register
-    def __init__(self,
-                 color: Color,
-                 name: str = '',
-                 desc_left: str = '',
-                 desc_right: str = '',
-                 model: color_format = 'srgb',
-                 alpha: float | None = None
-                 ) -> None:
+    def __init__(
+        self,
+        color: Color,
+        name: str = '',
+        desc_left: str = '',
+        desc_right: str = '',
+        model: color_format = 'srgb',
+        alpha: float | None = None
+    ):
         _ = model
         self.original = color.original
         setattr(self, color.original, getattr(color, color.original))
@@ -102,51 +102,53 @@ class Color:
             self.alpha = color.alpha
 
     @__init__.register
-    def __init__(self,
-                 color: str,
-                 name: str = '',
-                 desc_left: str = '',
-                 desc_right: str = '',
-                 model: color_format = 'srgb',
-                 alpha: float | None = None,
-                 ) -> None:
+    def __init__(
+        self,
+        color: str,
+        name: str = '',
+        desc_left: str = '',
+        desc_right: str = '',
+        model: color_format = 'srgb',
+        alpha: float | None = None,
+    ):
         _ = model
-        colorOrig = color
+        color_orig = color
         try:
-            css = 'css color 3'
-            color = convert(color, css, 'hexadecimal')
-            setattr(self, css, color)
-            self.original = css
+            color = convert(color, 'css color 3', 'hexadecimal')
+            setattr(self, 'css color 3', color)
+            self.original = 'css color 3'
         except AssertionError:
             self.original = 'hexadecimal'
             color = color.removeprefix('#')
-        if len(color) == 3:
-            color = ''.join(x * 2 for x in color)
-        elif len(color) == 4:
-            color = ''.join(x * 2 for x in color[:3])
-            alpha = int(color[3] * 2, 16)
-        elif len(color) == 8:
-            color = color[:6]
-            alpha = int(color[6:8], 16)
+        match len(color):
+            case 3:
+                color = ''.join(x * 2 for x in color)
+            case 4:
+                color = ''.join(x * 2 for x in color[:3])
+                alpha = int(color[3] * 2, 16)
+            case 8:
+                color = color[:6]
+                alpha = int(color[6:8], 16)
         self.hexadecimal = '#' + color.lower()
         try:
             self.rgb = convert(color, 'hexadecimal', 'rgb')
         except ValueError:
-            raise ValueError(f'The color <{colorOrig}> does not have a valid hexadecimal value')
+            raise ValueError(f'The color <{color_orig}> does not have a valid hexadecimal value')
         self.alpha = max(0., min(alpha if alpha is not None else 1., 1.))
         self.name = name
         self.desc_left = desc_left
         self.desc_right = desc_right
 
     @__init__.register
-    def __init__(self,
-                 color: NDArray | Sequence,
-                 name: str = '',
-                 desc_left: str = '',
-                 desc_right: str = '',
-                 model: color_format = 'srgb',
-                 alpha: float | None = None
-                 ) -> None:
+    def __init__(
+        self,
+        color: NDArray | Sequence,
+        name: str = '',
+        desc_left: str = '',
+        desc_right: str = '',
+        model: color_format = 'srgb',
+        alpha: float | None = None
+    ):
         model = model.lower()
         self.original = model
         setattr(self, model, color)
@@ -157,18 +159,20 @@ class Color:
                 self.rgb = convert(color, model, 'rgb')
             except NodeNotFound:
                 raise ValueError(f'Target model <{model}> is not available')
+        else:
+            convert(color, model, 'srgb')
         self.alpha = max(0., min(alpha if alpha is not None else 1., 1.))
         self.name = name
         self.desc_left = desc_left
         self.desc_right = desc_right
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         try:
             return all(isclose(x, y, rel_tol=5e-3) for x, y in zip(self.srgb, Color(other).srgb))
         except ValueError:
             return False
 
-    def __getattribute__(self, item):
+    def __getattribute__(self, item: str) -> Any:
         """
         this is overriden to allow loading attributes lazily
         """
@@ -192,13 +196,13 @@ class Color:
             return v.tolist()
         return v
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """
         Converts the Color into a dictionary of non-default parameters
         """
         if self.alpha < 5e-3:
             return {'color': '0000'}
-        names = ['alpha', 'name', 'desc_left', 'desc_right']
+        names = 'alpha', 'name', 'desc_left', 'desc_right'
         default_cls = Color('000000')
         default = {i: getattr(default_cls, i) for i in names}
         actual = {i: getattr(self, i) for i in names}

@@ -1,3 +1,5 @@
+Version 7.0.0 - removed old GUI, moved some things, fixed type hints  
+Version 6.0.2 - fixed cli  
 Version 6.0.1 - hexadecimal bugfix  
 Version 6.0.0 - new backend library with more and more precise conversions  
 Version 6.0.0 rc2 - code complexity  

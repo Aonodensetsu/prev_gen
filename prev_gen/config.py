@@ -12,15 +12,15 @@ from .palette import u2
 
 
 class Config:
-    def __new__(cls, palette: u2, output: config_format = 'yaml'):
+    def __new__(cls, palette: u2, output: config_format = 'yaml') -> BaseConfig:
         try:
             return {'yaml': YamlConfig, 'json': JsonConfig, 'toml': TomlConfig, 'py': PythonConfig}[output](palette)
         except KeyError:
             raise ValueError(f'Invalid config mode: <{output}>')
 
     @classmethod
-    def read(cls, file: str, output: config_format = ''):
-        if not output and exists(file):
+    def read(cls, file: str, output: config_format | None = None) -> BaseConfig:
+        if output is None and exists(file):
             output = file.split('.')[-1]
         try:
             return {'yaml': YamlConfig, 'json': JsonConfig, 'toml': TomlConfig, 'py': PythonConfig}[output].read(file)
@@ -43,7 +43,6 @@ class BaseConfig(ABC):
     @abstractmethod
     def _serialize(cls) -> Callable[[dict], str]:
         """
-        :param prev: The previous output, make sure to include it in the processing
         :return: A function to change the settings DICT! into a format string
         """
         return lambda x: str(x) if x is not None else ''
@@ -65,7 +64,7 @@ class BaseConfig(ABC):
         """
         ...
 
-    def __init__(self, palette: u2) -> None:
+    def __init__(self, palette: u2):
         """
         :param palette: The palette to transform to a formatted string
         """
@@ -108,7 +107,6 @@ class BaseConfig(ABC):
         for i, a in enumerate(colors):
             for j, b in enumerate(a):
                 if isinstance(b, str):
-                    # parse '(0.2, 0.2, 0.2)' as a sequence first
                     colors[i][j] = Color([float(x) for x in b[0].strip('()').split(', ')], *b[1:])
                 elif isinstance(b, dict):
                     colors[i][j] = Color(**b)
@@ -239,7 +237,7 @@ class PythonConfig(BaseConfig):
             for ln in a:
                 s += '  ['
                 for c in map(lambda x: Color(**x), ln):
-                    s += f'\n    {{\'color\': \'{c.Hexadecimal}\''
+                    s += f'\n    {{\'color\': \'{c.hexadecimal}\''
                     for i in ('name', 'desc_left', 'desc_right'):
                         if v := getattr(c, i):
                             s += f', \'{i}\': \'{v}\''
